@@ -15,8 +15,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Peony.Core\Peony.Core.csproj" />
     <ProjectReference Include="..\Peony.Cpu.6502\Peony.Cpu.6502.csproj" />
+    <ProjectReference Include="..\Peony.Cpu.65816\Peony.Cpu.65816.csproj" />
     <ProjectReference Include="..\Peony.Platform.Atari2600\Peony.Platform.Atari2600.csproj" />
     <ProjectReference Include="..\Peony.Platform.NES\Peony.Platform.NES.csproj" />
+    <ProjectReference Include="..\Peony.Platform.SNES\Peony.Platform.SNES.csproj" />
   </ItemGroup>
 
 </Project>

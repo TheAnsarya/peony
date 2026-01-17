@@ -46,6 +46,7 @@ AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
 IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 "atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
 "nes" => new NesAnalyzer(),
+"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
 _ => throw new NotSupportedException($"Platform not supported: {platform}")
 };
 
