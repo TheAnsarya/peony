@@ -25,6 +25,7 @@
 		<ProjectReference Include="..\..\src\Peony.Cpu.65816\Peony.Cpu.65816.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Cpu.6502\Peony.Cpu.6502.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.Atari2600\Peony.Platform.Atari2600.csproj" />
 	</ItemGroup>
 
 </Project>
