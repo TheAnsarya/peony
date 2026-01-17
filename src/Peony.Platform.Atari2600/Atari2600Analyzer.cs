@@ -11,6 +11,9 @@ public class Atari2600Analyzer : IPlatformAnalyzer {
 public string Platform => "Atari 2600";
 public ICpuDecoder CpuDecoder { get; } = new Cpu6502Decoder();
 public string? DetectedScheme { get; private set; }
+public int BankCount => GetBankCount(_romLength, DetectedScheme);
+
+private int _romLength;
 
 // TIA Write Registers ($00-$2C)
 private static readonly Dictionary<uint, string> TiaWriteRegisters = new() {
@@ -59,6 +62,7 @@ private static readonly Dictionary<string, uint[]> BankHotspots = new() {
 };
 
 public RomInfo Analyze(ReadOnlySpan<byte> rom) {
+_romLength = rom.Length;
 DetectedScheme = DetectBankSwitching(rom);
 
 return new RomInfo(
@@ -76,21 +80,18 @@ new Dictionary<string, string> {
 public string? GetRegisterLabel(uint address) {
 var addr = address & 0x1fff;
 
-// TIA ($00-$7F, mirrored)
 if ((addr & 0x1080) == 0x0000) {
 var tiaAddr = addr & 0x3f;
 if (TiaWriteRegisters.TryGetValue(tiaAddr, out var label))
 return label;
 }
 
-// RIOT ($280-$29F, mirrored)
 if ((addr & 0x1280) == 0x0280) {
 var riotAddr = 0x280u | (addr & 0x1f);
 if (RiotRegisters.TryGetValue(riotAddr, out var label))
 return label;
 }
 
-// Bank switching hotspots
 if (DetectedScheme != null && BankHotspots.TryGetValue(DetectedScheme, out var hotspots)) {
 var idx = Array.IndexOf(hotspots, address & 0xffff);
 if (idx >= 0)
@@ -121,21 +122,20 @@ var irqVector = (uint)(rom[resetOffset + 2] | (rom[resetOffset + 3] << 8));
 return resetVector == irqVector ? [resetVector] : [resetVector, irqVector];
 }
 
-/// <summary>
-/// Get ROM offset for a given CPU address (uses last bank by default)
-/// </summary>
+public bool IsInSwitchableRegion(uint address) {
+// For most Atari 2600 bank schemes, $F000-$FFFF is the ROM window
+// With banking, some or all of this can be switched
+return DetectedScheme != null && address >= 0xf000;
+}
+
 public int AddressToOffset(uint address, int romLength) {
 return AddressToOffset(address, romLength, -1);
 }
 
-/// <summary>
-/// Get ROM offset for a given CPU address and specific bank
-/// </summary>
 public int AddressToOffset(uint address, int romLength, int bank) {
 var scheme = DetectedScheme;
 var bankSize = GetBankSize(scheme);
 
-// Default to last bank for reset vector access
 if (bank < 0) bank = GetBankCount(romLength, scheme) - 1;
 
 return scheme switch {
@@ -148,6 +148,12 @@ null when romLength == 4096 => (address >= 0xf000) ? (int)(address - 0xf000) : -
 "FE" => (address >= 0xd000) ? (bank * 8192) + (int)(address - 0xd000) : -1,
 _ => (address >= 0xf000) ? (int)(address - 0xf000) : -1
 };
+}
+
+public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
+// Atari 2600 doesn't use BRK for bank switching
+// Bank switches happen via hotspot accesses
+return null;
 }
 
 private static int GetE0Offset(uint address, int romLength, int bank) {

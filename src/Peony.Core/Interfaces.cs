@@ -27,6 +27,9 @@ string Platform { get; }
 /// <summary>Associated CPU decoder</summary>
 ICpuDecoder CpuDecoder { get; }
 
+/// <summary>Number of PRG banks (for multi-bank ROMs)</summary>
+int BankCount { get; }
+
 /// <summary>Detect ROM type and configuration</summary>
 RomInfo Analyze(ReadOnlySpan<byte> rom);
 
@@ -39,8 +42,17 @@ MemoryRegion GetMemoryRegion(uint address);
 /// <summary>Get entry points (reset vectors, etc.) from ROM</summary>
 uint[] GetEntryPoints(ReadOnlySpan<byte> rom);
 
-/// <summary>Convert CPU address to file offset</summary>
+/// <summary>Convert CPU address to file offset (uses default/last bank)</summary>
 int AddressToOffset(uint address, int romLength);
+
+/// <summary>Convert CPU address to file offset for specific bank</summary>
+int AddressToOffset(uint address, int romLength, int bank);
+
+/// <summary>Check if address is in switchable bank region</summary>
+bool IsInSwitchableRegion(uint address);
+
+/// <summary>Detect bank switch calls (e.g., BRK-based)</summary>
+BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank);
 }
 
 /// <summary>
@@ -65,6 +77,15 @@ string Mnemonic,
 string Operand,
 byte[] Bytes,
 AddressingMode Mode
+);
+
+/// <summary>
+/// Bank switch information
+/// </summary>
+public record BankSwitchInfo(
+int TargetBank,
+uint TargetAddress,
+string? FunctionName
 );
 
 /// <summary>
@@ -117,6 +138,7 @@ public RomInfo RomInfo { get; set; } = null!;
 public List<DisassembledBlock> Blocks { get; } = [];
 public Dictionary<uint, string> Labels { get; } = [];
 public Dictionary<uint, string> Comments { get; } = [];
+public Dictionary<int, List<DisassembledBlock>> BankBlocks { get; } = [];
 }
 
 /// <summary>
@@ -126,7 +148,8 @@ public record DisassembledBlock(
 uint StartAddress,
 uint EndAddress,
 MemoryRegion Type,
-List<DisassembledLine> Lines
+List<DisassembledLine> Lines,
+int Bank = -1
 );
 
 /// <summary>
@@ -137,5 +160,6 @@ uint Address,
 byte[] Bytes,
 string? Label,
 string Content,
-string? Comment
+string? Comment,
+int Bank = -1
 );
