@@ -12,6 +12,7 @@ public class DisassemblyEngine {
 	private readonly Dictionary<(uint Address, int Bank), bool> _visited = [];
 	private readonly Queue<(uint Address, int Bank)> _codeQueue = new();
 	private readonly HashSet<(int TargetBank, uint TargetAddress)> _bankCalls = [];
+	private readonly HashSet<uint> _userDefinedLabels = [];  // Track labels from DIZ/symbol files
 	private SymbolLoader? _symbolLoader;
 
 	public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer) {
@@ -20,24 +21,36 @@ public class DisassemblyEngine {
 	}
 
 	/// <summary>
-	/// Set a symbol loader for CDL/DIZ/symbol file integration
+	/// Set a symbol loader for CDL/DIZ/symbol file integration.
+	/// Labels from symbol files are considered user-defined and will not be
+	/// overwritten by auto-generated labels during disassembly.
 	/// </summary>
 	public void SetSymbolLoader(SymbolLoader symbolLoader) {
 		_symbolLoader = symbolLoader;
 
-		// Import labels from symbol loader
+		// Import labels from symbol loader (these are user-defined)
 		foreach (var (addr, label) in symbolLoader.Labels) {
-			_labels.TryAdd(addr, label);
+			_labels[addr] = label;
+			_userDefinedLabels.Add(addr);  // Mark as user-defined
 		}
 
 		// Import comments from symbol loader
 		foreach (var (addr, comment) in symbolLoader.Comments) {
-			_comments.TryAdd(addr, comment);
+			_comments[addr] = comment;
 		}
 
 		// Import data definitions from symbol loader
 		foreach (var (addr, def) in symbolLoader.DataDefinitions) {
 			_dataDefinitions.TryAdd(addr, def);
+		}
+
+		// If DIZ data has additional comments per-label, import those too
+		if (symbolLoader.DizData is not null) {
+			foreach (var (addr, dizLabel) in symbolLoader.DizData.Labels) {
+				if (!string.IsNullOrWhiteSpace(dizLabel.Comment) && !_comments.ContainsKey((uint)addr)) {
+					_comments[(uint)addr] = dizLabel.Comment;
+				}
+			}
 		}
 	}
 
@@ -340,9 +353,30 @@ private static bool IsUnconditionalBranch(DecodedInstruction instruction) {
 return instruction.Mnemonic is "jmp" or "rts" or "rti" or "brk";
 }
 
-public void AddLabel(uint address, string name) {
-_labels.TryAdd(address, name);
-}
+/// <summary>
+	/// Add a label if one doesn't exist.
+	/// User-defined labels (from DIZ/symbol files) are never overwritten by auto-generated labels.
+	/// </summary>
+	public void AddLabel(uint address, string name) {
+		// Never overwrite user-defined labels
+		if (_userDefinedLabels.Contains(address))
+			return;
+
+		_labels.TryAdd(address, name);
+	}
+
+	/// <summary>
+	/// Add a label from user input (symbol file, DIZ, etc.) which takes priority.
+	/// </summary>
+	public void AddUserLabel(uint address, string name) {
+		_labels[address] = name;
+		_userDefinedLabels.Add(address);
+	}
+
+	/// <summary>
+	/// Checks if a label at the given address is user-defined.
+	/// </summary>
+	public bool IsUserDefinedLabel(uint address) => _userDefinedLabels.Contains(address);
 
 public void AddComment(uint address, string comment) {
 _comments[address] = comment;
