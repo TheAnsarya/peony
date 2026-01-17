@@ -1,133 +1,228 @@
 namespace Peony.Core;
 
 /// <summary>
-/// Core disassembly engine with multi-bank support
+/// Core disassembly engine with multi-bank support and CDL/DIZ integration
 /// </summary>
 public class DisassemblyEngine {
-private readonly ICpuDecoder _cpuDecoder;
-private readonly IPlatformAnalyzer _platformAnalyzer;
-private readonly Dictionary<uint, string> _labels = [];
-private readonly Dictionary<uint, string> _comments = [];
-private readonly Dictionary<uint, DataDefinition> _dataDefinitions = [];
-private readonly Dictionary<(uint Address, int Bank), bool> _visited = [];
-private readonly Queue<(uint Address, int Bank)> _codeQueue = new();
-private readonly HashSet<(int TargetBank, uint TargetAddress)> _bankCalls = [];
+	private readonly ICpuDecoder _cpuDecoder;
+	private readonly IPlatformAnalyzer _platformAnalyzer;
+	private readonly Dictionary<uint, string> _labels = [];
+	private readonly Dictionary<uint, string> _comments = [];
+	private readonly Dictionary<uint, DataDefinition> _dataDefinitions = [];
+	private readonly Dictionary<(uint Address, int Bank), bool> _visited = [];
+	private readonly Queue<(uint Address, int Bank)> _codeQueue = new();
+	private readonly HashSet<(int TargetBank, uint TargetAddress)> _bankCalls = [];
+	private SymbolLoader? _symbolLoader;
 
-public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer) {
-_cpuDecoder = cpuDecoder;
-_platformAnalyzer = platformAnalyzer;
-}
+	public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer) {
+		_cpuDecoder = cpuDecoder;
+		_platformAnalyzer = platformAnalyzer;
+	}
 
-/// <summary>
-/// Add data definition for a region that should not be disassembled as code
-/// </summary>
-public void AddDataRegion(uint address, DataDefinition definition) {
-_dataDefinitions[address] = definition;
-}
+	/// <summary>
+	/// Set a symbol loader for CDL/DIZ/symbol file integration
+	/// </summary>
+	public void SetSymbolLoader(SymbolLoader symbolLoader) {
+		_symbolLoader = symbolLoader;
 
-/// <summary>
-/// Check if an address is in a data region
-/// </summary>
-private bool IsInDataRegion(uint address) {
-foreach (var (dataAddr, def) in _dataDefinitions) {
-var size = def.Type.ToLowerInvariant() switch {
-"byte" => 1,
-"word" => 2,
-_ => 1
-} * def.Count;
-if (address >= dataAddr && address < dataAddr + size)
-return true;
-}
-return false;
-}
+		// Import labels from symbol loader
+		foreach (var (addr, label) in symbolLoader.Labels) {
+			_labels.TryAdd(addr, label);
+		}
 
-/// <summary>
-/// Disassemble ROM using recursive descent with multi-bank support
-/// </summary>
-public DisassemblyResult Disassemble(ReadOnlySpan<byte> rom, uint[] entryPoints, bool allBanks = false) {
-var romInfo = _platformAnalyzer.Analyze(rom);
-var result = new DisassemblyResult { RomInfo = romInfo };
+		// Import comments from symbol loader
+		foreach (var (addr, comment) in symbolLoader.Comments) {
+			_comments.TryAdd(addr, comment);
+		}
 
-// Initialize bank blocks dictionary
-for (int i = 0; i < _platformAnalyzer.BankCount; i++) {
-result.BankBlocks[i] = [];
-}
+		// Import data definitions from symbol loader
+		foreach (var (addr, def) in symbolLoader.DataDefinitions) {
+			_dataDefinitions.TryAdd(addr, def);
+		}
+	}
 
-// Determine which bank the entry points are in (usually last bank for NES)
-var fixedBank = _platformAnalyzer.BankCount - 1;
+	/// <summary>
+	/// Add data definition for a region that should not be disassembled as code
+	/// </summary>
+	public void AddDataRegion(uint address, DataDefinition definition) {
+		_dataDefinitions[address] = definition;
+	}
 
-// Queue entry points in fixed bank
-foreach (var entry in entryPoints) {
-if (IsValidAddress(entry)) {
-var bank = _platformAnalyzer.IsInSwitchableRegion(entry) ? 0 : fixedBank;
-if (entry >= 0xc000) bank = fixedBank; // Fixed bank for NES MMC1
-_codeQueue.Enqueue((entry, bank));
-AddLabel(entry, entry == entryPoints[0] ? "reset" : $"entry_{entry:x4}");
-}
-}
+	/// <summary>
+	/// Check if an address is in a data region (from definitions or CDL/DIZ)
+	/// </summary>
+	private bool IsInDataRegion(uint address, int romOffset = -1) {
+		// Check explicit data definitions first
+		foreach (var (dataAddr, def) in _dataDefinitions) {
+			var size = def.Type.ToLowerInvariant() switch {
+				"byte" => 1,
+				"word" => 2,
+				_ => 1
+			} * def.Count;
+			if (address >= dataAddr && address < dataAddr + size)
+				return true;
+		}
 
-// If allBanks, also queue $8000 for each switchable bank
-if (allBanks && _platformAnalyzer.BankCount > 1) {
-for (int bank = 0; bank < _platformAnalyzer.BankCount - 1; bank++) {
-_codeQueue.Enqueue((0x8000, bank));
-AddLabel(0x8000, $"bank{bank}_start");
-}
-}
+		// Check CDL/DIZ data if available and we have a ROM offset
+		if (_symbolLoader is not null && romOffset >= 0) {
+			var isData = _symbolLoader.IsData(romOffset);
+			if (isData == true)
+				return true;
+		}
 
-// Recursive descent disassembly
-while (_codeQueue.Count > 0) {
-var (address, bank) = _codeQueue.Dequeue();
-if (_visited.ContainsKey((address, bank))) continue;
-DisassembleBlock(rom, address, bank, result);
-}
+		return false;
+	}
 
-// Process any discovered bank calls
-ProcessBankCalls(rom, result);
+	/// <summary>
+	/// Check if a ROM offset should be treated as code according to CDL/DIZ
+	/// </summary>
+	private bool? ShouldTreatAsCode(int romOffset) {
+		if (_symbolLoader is null)
+			return null;
 
-// Copy labels and comments
-foreach (var kvp in _labels) result.Labels[kvp.Key] = kvp.Value;
-foreach (var kvp in _comments) result.Comments[kvp.Key] = kvp.Value;
+		return _symbolLoader.IsCode(romOffset);
+	}
 
-// Also add blocks to main list
-foreach (var bankBlocks in result.BankBlocks.Values) {
-result.Blocks.AddRange(bankBlocks);
-}
+	/// <summary>
+	/// Disassemble ROM using recursive descent with multi-bank support and CDL/DIZ hints
+	/// </summary>
+	public DisassemblyResult Disassemble(ReadOnlySpan<byte> rom, uint[] entryPoints, bool allBanks = false) {
+		var romInfo = _platformAnalyzer.Analyze(rom);
+		var result = new DisassemblyResult { RomInfo = romInfo };
 
-return result;
-}
+		// Initialize bank blocks dictionary
+		for (int i = 0; i < _platformAnalyzer.BankCount; i++) {
+			result.BankBlocks[i] = [];
+		}
 
-private bool IsValidAddress(uint address) {
-if (_platformAnalyzer.Platform == "Atari 2600") {
-return address >= 0xf000 && address <= 0xffff;
-}
-if (_platformAnalyzer.Platform == "NES") {
-return address >= 0x8000 && address <= 0xffff;
-}
-return true;
-}
+		// Determine which bank the entry points are in (usually last bank for NES)
+		var fixedBank = _platformAnalyzer.BankCount - 1;
 
-private void DisassembleBlock(ReadOnlySpan<byte> rom, uint startAddress, int bank, DisassemblyResult result) {
-var lines = new List<DisassembledLine>();
-var address = startAddress;
-var maxInstructions = 10000;
+		// Queue entry points in fixed bank
+		foreach (var entry in entryPoints) {
+			if (IsValidAddress(entry)) {
+				var bank = _platformAnalyzer.IsInSwitchableRegion(entry) ? 0 : fixedBank;
+				if (entry >= 0xc000) bank = fixedBank; // Fixed bank for NES MMC1
+				_codeQueue.Enqueue((entry, bank));
+				AddLabel(entry, entry == entryPoints[0] ? "reset" : $"entry_{entry:x4}");
+			}
+		}
 
-while (maxInstructions-- > 0) {
-if (_visited.ContainsKey((address, bank))) break;
+		// If allBanks, also queue $8000 for each switchable bank
+		if (allBanks && _platformAnalyzer.BankCount > 1) {
+			for (int bank = 0; bank < _platformAnalyzer.BankCount - 1; bank++) {
+				_codeQueue.Enqueue((0x8000, bank));
+				AddLabel(0x8000, $"bank{bank}_start");
+			}
+		}
 
-// Stop if we hit a data region
-if (IsInDataRegion(address)) break;
+		// Add CDL-identified code entry points (subroutine starts)
+		if (_symbolLoader?.CdlData is not null) {
+			foreach (var offset in _symbolLoader.CdlData.SubEntryPoints) {
+				var address = RomOffsetToAddress((uint)offset, fixedBank);
+				if (address.HasValue && IsValidAddress(address.Value)) {
+					if (!_visited.ContainsKey((address.Value, fixedBank))) {
+						_codeQueue.Enqueue((address.Value, fixedBank));
+						if (!_labels.ContainsKey(address.Value)) {
+							AddLabel(address.Value, $"sub_{offset:x4}");
+						}
+					}
+				}
+			}
+		}
 
-_visited[(address, bank)] = true;
+		// Add DIZ-identified opcode entry points
+		if (_symbolLoader?.DizData is not null) {
+			foreach (var offset in _symbolLoader.DizData.GetOpcodeOffsets()) {
+				var address = RomOffsetToAddress((uint)offset, fixedBank);
+				if (address.HasValue && IsValidAddress(address.Value)) {
+					if (!_visited.ContainsKey((address.Value, fixedBank))) {
+						_codeQueue.Enqueue((address.Value, fixedBank));
+					}
+				}
+			}
+		}
 
-// Use bank-aware address mapping
-var offset = _platformAnalyzer.AddressToOffset(address, rom.Length, bank);
-if (offset < 0 || offset >= rom.Length) break;
+		// Recursive descent disassembly
+		while (_codeQueue.Count > 0) {
+			var (address, bank) = _codeQueue.Dequeue();
+			if (_visited.ContainsKey((address, bank))) continue;
+			DisassembleBlock(rom, address, bank, result);
+		}
 
-var slice = rom[offset..];
-if (slice.Length == 0) break;
+		// Process any discovered bank calls
+		ProcessBankCalls(rom, result);
 
-var instruction = _cpuDecoder.Decode(slice, address);
-if (instruction.Bytes.Length == 0) break;
+		// Copy labels and comments
+		foreach (var kvp in _labels) result.Labels[kvp.Key] = kvp.Value;
+		foreach (var kvp in _comments) result.Comments[kvp.Key] = kvp.Value;
+
+		// Also add blocks to main list
+		foreach (var bankBlocks in result.BankBlocks.Values) {
+			result.Blocks.AddRange(bankBlocks);
+		}
+
+		return result;
+	}
+
+	/// <summary>
+	/// Convert ROM file offset to CPU address (inverse of AddressToOffset)
+	/// </summary>
+	private uint? RomOffsetToAddress(uint offset, int bank) {
+		if (_platformAnalyzer.Platform == "NES") {
+			// NES: PRG ROM typically starts at $8000, with 16-byte iNES header
+			if (offset >= 0x10) {
+				var prgOffset = offset - 0x10;
+				return (uint)(0x8000 + prgOffset);
+			}
+		}
+		if (_platformAnalyzer.Platform == "Atari 2600") {
+			// Atari 2600: ROM at $f000-$ffff for 4K
+			return (uint)(0xf000 + offset);
+		}
+		// Default: assume direct mapping
+		return offset;
+	}
+
+	private bool IsValidAddress(uint address) {
+		if (_platformAnalyzer.Platform == "Atari 2600") {
+			return address >= 0xf000 && address <= 0xffff;
+		}
+		if (_platformAnalyzer.Platform == "NES") {
+			return address >= 0x8000 && address <= 0xffff;
+		}
+		return true;
+	}
+
+	private void DisassembleBlock(ReadOnlySpan<byte> rom, uint startAddress, int bank, DisassemblyResult result) {
+		var lines = new List<DisassembledLine>();
+		var address = startAddress;
+		var maxInstructions = 10000;
+
+		while (maxInstructions-- > 0) {
+			if (_visited.ContainsKey((address, bank))) break;
+
+			// Use bank-aware address mapping to get ROM offset
+			var offset = _platformAnalyzer.AddressToOffset(address, rom.Length, bank);
+			if (offset < 0 || offset >= rom.Length) break;
+
+			// Stop if we hit a data region (check both definitions and CDL/DIZ)
+			if (IsInDataRegion(address, offset)) break;
+
+			// Check CDL/DIZ for explicit data marking
+			var shouldBeCode = ShouldTreatAsCode(offset);
+			if (shouldBeCode == false) {
+				// CDL/DIZ says this is data, not code - stop disassembly here
+				break;
+			}
+
+			_visited[(address, bank)] = true;
+
+			var slice = rom[offset..];
+			if (slice.Length == 0) break;
+
+			var instruction = _cpuDecoder.Decode(slice, address);
+			if (instruction.Bytes.Length == 0) break;
 
 // Check for BRK-based bank switch
 if (instruction.Mnemonic == "brk") {
