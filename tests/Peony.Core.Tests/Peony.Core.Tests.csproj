@@ -23,6 +23,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Peony.Core\Peony.Core.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Cpu.65816\Peony.Cpu.65816.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Cpu.6502\Peony.Cpu.6502.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj" />
 	</ItemGroup>
 
