@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
+using System.Xml;
 
 namespace Peony.Core;
 
@@ -76,6 +77,7 @@ public class DizLoader {
 
 	/// <summary>
 	/// Loads a DIZ file from disk.
+	/// Supports both native DiztinGUIsh XML format and simplified JSON format.
 	/// </summary>
 	/// <param name="path">Path to the .diz file.</param>
 	/// <returns>A new DizLoader instance.</returns>
@@ -83,18 +85,24 @@ public class DizLoader {
 		var data = File.ReadAllBytes(path);
 
 		// Check if gzip compressed
-		byte[] jsonBytes;
+		byte[] contentBytes;
 		if (data.Length >= 2 && data[0] == 0x1f && data[1] == 0x8b) {
 			using var input = new MemoryStream(data);
 			using var gzip = new GZipStream(input, CompressionMode.Decompress);
 			using var output = new MemoryStream();
 			gzip.CopyTo(output);
-			jsonBytes = output.ToArray();
+			contentBytes = output.ToArray();
 		} else {
-			jsonBytes = data;
+			contentBytes = data;
 		}
 
-		return ParseJson(jsonBytes);
+		// Detect format: XML starts with '<', JSON starts with '{'
+		var firstChar = (char)contentBytes.FirstOrDefault(b => !char.IsWhiteSpace((char)b));
+		if (firstChar == '<') {
+			return ParseXml(contentBytes);
+		} else {
+			return ParseJson(contentBytes);
+		}
 	}
 
 	/// <summary>
@@ -153,6 +161,126 @@ public class DizLoader {
 		}
 
 		return loader;
+	}
+
+	/// <summary>
+	/// Parses the native DiztinGUIsh XML format.
+	/// </summary>
+	private static DizLoader ParseXml(byte[] xmlBytes) {
+		var doc = new XmlDocument();
+		using var ms = new MemoryStream(xmlBytes);
+		doc.Load(ms);
+
+		var nsMgr = new XmlNamespaceManager(doc.NameTable);
+		nsMgr.AddNamespace("diz", "clr-namespace:Diz.Core.serialization.xml_serializer;assembly=Diz.Core");
+		nsMgr.AddNamespace("ns1", "clr-namespace:Diz.Core.model;assembly=Diz.Core");
+		nsMgr.AddNamespace("sys", "https://extendedxmlserializer.github.io/system");
+
+		// Get project info using local-name() to handle namespaces
+		var projectNode = doc.SelectSingleNode("//*[local-name()='Project']");
+		var gameName = projectNode?.Attributes?["InternalRomGameName"]?.Value?.Trim() ?? "Unknown";
+
+		// Get Data node for RomMapMode
+		var dataNode = doc.SelectSingleNode("//*[local-name()='Data']");
+		var mapMode = dataNode?.Attributes?["RomMapMode"]?.Value ?? "Unknown";
+
+		// Estimate ROM size from RomBytes content
+		var romBytesNode = doc.SelectSingleNode("//*[local-name()='RomBytes']");
+		var romBytesText = romBytesNode?.InnerText ?? "";
+		var romSize = CountRomBytes(romBytesText);
+
+		var loader = new DizLoader(gameName, mapMode, romSize);
+
+		// Parse labels - use local-name() to handle sys: namespace prefix
+		var labelsNode = doc.SelectSingleNode("//*[local-name()='Labels']");
+		if (labelsNode != null) {
+			foreach (XmlNode item in labelsNode.ChildNodes) {
+				if (item.LocalName != "Item") continue;
+
+				var keyAttr = item.Attributes?["Key"];
+				if (keyAttr == null || !int.TryParse(keyAttr.Value, out var address)) continue;
+
+				// Find Value child node - it's directly under Item
+				XmlNode? valueNode = null;
+				foreach (XmlNode child in item.ChildNodes) {
+					if (child.LocalName == "Value") {
+						valueNode = child;
+						break;
+					}
+				}
+				if (valueNode == null) continue;
+
+				var name = valueNode.Attributes?["Name"]?.Value ?? "";
+				var comment = valueNode.Attributes?["Comment"]?.Value ?? "";
+
+				if (!string.IsNullOrWhiteSpace(name)) {
+					loader._labels[address] = new DizLabel(name, comment, DizDataType.Unreached);
+				}
+			}
+		}
+
+		// Parse RomBytes (compressed format)
+		if (!string.IsNullOrEmpty(romBytesText)) {
+			ParseCompressedRomBytes(loader, romBytesText);
+		}
+
+		return loader;
+	}
+
+	/// <summary>
+	/// Counts the number of ROM bytes from the compressed format.
+	/// </summary>
+	private static int CountRomBytes(string romBytesText) {
+		var lines = romBytesText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+		var count = 0;
+		foreach (var line in lines) {
+			var trimmed = line.Trim();
+			if (trimmed.StartsWith("version:") || string.IsNullOrEmpty(trimmed)) continue;
+			count++;
+		}
+		return count;
+	}
+
+	/// <summary>
+	/// Parses the compressed RomBytes format from DiztinGUIsh.
+	/// Format: Each line represents one byte with flags like:
+	/// +C = Opcode with code flag
+	/// .C = Operand with code flag
+	/// +D = Opcode with data flag
+	/// .D = Operand with data flag
+	/// U = Unreached
+	/// </summary>
+	private static void ParseCompressedRomBytes(DizLoader loader, string romBytesText) {
+		var lines = romBytesText.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+		var offset = 0;
+
+		foreach (var line in lines) {
+			var trimmed = line.Trim();
+			if (trimmed.StartsWith("version:") || string.IsNullOrEmpty(trimmed)) continue;
+
+			// Parse the flag character
+			// + = Opcode start, . = Operand/continuation
+			// C = Code, D = Data, U = Unreached
+			var dataType = DizDataType.Unreached;
+
+			if (trimmed.StartsWith('+') || trimmed.StartsWith('.')) {
+				var isOpcode = trimmed.StartsWith('+');
+				var rest = trimmed[1..];
+
+				if (rest.StartsWith('C')) {
+					dataType = isOpcode ? DizDataType.Opcode : DizDataType.Operand;
+				} else if (rest.StartsWith('D')) {
+					dataType = isOpcode ? DizDataType.Data8 : DizDataType.Data8;
+				}
+			} else if (trimmed == "U") {
+				dataType = DizDataType.Unreached;
+			}
+
+			if (dataType != DizDataType.Unreached) {
+				loader._dataTypes[offset] = dataType;
+			}
+			offset++;
+		}
 	}
 
 	/// <summary>
