@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+	<title>🌺 Peony</title>
+	<!-- Simplified hibiscus for small sizes -->
+	
+	<!-- Outer petals - 5 petal hibiscus -->
+	<g transform="translate(32, 32)">
+		<ellipse cx="0" cy="-16" rx="10" ry="16" fill="#e91e63" transform="rotate(0)"/>
+		<ellipse cx="0" cy="-16" rx="10" ry="16" fill="#d81b60" transform="rotate(72)"/>
+		<ellipse cx="0" cy="-16" rx="10" ry="16" fill="#e91e63" transform="rotate(144)"/>
+		<ellipse cx="0" cy="-16" rx="10" ry="16" fill="#d81b60" transform="rotate(216)"/>
+		<ellipse cx="0" cy="-16" rx="10" ry="16" fill="#e91e63" transform="rotate(288)"/>
+	</g>
+	
+	<!-- Inner petals -->
+	<g transform="translate(32, 32)">
+		<ellipse cx="0" cy="-10" rx="6" ry="10" fill="#f48fb1" transform="rotate(36)"/>
+		<ellipse cx="0" cy="-10" rx="6" ry="10" fill="#f06292" transform="rotate(108)"/>
+		<ellipse cx="0" cy="-10" rx="6" ry="10" fill="#f48fb1" transform="rotate(180)"/>
+		<ellipse cx="0" cy="-10" rx="6" ry="10" fill="#f06292" transform="rotate(252)"/>
+		<ellipse cx="0" cy="-10" rx="6" ry="10" fill="#f48fb1" transform="rotate(324)"/>
+	</g>
+	
+	<!-- Center -->
+	<circle cx="32" cy="32" r="6" fill="#ffeb3b"/>
+	<circle cx="32" cy="32" r="4" fill="#ffc107"/>
+</svg>

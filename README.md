@@ -1,4 +1,4 @@
-# 🌼 Peony - Multi-System Disassembler Framework
+# 🌺 Peony - Multi-System Disassembler Framework
 
 > The anti-Poppy: ROM → Source code conversion
 
