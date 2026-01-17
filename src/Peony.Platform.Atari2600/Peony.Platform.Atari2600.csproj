@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup>
+<TargetFramework>net10.0</TargetFramework>
+<ImplicitUsings>enable</ImplicitUsings>
+<Nullable>enable</Nullable>
+<LangVersion>preview</LangVersion>
+</PropertyGroup>
+<ItemGroup>
+<ProjectReference Include="..\Peony.Core\Peony.Core.csproj" />
+<ProjectReference Include="..\Peony.Cpu.6502\Peony.Cpu.6502.csproj" />
+</ItemGroup>
+</Project>

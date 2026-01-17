@@ -1,39 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
-	<title>🌺 Peony - Multi-System Disassembler</title>
-	
-	<!-- Background -->
-	<rect width="400" height="100" fill="#1a1a2e" rx="8"/>
-	
-	<!-- Hibiscus flower icon -->
-	<g transform="translate(50, 50)">
-		<!-- Outer petals -->
-		<ellipse cx="0" cy="-20" rx="12" ry="20" fill="#e91e63" transform="rotate(0)"/>
-		<ellipse cx="0" cy="-20" rx="12" ry="20" fill="#d81b60" transform="rotate(72)"/>
-		<ellipse cx="0" cy="-20" rx="12" ry="20" fill="#e91e63" transform="rotate(144)"/>
-		<ellipse cx="0" cy="-20" rx="12" ry="20" fill="#d81b60" transform="rotate(216)"/>
-		<ellipse cx="0" cy="-20" rx="12" ry="20" fill="#e91e63" transform="rotate(288)"/>
-		<!-- Inner petals -->
-		<ellipse cx="0" cy="-12" rx="7" ry="12" fill="#f48fb1" transform="rotate(36)"/>
-		<ellipse cx="0" cy="-12" rx="7" ry="12" fill="#f06292" transform="rotate(108)"/>
-		<ellipse cx="0" cy="-12" rx="7" ry="12" fill="#f48fb1" transform="rotate(180)"/>
-		<ellipse cx="0" cy="-12" rx="7" ry="12" fill="#f06292" transform="rotate(252)"/>
-		<ellipse cx="0" cy="-12" rx="7" ry="12" fill="#f48fb1" transform="rotate(324)"/>
-		<!-- Center -->
-		<circle r="8" fill="#ffeb3b"/>
-		<circle r="5" fill="#ffc107"/>
-	</g>
-	
-	<!-- Text: Peony -->
-	<text x="95" y="58" font-family="'Segoe UI', Arial, sans-serif" font-size="42" font-weight="bold" fill="#ffffff">Peony</text>
-	
-	<!-- Tagline -->
-	<text x="95" y="78" font-family="'Segoe UI', Arial, sans-serif" font-size="14" fill="#4fc3f7">Multi-System Disassembler</text>
-	
-	<!-- ROM → ASM indicator -->
-	<g transform="translate(320, 50)">
-		<text x="0" y="-12" font-family="monospace" font-size="12" fill="#f48fb1">ROM</text>
-		<text x="0" y="8" font-family="monospace" font-size="16" fill="#4fc3f7">→</text>
-		<text x="0" y="28" font-family="monospace" font-size="12" fill="#81c784">ASM</text>
-	</g>
+<title>🌺 Peony - Multi-System Disassembler</title>
+<rect width="400" height="100" fill="#1a1a2e" rx="8"/>
+<text x="50" y="65" font-size="64">🌺</text>
+<text x="120" y="58" font-family="Segoe UI, Arial" font-size="42" font-weight="bold" fill="#fff">Peony</text>
+<text x="120" y="80" font-family="Segoe UI, Arial" font-size="14" fill="#4fc3f7">Multi-System Disassembler</text>
+<text x="340" y="40" font-family="monospace" font-size="10" fill="#f48fb1">ROM</text>
+<text x="350" y="55" font-family="monospace" font-size="14" fill="#4fc3f7">→</text>
+<text x="340" y="70" font-family="monospace" font-size="10" fill="#81c784">ASM</text>
 </svg>
