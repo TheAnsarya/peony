@@ -284,6 +284,107 @@ AnsiConsole.Write(table);
 
 rootCommand.AddCommand(infoCommand);
 
+// Export symbols command
+var exportCommand = new Command("export", "Export symbols from disassembly to various formats");
+var exportRomArg = new Argument<FileInfo>("rom", "ROM file to disassemble for symbols");
+var exportOutputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file (required)");
+var exportFormatOpt = new Option<string>(["--format", "-f"], () => "mesen", "Symbol format: mesen, fceux, nogba, ca65, wla, bizhawk");
+var exportPlatformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-detected if not specified)");
+var exportSymbolsOpt = new Option<FileInfo?>(["--symbols", "-s"], "Additional symbol file to merge");
+var exportDizOpt = new Option<FileInfo?>(["--diz", "-d"], "DIZ project file to merge");
+
+exportCommand.AddArgument(exportRomArg);
+exportCommand.AddOption(exportOutputOpt);
+exportCommand.AddOption(exportFormatOpt);
+exportCommand.AddOption(exportPlatformOpt);
+exportCommand.AddOption(exportSymbolsOpt);
+exportCommand.AddOption(exportDizOpt);
+
+exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Symbol Exporter[/]");
+		AnsiConsole.WriteLine();
+
+		if (output == null) {
+			AnsiConsole.MarkupLine("[red]Error:[/] Output file is required (--output)");
+			Environment.Exit(1);
+			return;
+		}
+
+		// Load ROM
+		AnsiConsole.MarkupLine($"[grey]Loading:[/] {Markup.Escape(rom.FullName)}");
+		var romData = RomLoader.Load(rom.FullName);
+
+		// Detect platform
+		platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
+
+		// Get platform analyzer
+		IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
+			"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+			"nes" => new NesAnalyzer(),
+			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
+			_ => throw new NotSupportedException($"Platform not supported: {platform}")
+		};
+
+		// Analyze ROM
+		var info = analyzer.Analyze(romData);
+
+		// Load additional symbols
+		SymbolLoader? symbolLoader = null;
+		if (symbols?.Exists == true) {
+			symbolLoader = new SymbolLoader();
+			symbolLoader.Load(symbols.FullName);
+			AnsiConsole.MarkupLine($"[grey]Merged symbols:[/] {symbolLoader.Labels.Count} labels");
+		}
+
+		if (dizFile?.Exists == true) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.Load(dizFile.FullName);
+			AnsiConsole.MarkupLine($"[grey]Merged DIZ:[/] {symbolLoader.Labels.Count} labels");
+		}
+
+		// Get entry points and disassemble
+		var entryPoints = analyzer.GetEntryPoints(romData);
+		var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+
+		if (symbolLoader != null) {
+			engine.SetSymbolLoader(symbolLoader);
+			foreach (var (addr, label) in symbolLoader.Labels) {
+				engine.AddLabel(addr, label);
+			}
+			foreach (var (addr, comment) in symbolLoader.Comments) {
+				engine.AddComment(addr, comment);
+			}
+		}
+
+		var result = engine.Disassemble(romData, entryPoints);
+		result.RomInfo = info;
+
+		// Determine symbol format
+		var symFormat = format.ToLowerInvariant() switch {
+			"mesen" or "mlb" => SymbolFormat.Mesen,
+			"fceux" or "nl" => SymbolFormat.FCEUX,
+			"nogba" or "nosns" or "no$gba" or "sym" => SymbolFormat.NoGlasses,
+			"ca65" or "cc65" or "dbg" => SymbolFormat.Ca65Debug,
+			"wla" or "wladx" => SymbolFormat.Wla,
+			"bizhawk" or "cht" => SymbolFormat.BizHawk,
+			_ => throw new ArgumentException($"Unknown symbol format: {format}")
+		};
+
+		// Export
+		SymbolExporter.Export(result, output.FullName, symFormat);
+
+		AnsiConsole.MarkupLine($"[green]Exported {result.Labels.Count} labels to:[/] {Markup.Escape(output.FullName)}");
+		AnsiConsole.MarkupLine($"[grey]Format:[/] {symFormat}");
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+}, exportRomArg, exportOutputOpt, exportFormatOpt, exportPlatformOpt, exportSymbolsOpt, exportDizOpt);
+
+rootCommand.AddCommand(exportCommand);
+
 // Version
 rootCommand.SetHandler(() => {
 AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.3.0[/]");
