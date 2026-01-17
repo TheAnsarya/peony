@@ -16,15 +16,14 @@ return StripHeader(data, path);
 }
 
 /// <summary>
-/// Strip platform-specific headers
+/// Strip platform-specific headers (only copier headers, not format headers)
 /// </summary>
 private static byte[] StripHeader(byte[] data, string path) {
 var ext = Path.GetExtension(path).ToLowerInvariant();
 
 return ext switch {
-// NES iNES header (16 bytes, starts with NES^Z)
-".nes" when data.Length > 16 && data[0] == 'N' && data[1] == 'E' && data[2] == 'S' && data[3] == 0x1a
-=> data[16..],
+// NES - keep iNES header (analyzer needs it)
+".nes" => data,
 
 // SNES with copier header (512 bytes if size % 1024 == 512)
 ".sfc" or ".smc" when data.Length % 1024 == 512
@@ -59,8 +58,8 @@ if (rom.Length is 2048 or 4096 or 8192 or 16384 or 32768) {
 if (rom.Length <= 4096) return "atari2600";
 }
 
-// NES detection (after header strip, PRG is multiple of 16KB)
-if (rom.Length % 16384 == 0 && rom.Length <= 512 * 1024)
+// NES detection (iNES header present)
+if (rom.Length > 16 && rom[0] == 0x4e && rom[1] == 0x45 && rom[2] == 0x53 && rom[3] == 0x1a)
 return "nes";
 
 // Default to unknown

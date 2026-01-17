@@ -10,25 +10,10 @@ private readonly Dictionary<uint, string> _labels = [];
 private readonly Dictionary<uint, string> _comments = [];
 private readonly HashSet<uint> _visited = [];
 private readonly Queue<uint> _codeQueue = new();
-private readonly int _romSize;
-private readonly uint _romBase;
 
-public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer, int romSize = 0) {
+public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer) {
 _cpuDecoder = cpuDecoder;
 _platformAnalyzer = platformAnalyzer;
-_romSize = romSize;
-
-// Calculate ROM base address based on platform
-_romBase = platformAnalyzer.Platform switch {
-"Atari 2600" => romSize switch {
-<= 2048 => 0xf800,  // 2K at $F800-$FFFF
-<= 4096 => 0xf000,  // 4K at $F000-$FFFF
-_ => 0xf000         // Banked ROMs, first bank at $F000
-},
-"NES" => 0x8000,
-"Game Boy" => 0x0000,
-_ => 0x0000
-};
 }
 
 /// <summary>
@@ -40,8 +25,11 @@ var result = new DisassemblyResult { RomInfo = romInfo };
 
 // Queue entry points
 foreach (var entry in entryPoints) {
+// Filter out obviously invalid entry points
+if (IsValidAddress(entry, rom.Length)) {
 _codeQueue.Enqueue(entry);
-AddLabel(entry, $"entry_{entry:x4}");
+AddLabel(entry, entry == entryPoints[0] ? "reset" : $"entry_{entry:x4}");
+}
 }
 
 // Recursive descent disassembly
@@ -58,22 +46,39 @@ foreach (var kvp in _comments) result.Comments[kvp.Key] = kvp.Value;
 return result;
 }
 
+private bool IsValidAddress(uint address, int romLength) {
+if (_platformAnalyzer.Platform == "Atari 2600") {
+return address >= 0xf000 && address <= 0xffff;
+}
+if (_platformAnalyzer.Platform == "NES") {
+return address >= 0x8000 && address <= 0xffff;
+}
+return true;
+}
+
 private void DisassembleBlock(ReadOnlySpan<byte> rom, uint startAddress, DisassemblyResult result) {
 var lines = new List<DisassembledLine>();
 var address = startAddress;
+var maxInstructions = 10000; // Safety limit
 
-while (true) {
+while (maxInstructions-- > 0) {
 if (_visited.Contains(address)) break;
 _visited.Add(address);
 
-// Check bounds
-var offset = AddressToOffset(address, rom.Length);
+// Use platform analyzer's AddressToOffset for correct mapping
+var offset = _platformAnalyzer.AddressToOffset(address, rom.Length);
 if (offset < 0 || offset >= rom.Length) break;
 
 // Decode instruction
-var instruction = _cpuDecoder.Decode(rom[offset..], address);
+var slice = rom[offset..];
+if (slice.Length == 0) break;
+
+var instruction = _cpuDecoder.Decode(slice, address);
+if (instruction.Bytes.Length == 0) break;
+
 var label = _labels.GetValueOrDefault(address);
-var hwLabel = _platformAnalyzer.GetRegisterLabel(address);
+var operandAddr = GetOperandAddress(instruction);
+var hwLabel = operandAddr.HasValue ? _platformAnalyzer.GetRegisterLabel(operandAddr.Value) : null;
 var comment = _comments.GetValueOrDefault(address) ?? hwLabel;
 
 lines.Add(new DisassembledLine(
@@ -87,7 +92,7 @@ comment
 // Handle control flow
 if (_cpuDecoder.IsControlFlow(instruction)) {
 foreach (var target in _cpuDecoder.GetTargets(instruction, address)) {
-if (!_visited.Contains(target)) {
+if (!_visited.Contains(target) && IsValidAddress(target, rom.Length)) {
 _codeQueue.Enqueue(target);
 AddLabel(target, $"loc_{target:x4}");
 }
@@ -110,6 +115,17 @@ lines
 }
 }
 
+private static uint? GetOperandAddress(DecodedInstruction instruction) {
+var operand = instruction.Operand;
+if (string.IsNullOrEmpty(operand)) return null;
+
+operand = operand.TrimStart('#', '(').TrimEnd(')', ',', 'x', 'y', 'X', 'Y', ' ');
+if (operand.StartsWith('$') && uint.TryParse(operand[1..], System.Globalization.NumberStyles.HexNumber, null, out var addr)) {
+return addr;
+}
+return null;
+}
+
 private static string FormatInstruction(DecodedInstruction instruction) {
 return string.IsNullOrEmpty(instruction.Operand)
 ? instruction.Mnemonic
@@ -118,36 +134,6 @@ return string.IsNullOrEmpty(instruction.Operand)
 
 private static bool IsUnconditionalBranch(DecodedInstruction instruction) {
 return instruction.Mnemonic is "jmp" or "rts" or "rti" or "brk";
-}
-
-private int AddressToOffset(uint address, int romLength) {
-// Atari 2600: ROM mapped at end of address space
-if (_platformAnalyzer.Platform == "Atari 2600") {
-// For 8K ROMs with F8 banking, both banks map to $F000-$FFFF
-// Bank 0 = first 4K, Bank 1 = second 4K
-// Reset vector is in bank 1 (second 4K)
-if (romLength == 8192) {
-// Addresses $F000-$FFFF map to ROM
-if (address >= 0xf000 && address <= 0xffff) {
-// For initial disassembly, use bank 1 (second 4K)
-return (int)(address - 0xf000) + 4096;
-}
-}
-else if (romLength == 4096) {
-if (address >= 0xf000 && address <= 0xffff) {
-return (int)(address - 0xf000);
-}
-}
-else if (romLength == 2048) {
-if (address >= 0xf800 && address <= 0xffff) {
-return (int)(address - 0xf800);
-}
-}
-return -1; // Address not in ROM
-}
-
-// Default: direct mapping
-return (int)address;
 }
 
 public void AddLabel(uint address, string name) {
