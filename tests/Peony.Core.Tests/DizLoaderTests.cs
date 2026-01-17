@@ -176,7 +176,7 @@ public class DizLoaderTests {
 
 			var (opcodes, operands, dataBytes, unreached, coverage) = loader.GetCoverageStats();
 
-			Assert.Equal(2, opcodes);    // Offsets 1, 4
+			Assert.Equal(2, opcodes);	// Offsets 1, 4
 			Assert.Equal(3, operands);   // Offsets 2, 3, 5
 			Assert.Equal(2, dataBytes);  // Offsets 7, 8
 		} finally {

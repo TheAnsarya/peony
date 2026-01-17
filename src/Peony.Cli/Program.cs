@@ -11,11 +11,13 @@ var rootCommand = new RootCommand("🌺 Peony - Multi-system ROM disassembler");
 // Disasm command
 var disasmCommand = new Command("disasm", "Disassemble a ROM file");
 var romArg = new Argument<FileInfo>("rom", "ROM file to disassemble");
-var outputOpt = new Option<FileInfo?>("--output", "Output file (default: stdout)");
-var platformOpt = new Option<string?>("--platform", "Platform (auto-detected if not specified)");
-var formatOpt = new Option<string>("--format", () => "asm", "Output format: asm, poppy");
-var allBanksOpt = new Option<bool>("--all-banks", "Disassemble all banks for banked ROMs (MMC1, etc.)");
-var symbolsOpt = new Option<FileInfo?>("--symbols", "Symbol file to load (JSON, .nl, .mlb, .sym)");
+var outputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file (default: stdout)");
+var platformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-detected if not specified)");
+var formatOpt = new Option<string>(["--format", "-f"], () => "asm", "Output format: asm, poppy");
+var allBanksOpt = new Option<bool>(["--all-banks", "-b"], "Disassemble all banks for banked ROMs (MMC1, etc.)");
+var symbolsOpt = new Option<FileInfo?>(["--symbols", "-s"], "Symbol file to load (JSON, .nl, .mlb, .sym)");
+var cdlOpt = new Option<FileInfo?>(["--cdl", "-c"], "CDL (Code/Data Log) file for code/data hints");
+var dizOpt = new Option<FileInfo?>(["--diz", "-d"], "DIZ (DiztinGUIsh) project file for labels and data types");
 
 disasmCommand.AddArgument(romArg);
 disasmCommand.AddOption(outputOpt);
@@ -23,8 +25,10 @@ disasmCommand.AddOption(platformOpt);
 disasmCommand.AddOption(formatOpt);
 disasmCommand.AddOption(allBanksOpt);
 disasmCommand.AddOption(symbolsOpt);
+disasmCommand.AddOption(cdlOpt);
+disasmCommand.AddOption(dizOpt);
 
-disasmCommand.SetHandler((rom, output, platform, format, allBanks, symbols) => {
+disasmCommand.SetHandler((rom, output, platform, format, allBanks, symbols, cdlFile, dizFile) => {
 try {
 AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler[/]");
 AnsiConsole.WriteLine();
@@ -64,6 +68,25 @@ symbolLoader.Load(symbols.FullName);
 AnsiConsole.MarkupLine($"[grey]Symbols:[/] {symbolLoader.Labels.Count} labels loaded");
 }
 
+// Load CDL file if provided
+if (cdlFile?.Exists == true) {
+	symbolLoader ??= new SymbolLoader();
+	symbolLoader.Load(cdlFile.FullName);
+	var cdlStats = symbolLoader.CdlData?.GetCoverageStats();
+	if (cdlStats != null) {
+		AnsiConsole.MarkupLine($"[grey]CDL:[/] {cdlStats.Value.CoveragePercent:F1}% coverage ({cdlStats.Value.CodeBytes} code, {cdlStats.Value.DataBytes} data bytes)");
+	}
+}
+
+// Load DIZ file if provided
+if (dizFile?.Exists == true) {
+	symbolLoader ??= new SymbolLoader();
+	symbolLoader.Load(dizFile.FullName);
+	if (symbolLoader.DizData != null) {
+AnsiConsole.MarkupLine($"[grey]DIZ:[/] {symbolLoader.Labels.Count} labels, project \"{symbolLoader.DizData.ProjectName}\"");
+}
+}
+
 AnsiConsole.WriteLine();
 
 // Get entry points
@@ -77,6 +100,11 @@ AnsiConsole.MarkupLine($"[grey]Entry points:[/] {string.Join(", ", entryPoints.S
 
 // Create engine and disassemble
 var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+
+// Set symbol loader for CDL/DIZ hints
+if (symbolLoader != null) {
+engine.SetSymbolLoader(symbolLoader);
+}
 
 // Add symbols to engine
 if (symbolLoader != null) {
@@ -133,7 +161,7 @@ catch (Exception ex) {
 AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 Environment.Exit(1);
 }
-}, romArg, outputOpt, platformOpt, formatOpt, allBanksOpt, symbolsOpt);
+}, romArg, outputOpt, platformOpt, formatOpt, allBanksOpt, symbolsOpt, cdlOpt, dizOpt);
 
 rootCommand.AddCommand(disasmCommand);
 
