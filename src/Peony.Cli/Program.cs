@@ -385,6 +385,160 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
 
 rootCommand.AddCommand(exportCommand);
 
+// Verify command for roundtrip verification
+var verifyCommand = new Command("verify", "Verify ROM roundtrip (disassemble → reassemble → compare)");
+var verifyOriginalArg = new Argument<FileInfo>("original", "Original ROM file");
+var verifyReassembledOpt = new Option<FileInfo?>(["--reassembled", "-r"], "Reassembled ROM file to compare");
+var verifyWorkdirOpt = new Option<DirectoryInfo?>(["--workdir", "-w"], "Working directory for roundtrip test");
+var verifyAssemblerOpt = new Option<string>(["--assembler", "-a"], () => "poppy", "Assembler command for roundtrip");
+var verifyReportOpt = new Option<FileInfo?>(["--report"], "Write verification report to file");
+
+verifyCommand.AddArgument(verifyOriginalArg);
+verifyCommand.AddOption(verifyReassembledOpt);
+verifyCommand.AddOption(verifyWorkdirOpt);
+verifyCommand.AddOption(verifyAssemblerOpt);
+verifyCommand.AddOption(verifyReportOpt);
+
+verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, report) => {
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Roundtrip Verifier[/]");
+		AnsiConsole.WriteLine();
+
+		RoundtripVerifier.VerificationResult result;
+
+		if (reassembled?.Exists == true) {
+			// Direct file comparison
+			AnsiConsole.MarkupLine($"[grey]Original:[/]     {Markup.Escape(original.FullName)}");
+			AnsiConsole.MarkupLine($"[grey]Reassembled:[/]  {Markup.Escape(reassembled.FullName)}");
+			AnsiConsole.WriteLine();
+
+			result = RoundtripVerifier.VerifyFiles(original.FullName, reassembled.FullName);
+		} else if (workdir != null) {
+			// Full roundtrip test
+			AnsiConsole.MarkupLine($"[grey]Original:[/]    {Markup.Escape(original.FullName)}");
+			AnsiConsole.MarkupLine($"[grey]Work dir:[/]    {Markup.Escape(workdir.FullName)}");
+			AnsiConsole.MarkupLine($"[grey]Assembler:[/]   {assembler}");
+			AnsiConsole.WriteLine();
+
+			// Detect platform for roundtrip
+			var romData = RomLoader.Load(original.FullName);
+			var platform = RomLoader.DetectPlatform(romData, original.FullName);
+			IPlatformAnalyzer rtAnalyzer = platform?.ToLowerInvariant() switch {
+				"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+				"nes" => new NesAnalyzer(),
+				"snes" or "super nintendo" => new Peony.Platform.SNES.SnesAnalyzer(),
+				_ => throw new NotSupportedException($"Platform not supported: {platform}")
+			};
+
+			AnsiConsole.Status()
+				.Spinner(Spinner.Known.Dots)
+				.Start("Running roundtrip test...", ctx => {
+					// Can't easily make this async in Spectre.Console
+				});
+
+			result = await RoundtripVerifier.RunRoundtripAsync(
+				original.FullName,
+				workdir.FullName,
+				rtAnalyzer,
+				assembler);
+		} else {
+			// Verify disassembly internally
+			AnsiConsole.MarkupLine($"[grey]Verifying disassembly of:[/] {Markup.Escape(original.FullName)}");
+			AnsiConsole.WriteLine();
+
+			var romData = RomLoader.Load(original.FullName);
+			var platform = RomLoader.DetectPlatform(romData, original.FullName);
+
+			IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
+				"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+				"nes" => new NesAnalyzer(),
+				"snes" or "super nintendo" => new Peony.Platform.SNES.SnesAnalyzer(),
+				_ => throw new NotSupportedException($"Platform not supported: {platform}")
+			};
+
+			var info = analyzer.Analyze(romData);
+			var entryPoints = analyzer.GetEntryPoints(romData);
+			var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+			var disasm = engine.Disassemble(romData, entryPoints);
+
+			result = RoundtripVerifier.VerifyDisassembly(disasm, romData);
+		}
+
+		// Display results
+		if (result.Success) {
+			AnsiConsole.MarkupLine("[bold green]✓ VERIFICATION PASSED[/]");
+			AnsiConsole.MarkupLine($"[grey]All {result.ByteMatches} bytes match[/]");
+		} else {
+			AnsiConsole.MarkupLine("[bold red]✗ VERIFICATION FAILED[/]");
+			if (result.ErrorMessage != null) {
+				AnsiConsole.MarkupLine($"[red]{Markup.Escape(result.ErrorMessage)}[/]");
+			}
+		}
+
+		AnsiConsole.WriteLine();
+
+		// Show statistics
+		var statsTable = new Table();
+		statsTable.AddColumn("Metric");
+		statsTable.AddColumn(new TableColumn("Value").RightAligned());
+
+		statsTable.AddRow("Original size", $"{result.OriginalSize:N0} bytes");
+		statsTable.AddRow("Reassembled size", $"{result.ReassembledSize:N0} bytes");
+		statsTable.AddRow("Bytes matching", $"{result.ByteMatches:N0}");
+		statsTable.AddRow("Bytes different", result.ByteDifferences > 0
+			? $"[red]{result.ByteDifferences:N0}[/]"
+			: $"{result.ByteDifferences:N0}");
+		statsTable.AddRow("Match percentage", result.MatchPercentage >= 100
+			? $"[green]{result.MatchPercentage:F2}%[/]"
+			: $"[yellow]{result.MatchPercentage:F2}%[/]");
+
+		AnsiConsole.Write(statsTable);
+
+		// Show differences if any
+		if (result.Differences.Count > 0) {
+			AnsiConsole.WriteLine();
+			AnsiConsole.MarkupLine("[yellow]First differences:[/]");
+
+			var diffTable = new Table();
+			diffTable.AddColumn("Offset");
+			diffTable.AddColumn("Address");
+			diffTable.AddColumn("Original");
+			diffTable.AddColumn("Reassembled");
+
+			foreach (var diff in result.Differences.Take(10)) {
+				diffTable.AddRow(
+					$"0x{diff.Offset:x6}",
+					$"${diff.Address:x4}",
+					$"0x{diff.Original:x2}",
+					$"0x{diff.Reassembled:x2}"
+				);
+			}
+
+			AnsiConsole.Write(diffTable);
+
+			if (result.Differences.Count > 10) {
+				AnsiConsole.MarkupLine($"[grey]... and {result.Differences.Count - 10} more differences[/]");
+			}
+		}
+
+		// Write report file if requested
+		if (report != null) {
+			var reportContent = RoundtripVerifier.GenerateReport(result);
+			File.WriteAllText(report.FullName, reportContent);
+			AnsiConsole.WriteLine();
+			AnsiConsole.MarkupLine($"[grey]Report written to:[/] {Markup.Escape(report.FullName)}");
+		}
+
+		Environment.Exit(result.Success ? 0 : 1);
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+}, verifyOriginalArg, verifyReassembledOpt, verifyWorkdirOpt, verifyAssemblerOpt, verifyReportOpt);
+
+rootCommand.AddCommand(verifyCommand);
+
 // Version
 rootCommand.SetHandler(() => {
 AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.3.0[/]");

@@ -99,14 +99,14 @@ sb.AppendLine($"{instruction}{bytesComment}");
 private static string FormatWithLabels(string instruction, DisassemblyResult result, int bank = -1) {
 	// Try to replace addresses with labels
 	// First try bank-specific labels, then fall back to global labels
-	
+
 	// Try bank-specific labels first if we have a bank context
 	if (bank >= 0 && result.BankLabels.Count > 0) {
 		foreach (var kvp in result.BankLabels) {
 			if (kvp.Key.Bank != bank) continue;
 			var address = kvp.Key.Address;
 			var label = kvp.Value;
-			
+
 			// Skip immediate mode for small values (< 0x100) - keep as constants
 			if (address < 0x100 && instruction.Contains($"#${address:x2}", StringComparison.OrdinalIgnoreCase))
 				continue;
@@ -127,7 +127,7 @@ private static string FormatWithLabels(string instruction, DisassemblyResult res
 			}
 		}
 	}
-	
+
 	// Fall back to global labels
 	foreach (var kvp in result.Labels) {
 		// Skip immediate mode for small values (< 0x100) - keep as constants
