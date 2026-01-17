@@ -6,13 +6,23 @@ namespace Peony.Core;
 public class DisassemblyEngine {
 	private readonly ICpuDecoder _cpuDecoder;
 	private readonly IPlatformAnalyzer _platformAnalyzer;
+
+	// Global labels (non-bank-specific, for fixed regions like $C000-$FFFF on NES)
 	private readonly Dictionary<uint, string> _labels = [];
+
+	// Bank-specific labels for switchable regions
+	private readonly Dictionary<(uint Address, int Bank), string> _bankLabels = [];
+
 	private readonly Dictionary<uint, string> _comments = [];
 	private readonly Dictionary<uint, DataDefinition> _dataDefinitions = [];
 	private readonly Dictionary<(uint Address, int Bank), bool> _visited = [];
 	private readonly Queue<(uint Address, int Bank)> _codeQueue = new();
 	private readonly HashSet<(int TargetBank, uint TargetAddress)> _bankCalls = [];
-	private readonly HashSet<uint> _userDefinedLabels = [];  // Track labels from DIZ/symbol files
+
+	// Track which labels are user-defined (from DIZ/symbol files)
+	private readonly HashSet<uint> _userDefinedLabels = [];
+	private readonly HashSet<(uint Address, int Bank)> _userDefinedBankLabels = [];
+
 	private SymbolLoader? _symbolLoader;
 
 	public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer) {
@@ -117,7 +127,7 @@ public class DisassemblyEngine {
 				var bank = _platformAnalyzer.IsInSwitchableRegion(entry) ? 0 : fixedBank;
 				if (entry >= 0xc000) bank = fixedBank; // Fixed bank for NES MMC1
 				_codeQueue.Enqueue((entry, bank));
-				AddLabel(entry, entry == entryPoints[0] ? "reset" : $"entry_{entry:x4}");
+				AddLabel(entry, entry == entryPoints[0] ? "reset" : $"entry_{entry:x4}", bank);
 			}
 		}
 
@@ -125,7 +135,7 @@ public class DisassemblyEngine {
 		if (allBanks && _platformAnalyzer.BankCount > 1) {
 			for (int bank = 0; bank < _platformAnalyzer.BankCount - 1; bank++) {
 				_codeQueue.Enqueue((0x8000, bank));
-				AddLabel(0x8000, $"bank{bank}_start");
+				AddLabel(0x8000, $"bank{bank}_start", bank);
 			}
 		}
 
@@ -136,8 +146,8 @@ public class DisassemblyEngine {
 				if (address.HasValue && IsValidAddress(address.Value)) {
 					if (!_visited.ContainsKey((address.Value, fixedBank))) {
 						_codeQueue.Enqueue((address.Value, fixedBank));
-						if (!_labels.ContainsKey(address.Value)) {
-							AddLabel(address.Value, $"sub_{offset:x4}");
+						if (GetLabel(address.Value, fixedBank) is null) {
+							AddLabel(address.Value, $"sub_{offset:x4}", fixedBank);
 						}
 					}
 				}
@@ -166,9 +176,14 @@ public class DisassemblyEngine {
 		// Process any discovered bank calls
 		ProcessBankCalls(rom, result);
 
-		// Copy labels and comments
+		// Copy global labels and comments
 		foreach (var kvp in _labels) result.Labels[kvp.Key] = kvp.Value;
 		foreach (var kvp in _comments) result.Comments[kvp.Key] = kvp.Value;
+
+		// Copy bank-specific labels
+		foreach (var kvp in _bankLabels) {
+			result.BankLabels[kvp.Key] = kvp.Value;
+		}
 
 		// Also add blocks to main list
 		foreach (var bankBlocks in result.BankBlocks.Values) {
@@ -243,12 +258,12 @@ var bankSwitch = _platformAnalyzer.DetectBankSwitch(rom, address, bank);
 if (bankSwitch != null) {
 // Record bank call for later processing
 _bankCalls.Add((bankSwitch.TargetBank, bankSwitch.TargetAddress));
-AddLabel(bankSwitch.TargetAddress, bankSwitch.FunctionName ?? $"bank{bankSwitch.TargetBank}_func");
+AddLabel(bankSwitch.TargetAddress, bankSwitch.FunctionName ?? $"bank{bankSwitch.TargetBank}_func", bankSwitch.TargetBank);
 
 // Add comment about bank call
 var comment = $"Bank call: bank {bankSwitch.TargetBank}, {bankSwitch.FunctionName}";
 lines.Add(new DisassembledLine(
-address, instruction.Bytes, _labels.GetValueOrDefault(address),
+address, instruction.Bytes, GetLabel(address, bank),
 FormatInstruction(instruction), comment, bank
 ));
 
@@ -271,7 +286,7 @@ continue;
 }
 }
 
-var label = _labels.GetValueOrDefault(address);
+var label = GetLabel(address, bank);
 var operandAddr = GetOperandAddress(instruction);
 var hwLabel = operandAddr.HasValue ? _platformAnalyzer.GetRegisterLabel(operandAddr.Value) : null;
 var lineComment = _comments.GetValueOrDefault(address) ?? hwLabel;
@@ -298,7 +313,7 @@ targetBank = _platformAnalyzer.BankCount - 1;
 
 if (!_visited.ContainsKey((target, targetBank))) {
 _codeQueue.Enqueue((target, targetBank));
-AddLabel(target, $"loc_{target:x4}");
+AddLabel(target, $"loc_{target:x4}", targetBank);
 }
 }
 
@@ -356,27 +371,60 @@ return instruction.Mnemonic is "jmp" or "rts" or "rti" or "brk";
 /// <summary>
 	/// Add a label if one doesn't exist.
 	/// User-defined labels (from DIZ/symbol files) are never overwritten by auto-generated labels.
+	/// For bank-specific addresses, uses bank parameter to determine storage location.
 	/// </summary>
-	public void AddLabel(uint address, string name) {
-		// Never overwrite user-defined labels
-		if (_userDefinedLabels.Contains(address))
-			return;
-
-		_labels.TryAdd(address, name);
+	public void AddLabel(uint address, string name, int? bank = null) {
+		// If bank is explicitly specified, store as bank-specific
+		if (bank.HasValue) {
+			var key = (address, bank.Value);
+			// Never overwrite user-defined labels
+			if (_userDefinedBankLabels.Contains(key))
+				return;
+			_bankLabels.TryAdd(key, name);
+		} else {
+			// Global label (no bank specified)
+			if (_userDefinedLabels.Contains(address))
+				return;
+			_labels.TryAdd(address, name);
+		}
 	}
 
 	/// <summary>
 	/// Add a label from user input (symbol file, DIZ, etc.) which takes priority.
 	/// </summary>
-	public void AddUserLabel(uint address, string name) {
-		_labels[address] = name;
-		_userDefinedLabels.Add(address);
+	public void AddUserLabel(uint address, string name, int? bank = null) {
+		if (bank.HasValue) {
+			var key = (address, bank.Value);
+			_bankLabels[key] = name;
+			_userDefinedBankLabels.Add(key);
+		} else {
+			_labels[address] = name;
+			_userDefinedLabels.Add(address);
+		}
+	}
+
+	/// <summary>
+	/// Get a label for an address, considering bank context.
+	/// Returns bank-specific label if available, otherwise falls back to global label.
+	/// </summary>
+	public string? GetLabel(uint address, int? bank = null) {
+		// Try bank-specific label first
+		if (bank.HasValue && _bankLabels.TryGetValue((address, bank.Value), out var bankLabel))
+			return bankLabel;
+
+		// Fall back to global label
+		return _labels.GetValueOrDefault(address);
 	}
 
 	/// <summary>
 	/// Checks if a label at the given address is user-defined.
+	/// When bank is specified, only checks bank-specific labels (no fallback to global).
 	/// </summary>
-	public bool IsUserDefinedLabel(uint address) => _userDefinedLabels.Contains(address);
+	public bool IsUserDefinedLabel(uint address, int? bank = null) {
+		if (bank.HasValue)
+			return _userDefinedBankLabels.Contains((address, bank.Value));
+		return _userDefinedLabels.Contains(address);
+	}
 
 public void AddComment(uint address, string comment) {
 _comments[address] = comment;

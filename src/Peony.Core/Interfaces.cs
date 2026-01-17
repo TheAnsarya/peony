@@ -137,8 +137,20 @@ public class DisassemblyResult {
 public RomInfo RomInfo { get; set; } = null!;
 public List<DisassembledBlock> Blocks { get; } = [];
 public Dictionary<uint, string> Labels { get; } = [];
+public Dictionary<(uint Address, int Bank), string> BankLabels { get; } = [];
 public Dictionary<uint, string> Comments { get; } = [];
 public Dictionary<int, List<DisassembledBlock>> BankBlocks { get; } = [];
+
+/// <summary>
+/// Get label for an address, checking bank-specific labels first if bank is provided.
+/// </summary>
+public string? GetLabel(uint address, int? bank = null) {
+	// Try bank-specific label first
+	if (bank.HasValue && BankLabels.TryGetValue((address, bank.Value), out var bankLabel))
+		return bankLabel;
+	// Fall back to global label
+	return Labels.GetValueOrDefault(address);
+}
 }
 
 /// <summary>

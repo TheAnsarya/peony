@@ -49,7 +49,7 @@ sb.AppendLine($"\t.org $8000");
 sb.AppendLine();
 
 foreach (var block in blocks.OrderBy(b => b.StartAddress)) {
-FormatBlock(sb, block, result);
+FormatBlock(sb, block, result, bank);
 }
 }
 } else {
@@ -58,23 +58,23 @@ var allBlocks = result.Blocks.Count > 0 ? result.Blocks :
 result.BankBlocks.Values.SelectMany(b => b).ToList();
 
 foreach (var block in allBlocks.OrderBy(b => b.StartAddress)) {
-FormatBlock(sb, block, result);
+FormatBlock(sb, block, result, -1);
 }
 }
 
 return sb.ToString();
 }
 
-private static void FormatBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result) {
+private static void FormatBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1) {
 sb.AppendLine($"; --- Block at ${block.StartAddress:x4}-${block.EndAddress:x4} ---");
 
 foreach (var line in block.Lines) {
-FormatLine(sb, line, result);
+FormatLine(sb, line, result, bank);
 }
 sb.AppendLine();
 }
 
-private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine line, DisassemblyResult result) {
+private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine line, DisassemblyResult result, int bank = -1) {
 // Label on its own line
 if (!string.IsNullOrEmpty(line.Label)) {
 sb.AppendLine($"{line.Label}:");
@@ -83,8 +83,8 @@ sb.AppendLine($"{line.Label}:");
 // Build the instruction line
 var bytes = string.Join(" ", line.Bytes.Select(b => $"{b:x2}"));
 
-// Check if this operand references a known label
-var formatted = FormatWithLabels(line.Content, result);
+// Check if this operand references a known label (with bank awareness)
+var formatted = FormatWithLabels(line.Content, result, bank);
 
 var instruction = $"\t{formatted,-24}";
 var bytesComment = $"; {line.Address:x4}: {bytes,-12}";
@@ -96,9 +96,39 @@ sb.AppendLine($"{instruction}{bytesComment}");
 }
 }
 
-private static string FormatWithLabels(string instruction, DisassemblyResult result) {
+private static string FormatWithLabels(string instruction, DisassemblyResult result, int bank = -1) {
 	// Try to replace addresses with labels
-	// Use regex to ensure we only match complete addresses (not partial)
+	// First try bank-specific labels, then fall back to global labels
+	
+	// Try bank-specific labels first if we have a bank context
+	if (bank >= 0 && result.BankLabels.Count > 0) {
+		foreach (var kvp in result.BankLabels) {
+			if (kvp.Key.Bank != bank) continue;
+			var address = kvp.Key.Address;
+			var label = kvp.Value;
+			
+			// Skip immediate mode for small values (< 0x100) - keep as constants
+			if (address < 0x100 && instruction.Contains($"#${address:x2}", StringComparison.OrdinalIgnoreCase))
+				continue;
+
+			// Match $xxxx (4-digit hex) with word boundary
+			var pattern4 = $@"\${address:x4}(?![0-9a-f])";
+			if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern4, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
+				instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern4, label, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+				continue;
+			}
+
+			// For addresses < 0x100, also match short form like $xx (but not immediate mode)
+			if (address < 0x100) {
+				var pattern2 = $@"(?<!#)\${address:x2}(?![0-9a-f])";
+				if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern2, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
+					instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern2, label, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+				}
+			}
+		}
+	}
+	
+	// Fall back to global labels
 	foreach (var kvp in result.Labels) {
 		// Skip immediate mode for small values (< 0x100) - keep as constants
 		// e.g. lda #$00 should stay as #$00, not #gen_byte_00
