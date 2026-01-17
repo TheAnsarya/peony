@@ -1,0 +1,22 @@
+## Build results
+bin/
+obj/
+build/
+
+## IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+## Packages
+packages/
+*.nupkg
+
+## Test results
+TestResults/
+coverage/
+
+## OS files
+.DS_Store
+Thumbs.db
