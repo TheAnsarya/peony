@@ -2,6 +2,7 @@ using System.CommandLine;
 using Peony.Core;
 using Peony.Platform.Atari2600;
 using Peony.Platform.NES;
+using Peony.Platform.GameBoy;
 using Spectre.Console;
 
 // 🌺 Peony Disassembler CLI
@@ -323,6 +324,7 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
 			"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
 			"nes" => new NesAnalyzer(),
 			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
+			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
 			_ => throw new NotSupportedException($"Platform not supported: {platform}")
 		};
 
