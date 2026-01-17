@@ -8,7 +8,7 @@ using Peony.Core;
 /// </summary>
 public class Arm7TdmiDecoder : ICpuDecoder {
 	public string Architecture => "ARM7TDMI";
-	
+
 	private bool _thumbMode = false;
 
 	/// <summary>Set CPU mode (ARM or Thumb)</summary>
@@ -253,7 +253,7 @@ public class Arm7TdmiDecoder : ICpuDecoder {
 			var shift = (instr >> 4) & 0xff;
 			if (shift == 0)
 				return $"r{rm}";
-			
+
 			var shiftType = (int)((shift >> 1) & 0x3);
 			var shiftAmount = (int)(shift >> 3);
 			var shiftName = shiftType switch {
@@ -300,7 +300,7 @@ public class Arm7TdmiDecoder : ICpuDecoder {
 
 	public bool IsControlFlow(DecodedInstruction instruction) {
 		var m = instruction.Mnemonic;
-		return m.StartsWith("b") || m == "bx" || m == "swi" || 
+		return m.StartsWith("b") || m == "bx" || m == "swi" ||
 		       (m == "pop" && instruction.Operand.Contains("pc")) ||
 		       (m == "mov" && instruction.Operand.StartsWith("pc,"));
 	}
@@ -315,8 +315,8 @@ public class Arm7TdmiDecoder : ICpuDecoder {
 				var hexEnd = hexStart;
 				while (hexEnd < operand.Length && Uri.IsHexDigit(operand[hexEnd]))
 					hexEnd++;
-				
-				if (hexEnd > hexStart && uint.TryParse(operand[hexStart..hexEnd], 
+
+				if (hexEnd > hexStart && uint.TryParse(operand[hexStart..hexEnd],
 					System.Globalization.NumberStyles.HexNumber, null, out var target)) {
 					yield return target;
 				}

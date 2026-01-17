@@ -145,7 +145,7 @@ public class GbaAnalyzer : IPlatformAnalyzer {
 		// Entry point is at ROM start
 		// ARM/Thumb mode determined by bit 0 of PC
 		var entry = (uint)(rom[0] | (rom[1] << 8) | (rom[2] << 16) | (rom[3] << 24));
-		
+
 		// Typical GBA entry point is a branch instruction
 		// b 0x080000c0 (or similar)
 		if ((entry & 0xff000000) == 0xea000000) {

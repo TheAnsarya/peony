@@ -26,6 +26,8 @@ foreach (var kvp in result.RomInfo.Metadata) {
 sb.AppendLine($"; {kvp.Key}: {kvp.Value}");
 }
 sb.AppendLine();
+sb.AppendLine($".system:{result.RomInfo.Platform}");
+sb.AppendLine();
 
 // Check if we have multiple banks
 var hasMultipleBanks = result.BankBlocks.Count > 1 &&

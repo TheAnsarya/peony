@@ -198,7 +198,7 @@ var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
 var result = engine.Disassemble(romData, entryPoints);
 result.RomInfo = info;
 
-var ext = format == "poppy" ? ".pasm" : ".asm";
+var ext = ".pasm";
 var outputPath = Path.Combine(outputDir.FullName, Path.GetFileNameWithoutExtension(file.Name) + ext);
 
 if (format == "poppy") {
@@ -541,7 +541,7 @@ return await rootCommand.InvokeAsync(args);
 
 // Helper methods
 static string GetDefaultOutputPath(FileInfo rom, string format) {
-var ext = format == "poppy" ? ".pasm" : ".asm";
+var ext = ".pasm";
 return Path.Combine(rom.DirectoryName!, Path.GetFileNameWithoutExtension(rom.Name) + ext);
 }
 
@@ -550,6 +550,8 @@ writer.WriteLine($"; 🌺 Peony Disassembly");
 writer.WriteLine($"; ROM: {rom.Name}");
 writer.WriteLine($"; Platform: {info.Platform}");
 writer.WriteLine($"; Size: {info.Size} bytes");
+	writer.WriteLine();
+	writer.WriteLine($".system:{info.Platform}");
 if (info.Mapper != null)
 writer.WriteLine($"; Mapper: {info.Mapper}");
 if (result.Labels.Count > 0)

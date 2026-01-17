@@ -1,9 +1,7 @@
 ; 🌺 Peony Disassembly
-; ROM: Adventure (1978) (Atari) (PAL) [!].a26
+; ROM: Adventure - Odyssey 2600 (Adventure Hack).a26
 ; Platform: Atari 2600
 ; Size: 4096 bytes
-
-.system:Atari 2600
 
 ; === Block $f000-$f000 (Code) ===
 reset:
@@ -136,7 +134,7 @@ loc_f0c6:
 	lda #$00                 ; $f0c6: a9 00 VSYNC
 	sta $1c                  ; $f0c8: 85 1c GRP1
 	sta $1b                  ; $f0ca: 85 1b GRP0
-	lda #$3d                 ; $f0cc: a9 3d
+	lda #$20                 ; $f0cc: a9 20 HMP0
 	sta $0296                ; $f0ce: 8d 96 02 TIM64T
 	rts                      ; $f0d1: 60
 
@@ -179,7 +177,7 @@ loc_f0f1:
 	lda #$00                 ; $f103: a9 00 VSYNC
 	sta $02                  ; $f105: 85 02 WSYNC
 	sta $00                  ; $f107: 85 00 VSYNC
-	lda #$48                 ; $f109: a9 48 COLUPF
+	lda #$2a                 ; $f109: a9 2a HMOVE
 	sta $0296                ; $f10b: 8d 96 02 TIM64T
 	rts                      ; $f10e: 60
 
@@ -717,8 +715,8 @@ loc_f438:
 loc_f4c2:
 	lda $36                  ; $f4c2: a5 36
 	and #$80                 ; $f4c4: 29 80
-	bne $f4f5                ; $f4c6: d0 2d
-loc_f4c8:
+	nop                      ; $f4c6: ea
+	nop                      ; $f4c7: ea
 	lda $34                  ; $f4c8: a5 34
 	and #$40                 ; $f4ca: 29 40 VSYNC
 	bne $f4f5                ; $f4cc: d0 27
@@ -804,7 +802,7 @@ loc_f538:
 	lda $99                  ; $f544: a5 99
 	ora $f553,y              ; $f546: 19 53 f5
 	sta $9b                  ; $f549: 85 9b
-	ldy #$04                 ; $f54b: a0 04 NUSIZ0
+	ldy #$03                 ; $f54b: a0 03 RSYNC
 	ldx #$8a                 ; $f54d: a2 8a
 	jsr $f5ff                ; $f54f: 20 ff f5
 loc_f552:
@@ -1256,7 +1254,7 @@ loc_f795:
 	sta $d2                  ; $f797: 85 d2
 	lda #$f7                 ; $f799: a9 f7
 	sta $d3                  ; $f79b: 85 d3
-	lda #$04                 ; $f79d: a9 04 NUSIZ0
+	lda #$03                 ; $f79d: a9 03 RSYNC
 	sta $d4                  ; $f79f: 85 d4
 	ldx #$36                 ; $f7a1: a2 36
 	jsr $f7ea                ; $f7a3: 20 ea f7
@@ -1269,7 +1267,7 @@ loc_f7b0:
 	sta $d2                  ; $f7b2: 85 d2
 	lda #$f7                 ; $f7b4: a9 f7
 	sta $d3                  ; $f7b6: 85 d3
-	lda #$03                 ; $f7b8: a9 03 RSYNC
+	lda #$02                 ; $f7b8: a9 02 WSYNC
 	sta $d4                  ; $f7ba: 85 d4
 	ldx #$3f                 ; $f7bc: a2 3f
 	jsr $f7ea                ; $f7be: 20 ea f7
@@ -1282,7 +1280,7 @@ loc_f7cb:
 	sta $d2                  ; $f7cd: 85 d2
 	lda #$f7                 ; $f7cf: a9 f7
 	sta $d3                  ; $f7d1: 85 d3
-	lda #$03                 ; $f7d3: a9 03 RSYNC
+	lda #$02                 ; $f7d3: a9 02 WSYNC
 	sta $d4                  ; $f7d5: 85 d4
 	ldx #$48                 ; $f7d7: a2 48 COLUPF
 	jsr $f7ea                ; $f7d9: 20 ea f7
@@ -1428,7 +1426,7 @@ loc_f8b5:
 	inc $d1                  ; $f8b5: e6 d1
 	lda $ce                  ; $f8b7: a5 ce
 	ldx #$cb                 ; $f8b9: a2 cb
-	ldy #$04                 ; $f8bb: a0 04 NUSIZ0
+	ldy #$03                 ; $f8bb: a0 03 RSYNC
 	jsr $f5ff                ; $f8bd: 20 ff f5
 loc_f8c0:
 	jmp $f908                ; $f8c0: 4c 08 f9
