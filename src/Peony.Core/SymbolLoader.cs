@@ -2,48 +2,119 @@ namespace Peony.Core;
 
 /// <summary>
 /// Loads and manages symbols (labels, comments, data definitions) for disassembly
-/// Supports common formats: FCEUX .nl files, Mesen .mlb files, JSON
+/// Supports common formats: FCEUX .nl files, Mesen .mlb files, JSON, CDL, DIZ
 /// </summary>
 public class SymbolLoader {
-private readonly Dictionary<uint, string> _labels = [];
-private readonly Dictionary<uint, string> _comments = [];
-private readonly Dictionary<uint, DataDefinition> _dataDefinitions = [];
-private readonly Dictionary<(int Bank, uint Address), string> _bankLabels = [];
+	private readonly Dictionary<uint, string> _labels = [];
+	private readonly Dictionary<uint, string> _comments = [];
+	private readonly Dictionary<uint, DataDefinition> _dataDefinitions = [];
+	private readonly Dictionary<(int Bank, uint Address), string> _bankLabels = [];
+	private CdlLoader? _cdlLoader;
+	private DizLoader? _dizLoader;
 
-public IReadOnlyDictionary<uint, string> Labels => _labels;
-public IReadOnlyDictionary<uint, string> Comments => _comments;
-public IReadOnlyDictionary<uint, DataDefinition> DataDefinitions => _dataDefinitions;
-public IReadOnlyDictionary<(int Bank, uint Address), string> BankLabels => _bankLabels;
+	public IReadOnlyDictionary<uint, string> Labels => _labels;
+	public IReadOnlyDictionary<uint, string> Comments => _comments;
+	public IReadOnlyDictionary<uint, DataDefinition> DataDefinitions => _dataDefinitions;
+	public IReadOnlyDictionary<(int Bank, uint Address), string> BankLabels => _bankLabels;
 
-/// <summary>
-/// Load symbols from file (auto-detect format)
-/// </summary>
-public void Load(string path) {
-var ext = Path.GetExtension(path).ToLowerInvariant();
-var content = File.ReadAllText(path);
+	/// <summary>
+	/// Gets the loaded CDL data, if any.
+	/// </summary>
+	public CdlLoader? CdlData => _cdlLoader;
 
-switch (ext) {
-case ".nl":
-LoadFceuxNl(content);
-break;
-case ".mlb":
-LoadMesenMlb(content);
-break;
-case ".json":
-LoadJson(content);
-break;
-case ".sym":
-LoadGenericSym(content);
-break;
-default:
-// Try to auto-detect
-if (content.TrimStart().StartsWith('{'))
-LoadJson(content);
-else
-LoadGenericSym(content);
-break;
-}
-}
+	/// <summary>
+	/// Gets the loaded DIZ data, if any.
+	/// </summary>
+	public DizLoader? DizData => _dizLoader;
+
+	/// <summary>
+	/// Load symbols from file (auto-detect format)
+	/// </summary>
+	public void Load(string path) {
+		var ext = Path.GetExtension(path).ToLowerInvariant();
+
+		switch (ext) {
+			case ".nl":
+				LoadFceuxNl(File.ReadAllText(path));
+				break;
+			case ".mlb":
+				LoadMesenMlb(File.ReadAllText(path));
+				break;
+			case ".json":
+				LoadJson(File.ReadAllText(path));
+				break;
+			case ".sym":
+				LoadGenericSym(File.ReadAllText(path));
+				break;
+			case ".cdl":
+				LoadCdl(path);
+				break;
+			case ".diz":
+				LoadDiz(path);
+				break;
+			default:
+				// Try to auto-detect
+				var content = File.ReadAllText(path);
+				if (content.TrimStart().StartsWith('{'))
+					LoadJson(content);
+				else
+					LoadGenericSym(content);
+				break;
+		}
+	}
+
+	/// <summary>
+	/// Load a CDL (Code/Data Log) file from emulators like FCEUX/Mesen.
+	/// </summary>
+	/// <param name="path">Path to the CDL file.</param>
+	public void LoadCdl(string path) {
+		_cdlLoader = CdlLoader.Load(path);
+
+		// Generate labels for subroutine entry points
+		foreach (var offset in _cdlLoader.SubEntryPoints) {
+			var address = (uint)offset;  // May need address translation
+			if (!_labels.ContainsKey(address)) {
+				_labels[address] = $"sub_{offset:x4}";
+			}
+		}
+	}
+
+	/// <summary>
+	/// Load a DiztinGUIsh (.diz) project file.
+	/// </summary>
+	/// <param name="path">Path to the DIZ file.</param>
+	public void LoadDiz(string path) {
+		_dizLoader = DizLoader.Load(path);
+
+		// Import labels from DIZ file
+		_dizLoader.ExportToSymbolLoader(this);
+	}
+
+	/// <summary>
+	/// Checks if an address/offset is code according to CDL/DIZ data.
+	/// </summary>
+	/// <param name="offset">The ROM file offset.</param>
+	/// <returns>True if marked as code, null if no CDL/DIZ loaded.</returns>
+	public bool? IsCode(int offset) {
+		if (_cdlLoader is not null)
+			return _cdlLoader.IsCode(offset);
+		if (_dizLoader is not null)
+			return _dizLoader.IsCode(offset);
+		return null;
+	}
+
+	/// <summary>
+	/// Checks if an address/offset is data according to CDL/DIZ data.
+	/// </summary>
+	/// <param name="offset">The ROM file offset.</param>
+	/// <returns>True if marked as data, null if no CDL/DIZ loaded.</returns>
+	public bool? IsData(int offset) {
+		if (_cdlLoader is not null)
+			return _cdlLoader.IsData(offset);
+		if (_dizLoader is not null)
+			return _dizLoader.IsData(offset);
+		return null;
+	}
 
 /// <summary>
 /// Load FCEUX .nl (name list) format
