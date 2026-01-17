@@ -86,6 +86,12 @@ engine.AddLabel(addr, label);
 foreach (var (addr, comment) in symbolLoader.Comments) {
 engine.AddComment(addr, comment);
 }
+foreach (var (addr, dataDef) in symbolLoader.DataDefinitions) {
+engine.AddDataRegion(addr, dataDef);
+}
+if (symbolLoader.DataDefinitions.Count > 0) {
+AnsiConsole.MarkupLine($"[grey]Data regions:[/] {symbolLoader.DataDefinitions.Count}");
+}
 }
 
 var result = engine.Disassemble(romData, entryPoints, allBanks);
