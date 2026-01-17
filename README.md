@@ -16,13 +16,15 @@ Peony is a multi-system disassembler framework designed to work alongside [Poppy
 
 ## 🎮 Supported Systems
 
-| System | CPU | Status |
-|--------|-----|--------|
-| Atari 2600 | 6507 | 🎯 Priority |
-| NES | 6502 | Planned |
-| SNES | 65816 | Planned |
-| Game Boy | SM83 | Planned |
-| Atari Lynx | 65C02 | Planned |
+| System | CPU | Tests | Status |
+|--------|-----|-------|--------|
+| **Atari 2600** | 6507 | 32 | ✅ Complete |
+| **NES** | 6502 | ~50 | ✅ Complete |
+| **SNES** | 65816 | ~57 | ✅ Complete |
+| **Game Boy** | Sharp LR35902 | 0 | ✅ Complete |
+| **GBA** | ARM7TDMI | 0 | ✅ Complete |
+
+**Total**: 5 platforms, 171 tests passing
 
 ## ✨ Features
 
@@ -36,13 +38,22 @@ Peony is a multi-system disassembler framework designed to work alongside [Poppy
 
 ```bash
 # Disassemble an Atari 2600 ROM
-peony disasm --platform atari2600 game.a26 -o game/
+peony disasm game.a26 -p atari2600 -o game.pasm
 
-# Disassemble with CDL hints
-peony disasm --platform nes game.nes --cdl game.cdl -o game/
+# Disassemble a Game Boy ROM
+peony disasm game.gb -p gameboy -o game.pasm
 
-# Verify roundtrip
-peony verify game/ --original game.nes
+# Disassemble a GBA ROM
+peony disasm game.gba -p gba -o game.pasm
+
+# Disassemble with CDL hints (NES)
+peony disasm game.nes --cdl game.cdl -o game.pasm
+
+# Poppy-compatible output
+peony disasm game.bin -f poppy -o game.pasm
+
+# Disassemble all banks (for banked ROMs)
+peony disasm game.nes --all-banks -o game.pasm
 ```
 
 ## 📁 Project Structure
@@ -50,14 +61,18 @@ peony verify game/ --original game.nes
 ```
 src/
 ├── Peony.Core/              # Core framework
-├── Peony.Cpu.6502/          # 6502/6507/65C02 decoder
+├── Peony.Cpu.6502/          # 6502/6507 decoder
 ├── Peony.Cpu.65816/         # 65816 decoder
-├── Peony.Cpu.SM83/          # Game Boy CPU decoder
+├── Peony.Cpu.GameBoy/       # Sharp LR35902 decoder
+├── Peony.Cpu.ARM7TDMI/      # ARM7TDMI decoder (ARM + Thumb)
 ├── Peony.Platform.Atari2600/# Atari 2600 analysis
 ├── Peony.Platform.NES/      # NES analysis
 ├── Peony.Platform.SNES/     # SNES analysis
-├── Peony.Platform.GB/       # Game Boy analysis
+├── Peony.Platform.GameBoy/  # Game Boy analysis
+├── Peony.Platform.GBA/      # Game Boy Advance analysis
 └── Peony.Cli/               # CLI application
+tests/
+└── Peony.Core.Tests/        # 171 tests
 ```
 
 ## 🔧 Building
@@ -74,6 +89,8 @@ dotnet pack
 - [CPU Support](docs/CPU-Support.md)
 - [Platform Support](docs/Platform-Support.md)
 - [Output Formats](docs/Output-Formats.md)
+- [Atari 2600 Asset Extraction](docs/Atari-2600-Asset-Extraction.md)
+- [Session Logs](~docs/session-logs/)
 
 ## 🤝 Related Projects
 
