@@ -59,15 +59,23 @@ FormatBlock(sb, block, result, bank);
 var allBlocks = result.Blocks.Count > 0 ? result.Blocks :
 result.BankBlocks.Values.SelectMany(b => b).ToList();
 
-foreach (var block in allBlocks.OrderBy(b => b.StartAddress)) {
-FormatBlock(sb, block, result, -1);
-}
-}
+			// For single-bank systems, determine which bank to pass for label formatting
+			var bank = -1; // Default for global labels
+			if (result.BankBlocks.Count > 0) {
+				// If there are bank-specific blocks, use the first bank
+				var firstBank = result.BankBlocks.Keys.FirstOrDefault();
+				if (firstBank >= 0) bank = firstBank;
+			}
 
-return sb.ToString();
-}
+			foreach (var block in allBlocks.OrderBy(b => b.StartAddress)) {
+				FormatBlock(sb, block, result, bank);
+			}
+		}
 
-private static void FormatBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1) {
+		return sb.ToString();
+	}
+
+	private static void FormatBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1) {
 sb.AppendLine($"; --- Block at ${block.StartAddress:x4}-${block.EndAddress:x4} ---");
 
 foreach (var line in block.Lines) {

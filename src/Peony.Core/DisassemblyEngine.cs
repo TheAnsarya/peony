@@ -311,9 +311,11 @@ targetBank = _platformAnalyzer.BankCount - 1;
 }
 }
 
+// ALWAYS create label (even for backward branches)
+AddLabel(target, $"loc_{target:x4}", targetBank);
+
 if (!_visited.ContainsKey((target, targetBank))) {
 _codeQueue.Enqueue((target, targetBank));
-AddLabel(target, $"loc_{target:x4}", targetBank);
 }
 }
 
