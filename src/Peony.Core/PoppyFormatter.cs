@@ -1,166 +1,126 @@
-namespace Peony.Output;
-
-using Peony.Core;
+namespace Peony.Core;
 
 /// <summary>
-/// Poppy assembler output formatter (.pasm files)
+/// Formats disassembly output in Poppy assembler format with bank annotations
 /// </summary>
 public class PoppyFormatter : IOutputFormatter {
 public string Name => "Poppy";
 public string Extension => ".pasm";
 
 public void Generate(DisassemblyResult result, string outputPath) {
-using var writer = new StreamWriter(outputPath);
-
-WriteHeader(writer, result.RomInfo);
-WriteConstants(writer, result);
-WriteLabels(writer, result);
-WriteCode(writer, result);
-WriteVectors(writer, result);
+var content = Format(result);
+File.WriteAllText(outputPath, content);
 }
 
-private static void WriteHeader(StreamWriter writer, RomInfo info) {
-writer.WriteLine($"; 🌺 Peony Disassembly → 🌸 Poppy Assembly");
-writer.WriteLine($"; Platform: {info.Platform}");
-writer.WriteLine($"; Size: {info.Size} bytes");
-if (info.Mapper != null)
-writer.WriteLine($"; Mapper: {info.Mapper}");
-writer.WriteLine();
+public string Format(DisassemblyResult result) {
+var sb = new System.Text.StringBuilder();
 
-// Platform-specific directives
-var cpu = info.Platform switch {
-"Atari 2600" => "6502",
-"NES" => "6502",
-"SNES" => "65816",
-"Game Boy" => "sm83",
-_ => "6502"
-};
-
-writer.WriteLine($".cpu {cpu}");
-writer.WriteLine();
+// Header
+sb.AppendLine("; Disassembled by Peony");
+sb.AppendLine($"; Platform: {result.RomInfo.Platform}");
+if (!string.IsNullOrEmpty(result.RomInfo.Mapper)) {
+sb.AppendLine($"; Mapper: {result.RomInfo.Mapper}");
 }
 
-private static void WriteConstants(StreamWriter writer, DisassemblyResult result) {
-var hwLabels = new Dictionary<uint, string>();
+foreach (var kvp in result.RomInfo.Metadata) {
+sb.AppendLine($"; {kvp.Key}: {kvp.Value}");
+}
+sb.AppendLine();
 
-// Collect hardware register references
-foreach (var block in result.Blocks) {
-foreach (var line in block.Lines) {
-if (line.Comment != null && !line.Comment.StartsWith(";")) {
-// This is a hardware label
-// Try to extract address from instruction
-var parts = line.Content.Split(' ', 2);
-if (parts.Length == 2) {
-var operand = parts[1].Trim();
-if (TryParseAddress(operand, out var addr)) {
-hwLabels.TryAdd(addr, line.Comment);
-}
-}
-}
-}
-}
+// Check if we have multiple banks
+var hasMultipleBanks = result.BankBlocks.Count > 1 &&
+   result.BankBlocks.Values.Any(b => b.Count > 0);
 
-if (hwLabels.Count > 0) {
-writer.WriteLine("; Hardware Registers");
-foreach (var (addr, label) in hwLabels.OrderBy(x => x.Key)) {
-writer.WriteLine($"{label,-16} = ${addr:x4}");
-}
-writer.WriteLine();
-}
-}
+if (hasMultipleBanks) {
+// Output bank by bank
+foreach (var bank in result.BankBlocks.Keys.OrderBy(b => b)) {
+var blocks = result.BankBlocks[bank];
+if (blocks.Count == 0) continue;
 
-private static void WriteLabels(StreamWriter writer, DisassemblyResult result) {
-// RAM labels (zero page and work RAM)
-var ramLabels = result.Labels
-.Where(x => x.Key < 0x0800 || (x.Key >= 0x0080 && x.Key < 0x0100))
-.OrderBy(x => x.Key)
-.ToList();
+sb.AppendLine();
+sb.AppendLine($"; ===========================================================================");
+sb.AppendLine($"; BANK {bank}");
+sb.AppendLine($"; ===========================================================================");
+sb.AppendLine();
 
-if (ramLabels.Count > 0) {
-writer.WriteLine("; RAM Labels");
-foreach (var (addr, label) in ramLabels) {
-writer.WriteLine($"{label,-16} = ${addr:x4}");
-}
-writer.WriteLine();
+// Add bank directive
+sb.AppendLine($"\t.bank {bank}");
+sb.AppendLine($"\t.org $8000");
+sb.AppendLine();
+
+foreach (var block in blocks.OrderBy(b => b.StartAddress)) {
+FormatBlock(sb, block, result);
 }
 }
-
-private static void WriteCode(StreamWriter writer, DisassemblyResult result) {
-var sortedBlocks = result.Blocks.OrderBy(b => b.StartAddress).ToList();
-
-foreach (var block in sortedBlocks) {
-// Section comment
-var typeStr = block.Type switch {
-MemoryRegion.Code => "Code",
-MemoryRegion.Data => "Data",
-MemoryRegion.Graphics => "Graphics",
-_ => "Unknown"
-};
-
-writer.WriteLine($"; === {typeStr} Block ${block.StartAddress:x4}-${block.EndAddress:x4} ===");
-writer.WriteLine($".org ${block.StartAddress:x4}");
-writer.WriteLine();
-
-foreach (var line in block.Lines) {
-// Write label on its own line
-if (line.Label != null) {
-writer.WriteLine($"{line.Label}:");
-}
-
-// Write instruction with comment
-var instruction = line.Content;
-var comment = FormatComment(line);
-
-if (string.IsNullOrEmpty(comment)) {
-writer.WriteLine($"\t{instruction}");
 } else {
-writer.WriteLine($"\t{instruction,-24} {comment}");
+// Single bank output (original behavior)
+var allBlocks = result.Blocks.Count > 0 ? result.Blocks :
+result.BankBlocks.Values.SelectMany(b => b).ToList();
+
+foreach (var block in allBlocks.OrderBy(b => b.StartAddress)) {
+FormatBlock(sb, block, result);
 }
 }
 
-writer.WriteLine();
-}
-}
-
-private static void WriteVectors(StreamWriter writer, DisassemblyResult result) {
-// For platforms with vector tables
-var platform = result.RomInfo.Platform;
-
-if (platform == "NES") {
-writer.WriteLine("; === Vectors ===");
-writer.WriteLine(".org $fffa");
-writer.WriteLine("\t.word nmi_handler");
-writer.WriteLine("\t.word reset");
-writer.WriteLine("\t.word irq_handler");
-} else if (platform == "Atari 2600") {
-writer.WriteLine("; === Vectors ===");
-writer.WriteLine(".org $fffc");
-writer.WriteLine("\t.word reset");
-writer.WriteLine("\t.word reset");
-}
+return sb.ToString();
 }
 
-private static string FormatComment(DisassembledLine line) {
-var parts = new List<string>();
+private static void FormatBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result) {
+sb.AppendLine($"; --- Block at ${block.StartAddress:x4}-${block.EndAddress:x4} ---");
 
-// Address and bytes
+foreach (var line in block.Lines) {
+FormatLine(sb, line, result);
+}
+sb.AppendLine();
+}
+
+private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine line, DisassemblyResult result) {
+// Label on its own line
+if (!string.IsNullOrEmpty(line.Label)) {
+sb.AppendLine($"{line.Label}:");
+}
+
+// Build the instruction line
 var bytes = string.Join(" ", line.Bytes.Select(b => $"{b:x2}"));
-parts.Add($"; ${line.Address:x4}: {bytes}");
 
-// Hardware label
-if (line.Comment != null)
-parts.Add(line.Comment);
+// Check if this operand references a known label
+var formatted = FormatWithLabels(line.Content, result);
 
-return string.Join(" ", parts);
+var instruction = $"\t{formatted,-24}";
+var bytesComment = $"; {line.Address:x4}: {bytes,-12}";
+
+if (!string.IsNullOrEmpty(line.Comment)) {
+sb.AppendLine($"{instruction}{bytesComment} {line.Comment}");
+} else {
+sb.AppendLine($"{instruction}{bytesComment}");
+}
 }
 
-private static bool TryParseAddress(string operand, out uint address) {
-address = 0;
-operand = operand.TrimStart('#', '(').TrimEnd(')', ',', 'x', 'y', 'X', 'Y');
+private static string FormatWithLabels(string instruction, DisassemblyResult result) {
+	// Try to replace addresses with labels
+	// Use regex to ensure we only match complete addresses (not partial)
+	foreach (var kvp in result.Labels) {
+		// Skip immediate mode for small values (< 0x100) - keep as constants
+		// e.g. lda #$00 should stay as #$00, not #gen_byte_00
+		if (kvp.Key < 0x100 && instruction.Contains($"#${kvp.Key:x2}", StringComparison.OrdinalIgnoreCase))
+			continue;
 
-if (operand.StartsWith('$')) {
-return uint.TryParse(operand[1..], System.Globalization.NumberStyles.HexNumber, null, out address);
-}
-return false;
+		// Match $xxxx (4-digit hex) with word boundary
+		var pattern4 = $@"\${kvp.Key:x4}(?![0-9a-f])";
+		if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern4, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
+			instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern4, kvp.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+			continue;
+		}
+
+		// For addresses < 0x100, also match short form like $xx (but not immediate mode)
+		if (kvp.Key < 0x100) {
+			// Only match if it's NOT immediate mode (not preceded by #)
+			var pattern2 = $@"(?<!#)\${kvp.Key:x2}(?![0-9a-f])";
+			if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern2, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
+				instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern2, kvp.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+			}
+		}
+	}
+	return instruction;
 }
 }
