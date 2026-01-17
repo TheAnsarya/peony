@@ -3,6 +3,7 @@ using Peony.Core;
 using Peony.Platform.Atari2600;
 using Peony.Platform.NES;
 using Peony.Platform.GameBoy;
+using Peony.Platform.GBA;
 using Spectre.Console;
 
 // 🌺 Peony Disassembler CLI
@@ -48,46 +49,29 @@ IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 "atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
 "nes" => new NesAnalyzer(),
 "snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
-_ => throw new NotSupportedException($"Platform not supported: {platform}")
-};
+			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
+			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
+			_ => throw new NotSupportedException($"Platform not supported: {platform}")
+		};
 
-// Analyze ROM
-var info = analyzer.Analyze(romData);
-AnsiConsole.MarkupLine($"[grey]Mapper:[/] {info.Mapper ?? "None"}");
+		// Analyze ROM
+		var info = analyzer.Analyze(romData);
+		AnsiConsole.MarkupLine($"[grey]Mapper:[/] {info.Mapper ?? "None"}");
 
-if (analyzer.BankCount > 1) {
-AnsiConsole.MarkupLine($"[grey]Banks:[/] {analyzer.BankCount}");
-if (allBanks) {
-AnsiConsole.MarkupLine($"[cyan]Multi-bank mode enabled[/]");
-}
-}
+		if (analyzer.BankCount > 1) {
+			AnsiConsole.MarkupLine($"[grey]Banks:[/] {analyzer.BankCount}");
+			if (allBanks) {
+				AnsiConsole.MarkupLine($"[cyan]Multi-bank mode enabled[/]");
+			}
+		}
 
-// Load symbols if provided
-SymbolLoader? symbolLoader = null;
-if (symbols?.Exists == true) {
-symbolLoader = new SymbolLoader();
-symbolLoader.Load(symbols.FullName);
-AnsiConsole.MarkupLine($"[grey]Symbols:[/] {symbolLoader.Labels.Count} labels loaded");
-}
-
-// Load CDL file if provided
-if (cdlFile?.Exists == true) {
-	symbolLoader ??= new SymbolLoader();
-	symbolLoader.Load(cdlFile.FullName);
-	var cdlStats = symbolLoader.CdlData?.GetCoverageStats();
-	if (cdlStats != null) {
-		AnsiConsole.MarkupLine($"[grey]CDL:[/] {cdlStats.Value.CoveragePercent:F1}% coverage ({cdlStats.Value.CodeBytes} code, {cdlStats.Value.DataBytes} data bytes)");
-	}
-}
-
-// Load DIZ file if provided
-if (dizFile?.Exists == true) {
-	symbolLoader ??= new SymbolLoader();
-	symbolLoader.Load(dizFile.FullName);
-	if (symbolLoader.DizData != null) {
-AnsiConsole.MarkupLine($"[grey]DIZ:[/] {symbolLoader.Labels.Count} labels, project \"{symbolLoader.DizData.ProjectName}\"");
-}
-}
+		// Load symbols if provided
+		SymbolLoader? symbolLoader = null;
+		if (symbols?.Exists == true) {
+			symbolLoader = new SymbolLoader();
+			symbolLoader.Load(symbols.FullName);
+			AnsiConsole.MarkupLine($"[grey]Symbols:[/] {symbolLoader.Labels.Count} labels loaded");
+		}
 
 AnsiConsole.WriteLine();
 

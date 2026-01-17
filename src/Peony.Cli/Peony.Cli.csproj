@@ -21,6 +21,8 @@
     <ProjectReference Include="..\Peony.Platform.SNES\Peony.Platform.SNES.csproj" />
     <ProjectReference Include="..\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj" />
     <ProjectReference Include="..\Peony.Cpu.GameBoy\Peony.Cpu.GameBoy.csproj" />
+    <ProjectReference Include="..\Peony.Platform.GBA\Peony.Platform.GBA.csproj" />
+    <ProjectReference Include="..\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj" />
   </ItemGroup>
 
 </Project>
