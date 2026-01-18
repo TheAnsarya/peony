@@ -56,7 +56,7 @@ public class NesTextExtractor : ITextExtractor {
 		var content = """
 			@name=Dragon Quest
 			@end=FC
-			
+
 			; Uppercase letters
 			80=A
 			81=B
@@ -84,7 +84,7 @@ public class NesTextExtractor : ITextExtractor {
 			97=X
 			98=Y
 			99=Z
-			
+
 			; Lowercase letters
 			9A=a
 			9B=b
@@ -112,7 +112,7 @@ public class NesTextExtractor : ITextExtractor {
 			B1=x
 			B2=y
 			B3=z
-			
+
 			; Numbers
 			B4=0
 			B5=1
@@ -124,7 +124,7 @@ public class NesTextExtractor : ITextExtractor {
 			BB=7
 			BC=8
 			BD=9
-			
+
 			; Punctuation
 			BE='
 			BF=,
@@ -135,7 +135,7 @@ public class NesTextExtractor : ITextExtractor {
 			C4=(
 			C5=)
 			C6=<space>
-			
+
 			; Control codes (common DQ patterns)
 			F0=[WAIT]
 			F1=[LINE]
@@ -157,7 +157,7 @@ public class NesTextExtractor : ITextExtractor {
 		var content = """
 			@name=Final Fantasy
 			@end=00
-			
+
 			; Uppercase letters
 			82=A
 			83=B
@@ -185,7 +185,7 @@ public class NesTextExtractor : ITextExtractor {
 			99=X
 			9A=Y
 			9B=Z
-			
+
 			; Lowercase letters
 			9C=a
 			9D=b
@@ -213,14 +213,14 @@ public class NesTextExtractor : ITextExtractor {
 			B3=x
 			B4=y
 			B5=z
-			
+
 			; Numbers
 			80=0
 			81=1
-			
+
 			; Space
 			FF=<space>
-			
+
 			; Punctuation
 			C0='
 			C1=,
