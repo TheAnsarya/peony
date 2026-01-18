@@ -24,8 +24,13 @@
 		<ProjectReference Include="..\..\src\Peony.Core\Peony.Core.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Cpu.65816\Peony.Cpu.65816.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Cpu.6502\Peony.Cpu.6502.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Cpu.GameBoy\Peony.Cpu.GameBoy.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Platform.Atari2600\Peony.Platform.Atari2600.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.NES\Peony.Platform.NES.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj" />
 	</ItemGroup>
 
 </Project>
