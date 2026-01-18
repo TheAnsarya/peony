@@ -148,25 +148,31 @@ public class Arm7TdmiDecoderTests {
 		Assert.Equal("ldrb", result.Mnemonic);
 	}
 
-	// NOTE: MUL/MLA tests disabled - the decoder checks data processing before multiply,
-	// causing multiply instructions to be misidentified. See GitHub issue for fix.
-	// TODO: Enable these tests after fixing Arm7TdmiDecoder multiply detection order
+	[Fact]
+	public void Decode_ArmMul_DecodesCorrectly() {
+		_decoder.ThumbMode = false;
+		// MUL is identified by pattern: (instr & 0x0fc000f0) == 0x00000090
+		// mul r0, r1, r2 would be: e0000291 (condition=AL, S=0, rd=0, rs=2, rm=1)
+		// Bytes are little-endian: 91 02 00 e0
+		var data = new byte[] { 0x91, 0x02, 0x00, 0xe0 };
 
-	// [Fact]
-	// public void Decode_ArmMul_DecodesCorrectly() {
-	//     _decoder.ThumbMode = false;
-	//     var data = new byte[] { 0x91, 0x02, 0x00, 0xe0 };
-	//     var result = _decoder.Decode(data, 0x08000000);
-	//     Assert.Equal("mul", result.Mnemonic);
-	// }
+		var result = _decoder.Decode(data, 0x08000000);
 
-	// [Fact]
-	// public void Decode_ArmMla_DecodesCorrectly() {
-	//     _decoder.ThumbMode = false;
-	//     var data = new byte[] { 0x91, 0x03, 0x20, 0xe0 };
-	//     var result = _decoder.Decode(data, 0x08000000);
-	//     Assert.Equal("mla", result.Mnemonic);
-	// }
+		Assert.Equal("mul", result.Mnemonic);
+	}
+
+	[Fact]
+	public void Decode_ArmMla_DecodesCorrectly() {
+		_decoder.ThumbMode = false;
+		// MLA pattern with accumulate bit: (instr & 0x0fc000f0) == 0x00000090 && acc bit set
+		// mla r0, r1, r2, r3 would be: e0200391 (condition=AL, A=1, S=0, rd=0, rn=3, rs=2, rm=1)
+		// Bytes: 91 03 20 e0
+		var data = new byte[] { 0x91, 0x03, 0x20, 0xe0 };
+
+		var result = _decoder.Decode(data, 0x08000000);
+
+		Assert.Equal("mla", result.Mnemonic);
+	}
 
 	[Fact]
 	public void Decode_ArmSwi_DecodesCorrectly() {
@@ -363,25 +369,24 @@ public class Arm7TdmiDecoderTests {
 		Assert.Equal("???", result.Mnemonic);
 	}
 
-	// NOTE: BL prefix/suffix tests disabled - the decoder has incorrect bit extraction
-	// for the H field. Should check bit 11 specifically, not (instr >> 11) & 3.
-	// See GitHub issue for fix.
-	// TODO: Enable these tests after fixing Arm7TdmiDecoder BL detection
+	[Fact]
+	public void Decode_ThumbBlPrefix_DecodesCorrectly() {
+		_decoder.ThumbMode = true;
+		// bl prefix: 0xf000 = 0b1111_0000_0000_0000
+		// Bit 11 = 0 indicates prefix
+		var data = new byte[] { 0x00, 0xf0 };
 
-	// [Fact]
-	// public void Decode_ThumbBlPrefix_DecodesCorrectly() {
-	//     _decoder.ThumbMode = true;
-	//     var data = new byte[] { 0x00, 0xf0 };
-	//     var result = _decoder.Decode(data, 0x08000000);
-	//     Assert.Equal("bl", result.Mnemonic);
-	//     Assert.Contains("prefix", result.Operand);
-	// }
+		var result = _decoder.Decode(data, 0x08000000);
+
+		Assert.Equal("bl", result.Mnemonic);
+		Assert.Contains("prefix", result.Operand);
+	}
 
 	[Fact]
 	public void Decode_ThumbBlSuffix_DecodesCorrectly() {
 		_decoder.ThumbMode = true;
 		// bl suffix: 0xf800 = 0b1111_1000_0000_0000
-		// This should decode as suffix (h=1)
+		// Bit 11 = 1 indicates suffix
 		var data = new byte[] { 0x00, 0xf8 };
 
 		var result = _decoder.Decode(data, 0x08000000);

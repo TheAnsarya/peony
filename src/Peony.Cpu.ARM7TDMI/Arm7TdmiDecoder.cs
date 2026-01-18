@@ -48,6 +48,21 @@ public class Arm7TdmiDecoder : ICpuDecoder {
 			return new DecodedInstruction(mnemonic, $"${target:x8}", bytes, AddressingMode.Absolute);
 		}
 
+		// Multiply (must check before data processing - same top 2 bits)
+		if ((instr & 0x0fc000f0) == 0x00000090) {
+			var acc = (instr & 0x00200000) != 0;
+			var rd = (int)((instr >> 16) & 0xf);
+			var rn = (int)((instr >> 12) & 0xf);
+			var rs = (int)((instr >> 8) & 0xf);
+			var rm = (int)(instr & 0xf);
+
+			if (acc) {
+				return new DecodedInstruction("mla", $"r{rd}, r{rm}, r{rs}, r{rn}", bytes, AddressingMode.Implied);
+			} else {
+				return new DecodedInstruction("mul", $"r{rd}, r{rm}, r{rs}", bytes, AddressingMode.Implied);
+			}
+		}
+
 		// Data processing
 		if ((instr & 0x0c000000) == 0x00000000) {
 			var opcode = (int)((instr >> 21) & 0xf);
@@ -90,21 +105,6 @@ public class Arm7TdmiDecoder : ICpuDecoder {
 			var mnemonic = load ? (isByte ? "ldrb" : "ldr") : (isByte ? "strb" : "str");
 			var offset = FormatLoadStoreOffset(instr);
 			return new DecodedInstruction(mnemonic, $"r{rd}, [r{rn}{offset}]", bytes, AddressingMode.Indirect);
-		}
-
-		// Multiply
-		if ((instr & 0x0fc000f0) == 0x00000090) {
-			var acc = (instr & 0x00200000) != 0;
-			var rd = (int)((instr >> 16) & 0xf);
-			var rn = (int)((instr >> 12) & 0xf);
-			var rs = (int)((instr >> 8) & 0xf);
-			var rm = (int)(instr & 0xf);
-
-			if (acc) {
-				return new DecodedInstruction("mla", $"r{rd}, r{rm}, r{rs}, r{rn}", bytes, AddressingMode.Implied);
-			} else {
-				return new DecodedInstruction("mul", $"r{rd}, r{rm}, r{rs}", bytes, AddressingMode.Implied);
-			}
 		}
 
 		// Software interrupt
@@ -153,13 +153,13 @@ public class Arm7TdmiDecoder : ICpuDecoder {
 		// Long branch with link
 		if ((instr & 0xf000) == 0xf000) {
 			var offset = (int)(instr & 0x7ff);
-			var h = (instr >> 11) & 3;
+			var h = (instr >> 11) & 1;  // Bit 11 only: 0 = prefix, 1 = suffix
 			if (h == 0) {
-				// BL prefix
+				// BL prefix - sets LR = PC + 4 + (offset << 12)
 				if ((offset & 0x400) != 0) offset |= unchecked((int)0xfffff800);
 				return new DecodedInstruction("bl", $"prefix ${offset:x}", bytes, AddressingMode.Immediate);
-			} else if (h == 1 || h == 3) {
-				// BL suffix
+			} else {
+				// BL suffix - branches to LR + (offset << 1)
 				return new DecodedInstruction("bl", $"offset ${offset:x}", bytes, AddressingMode.Immediate);
 			}
 		}
