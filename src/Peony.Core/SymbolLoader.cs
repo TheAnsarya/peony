@@ -168,6 +168,45 @@ public class SymbolLoader {
 		return null;
 	}
 
+	/// <summary>
+	/// Gets memory regions from Pansy data, if available.
+	/// Memory regions define address ranges with their types and banks.
+	/// </summary>
+	public IReadOnlyList<PansyLoader.MemoryRegion>? GetMemoryRegions() =>
+		_pansyLoader?.MemoryRegions;
+
+	/// <summary>
+	/// Gets the bank number for an address based on Pansy memory regions.
+	/// </summary>
+	/// <param name="address">The CPU address to look up.</param>
+	/// <returns>The bank number, or null if no matching region found.</returns>
+	public int? GetBankForAddress(uint address) {
+		if (_pansyLoader is null) return null;
+
+		foreach (var region in _pansyLoader.MemoryRegions) {
+			if (address >= region.Start && address <= region.End) {
+				return region.Bank;
+			}
+		}
+		return null;
+	}
+
+	/// <summary>
+	/// Gets the memory region containing an address based on Pansy data.
+	/// </summary>
+	/// <param name="address">The CPU address to look up.</param>
+	/// <returns>The memory region, or null if no matching region found.</returns>
+	public PansyLoader.MemoryRegion? GetMemoryRegionForAddress(uint address) {
+		if (_pansyLoader is null) return null;
+
+		foreach (var region in _pansyLoader.MemoryRegions) {
+			if (address >= region.Start && address <= region.End) {
+				return region;
+			}
+		}
+		return null;
+	}
+
 /// <summary>
 /// Load FCEUX .nl (name list) format
 /// Format: $XXXX#LabelName#Comment

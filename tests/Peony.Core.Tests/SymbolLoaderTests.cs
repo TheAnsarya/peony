@@ -298,5 +298,26 @@ public class SymbolLoaderTests {
 		Assert.Equal("NMI", labels[0x8100]);
 	}
 
+	[Fact]
+	public void GetBankForAddress_ReturnsNull_WhenNoPansyLoaded() {
+		var loader = new SymbolLoader();
+
+		Assert.Null(loader.GetBankForAddress(0x8000));
+	}
+
+	[Fact]
+	public void GetMemoryRegionForAddress_ReturnsNull_WhenNoPansyLoaded() {
+		var loader = new SymbolLoader();
+
+		Assert.Null(loader.GetMemoryRegionForAddress(0x8000));
+	}
+
+	[Fact]
+	public void GetMemoryRegions_ReturnsNull_WhenNoPansyLoaded() {
+		var loader = new SymbolLoader();
+
+		Assert.Null(loader.GetMemoryRegions());
+	}
+
 	#endregion
 }

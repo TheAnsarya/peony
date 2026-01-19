@@ -260,6 +260,58 @@ public class DisassemblyEngine {
 		return true;
 	}
 
+	/// <summary>
+	/// Determine the target bank for an address using Pansy memory regions if available,
+	/// otherwise fall back to platform-specific logic.
+	/// </summary>
+	private int GetTargetBank(uint target, int currentBank) {
+		// First, try to get bank from Pansy memory regions
+		if (_symbolLoader is not null) {
+			var pansyBank = _symbolLoader.GetBankForAddress(target);
+			if (pansyBank.HasValue) {
+				return pansyBank.Value;
+			}
+		}
+
+		// Fall back to platform-specific bank detection
+		if (_platformAnalyzer.Platform == "NES") {
+			// In NES MMC1, $C000-$FFFF is fixed (last bank)
+			// $8000-$BFFF uses current switchable bank
+			if (target >= 0xc000) {
+				return _platformAnalyzer.BankCount - 1;
+			}
+		}
+		else if (_platformAnalyzer.Platform == "SNES") {
+			// For SNES LoROM, use bank byte from address
+			// Address format: $BB:XXXX where BB is bank
+			if (target > 0xFFFF) {
+				return (int)(target >> 16);
+			}
+		}
+		else if (_platformAnalyzer.Platform == "Game Boy") {
+			// For Game Boy, ROM bank is in $4000-$7FFF region
+			// $0000-$3FFF is always bank 0, $4000-$7FFF is switchable
+			if (target >= 0x4000 && target < 0x8000) {
+				// Use current bank for switchable region
+				return currentBank;
+			}
+			else if (target < 0x4000) {
+				// Fixed bank 0
+				return 0;
+			}
+		}
+		else if (_platformAnalyzer.Platform == "GBA") {
+			// For GBA, ROM typically maps to $08000000-$09FFFFFF
+			// Bank is determined by ROM size (typically 32KB banks)
+			if (target >= 0x08000000 && target < 0x0A000000) {
+				return (int)((target - 0x08000000) / 0x8000);
+			}
+		}
+
+		// Default: keep current bank
+		return currentBank;
+	}
+
 	private void DisassembleBlock(ReadOnlySpan<byte> rom, uint startAddress, int bank, DisassemblyResult result) {
 		var lines = new List<DisassembledLine>();
 		var address = startAddress;
@@ -344,15 +396,8 @@ if (_cpuDecoder.IsControlFlow(instruction)) {
 		// Record cross-reference
 		AddCrossRef(address, bank, target, crossRefType);
 
-		// Determine target bank
-		var targetBank = bank;
-		if (_platformAnalyzer.Platform == "NES") {
-			// In NES MMC1, $C000-$FFFF is fixed (last bank)
-			// $8000-$BFFF uses current switchable bank
-			if (target >= 0xc000) {
-				targetBank = _platformAnalyzer.BankCount - 1;
-			}
-		}
+		// Determine target bank using Pansy memory regions if available
+		var targetBank = GetTargetBank(target, bank);
 
 		// ALWAYS create label (even for backward branches)
 		AddLabel(target, $"loc_{target:x4}", targetBank);
