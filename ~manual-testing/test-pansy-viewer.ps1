@@ -35,11 +35,11 @@ dotnet run --project ../src/Peony.Cli -- export $romPath -o $pansyPath -f pansy
 
 if (Test-Path $pansyPath) {
 	Write-Host "`nPansy file created: $pansyPath" -ForegroundColor Green
-	
+
 	# Test the viewer
 	Write-Host "`n=== Testing Pansy Viewer ===" -ForegroundColor Magenta
 	dotnet run --project ../src/Peony.Cli -- pansy $pansyPath
-	
+
 	Write-Host "`n=== Testing Verbose Mode ===" -ForegroundColor Magenta
 	dotnet run --project ../src/Peony.Cli -- pansy $pansyPath --verbose
 }

@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peony.Platform.GameBoy.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peony.Platform.GBA.Tests", "tests\Peony.Platform.GBA.Tests\Peony.Platform.GBA.Tests.csproj", "{72A85358-FBC1-4BE7-8434-906F02DB2A3D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pansy.Core", "..\pansy\src\Pansy.Core\Pansy.Core.csproj", "{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,6 +229,18 @@ Global
 		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|x64.Build.0 = Release|Any CPU
 		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|x86.ActiveCfg = Release|Any CPU
 		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|x86.Build.0 = Release|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Debug|x64.Build.0 = Debug|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Debug|x86.Build.0 = Debug|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Release|x64.ActiveCfg = Release|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Release|x64.Build.0 = Release|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Release|x86.ActiveCfg = Release|Any CPU
+		{60F6EB88-C625-4FB2-B2BE-B26759C74C4D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
