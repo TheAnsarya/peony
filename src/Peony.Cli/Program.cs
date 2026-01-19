@@ -935,9 +935,127 @@ tblCommand.SetHandler((output, template, fromFile, toFormat) => {
 
 rootCommand.AddCommand(tblCommand);
 
+// Pansy command - view/inspect Pansy files
+var pansyCommand = new Command("pansy", "View and inspect Pansy metadata files");
+var pansyFileArg = new Argument<FileInfo>("file", "Pansy (.pansy) file to inspect");
+var pansyVerboseOpt = new Option<bool>(["--verbose", "-v"], "Show detailed information");
+
+pansyCommand.AddArgument(pansyFileArg);
+pansyCommand.AddOption(pansyVerboseOpt);
+
+pansyCommand.SetHandler((file, verbose) => {
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Pansy File Viewer[/]");
+		AnsiConsole.WriteLine();
+
+		if (!file.Exists) {
+			AnsiConsole.MarkupLine($"[red]Error:[/] File not found: {Markup.Escape(file.FullName)}");
+			Environment.Exit(1);
+		}
+
+		// Load Pansy file
+		var data = File.ReadAllBytes(file.FullName);
+		var pansy = new PansyLoader(data);
+
+		// Display header information
+		var headerTable = new Table()
+			.Border(TableBorder.Rounded)
+			.AddColumn("Property")
+			.AddColumn("Value");
+
+		headerTable.AddRow("Format Version", $"{pansy.Version:x4}");
+		headerTable.AddRow("Platform", GetPlatformName(pansy.Platform));
+		headerTable.AddRow("ROM Size", $"{pansy.RomSize} bytes ({pansy.RomSize / 1024}K)");
+		headerTable.AddRow("ROM CRC32", $"{pansy.RomCrc32:x8}");
+		headerTable.AddRow("Flags", $"{pansy.Flags}");
+
+		AnsiConsole.Write(headerTable);
+		AnsiConsole.WriteLine();
+
+		// Display content statistics
+		AnsiConsole.MarkupLine("[bold cyan]Content Statistics:[/]");
+		AnsiConsole.MarkupLine($"  • Symbols: {pansy.Symbols.Count}");
+		AnsiConsole.MarkupLine($"  • Comments: {pansy.Comments.Count}");
+		AnsiConsole.MarkupLine($"  • Code Offsets: {pansy.CodeOffsets.Count}");
+		AnsiConsole.MarkupLine($"  • Data Offsets: {pansy.DataOffsets.Count}");
+		AnsiConsole.MarkupLine($"  • Jump Targets: {pansy.JumpTargets.Count}");
+		AnsiConsole.MarkupLine($"  • Subroutines: {pansy.SubEntryPoints.Count}");
+		AnsiConsole.MarkupLine($"  • Memory Regions: {pansy.MemoryRegions.Count}");
+		AnsiConsole.MarkupLine($"  • Cross-refs: {pansy.CrossReferences.Count}");
+		AnsiConsole.WriteLine();
+
+		// Show memory regions if any
+		if (pansy.MemoryRegions.Count > 0) {
+			AnsiConsole.MarkupLine("[bold cyan]Memory Regions:[/]");
+			var regionTable = new Table()
+				.Border(TableBorder.Rounded)
+				.AddColumn("Start")
+				.AddColumn("End")
+				.AddColumn("Bank")
+				.AddColumn("Type")
+				.AddColumn("Name");
+
+			foreach (var region in pansy.MemoryRegions.Take(10)) {
+				regionTable.AddRow(
+					$"${region.Start:x4}",
+					$"${region.End:x4}",
+					$"{region.Bank}",
+					$"{region.Type}",
+					Markup.Escape(region.Name)
+				);
+			}
+
+			if (pansy.MemoryRegions.Count > 10) {
+				regionTable.AddRow("[grey]...[/]", $"[grey]+{pansy.MemoryRegions.Count - 10} more[/]", "", "", "");
+			}
+
+			AnsiConsole.Write(regionTable);
+			AnsiConsole.WriteLine();
+		}
+
+		// Show symbols if verbose
+		if (verbose && pansy.Symbols.Count > 0) {
+			AnsiConsole.MarkupLine("[bold cyan]Symbols (first 20):[/]");
+			var symbolTable = new Table()
+				.Border(TableBorder.Rounded)
+				.AddColumn("Address")
+				.AddColumn("Name");
+
+			foreach (var (addr, name) in pansy.Symbols.Take(20)) {
+				symbolTable.AddRow($"${addr:x4}", Markup.Escape(name));
+			}
+
+			if (pansy.Symbols.Count > 20) {
+				symbolTable.AddRow("[grey]...[/]", $"[grey]+{pansy.Symbols.Count - 20} more[/]");
+			}
+
+			AnsiConsole.Write(symbolTable);
+		}
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+
+	static string GetPlatformName(byte platformId) {
+		return platformId switch {
+			PansyLoader.PLATFORM_NES => "NES",
+			PansyLoader.PLATFORM_SNES => "SNES",
+			PansyLoader.PLATFORM_GB => "Game Boy",
+			PansyLoader.PLATFORM_GBA => "Game Boy Advance",
+			PansyLoader.PLATFORM_GENESIS => "Sega Genesis",
+			PansyLoader.PLATFORM_ATARI_2600 => "Atari 2600",
+			PansyLoader.PLATFORM_CUSTOM => "Custom",
+			_ => $"Unknown ({platformId:x2})"
+		};
+	}
+}, pansyFileArg, pansyVerboseOpt);
+
+rootCommand.AddCommand(pansyCommand);
+
 // Version
 rootCommand.SetHandler(() => {
-AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.4.0[/]");
+	AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.4.0[/]");
 AnsiConsole.MarkupLine("Multi-system ROM disassembler with asset pipeline");
 AnsiConsole.WriteLine();
 AnsiConsole.MarkupLine("Supported platforms:");
