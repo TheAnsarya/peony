@@ -8,6 +8,12 @@ public static class SymbolExporter {
 	/// Export symbols to a file in the specified format
 	/// </summary>
 	public static void Export(DisassemblyResult result, string outputPath, SymbolFormat format) {
+		// Pansy is binary, handle separately
+		if (format == SymbolFormat.Pansy) {
+			ExportPansy(result, outputPath);
+			return;
+		}
+
 		var content = format switch {
 			SymbolFormat.Mesen => ExportMesen(result),
 			SymbolFormat.FCEUX => ExportFCEUX(result),
@@ -224,6 +230,259 @@ public static class SymbolExporter {
 		return sb.ToString();
 	}
 
+	#region Pansy Export
+
+	// Pansy file constants (matching PansyGenerator/PansyLoader)
+	private static readonly byte[] PansyMagic = "PANSY\0\0\0"u8.ToArray();
+	private const ushort PansyFormatVersion = 0x0100; // v1.0
+	private const uint SECTION_CODE_DATA_MAP = 0x0001;
+	private const uint SECTION_SYMBOLS = 0x0002;
+	private const uint SECTION_COMMENTS = 0x0003;
+
+	/// <summary>
+	/// Export disassembly result to Pansy binary format (.pansy).
+	/// This format is compatible with Poppy assembler and provides
+	/// comprehensive metadata for roundtrip assembly/disassembly.
+	/// </summary>
+	public static void ExportPansy(DisassemblyResult result, string outputPath) {
+		using var fs = File.Create(outputPath);
+		using var writer = new BinaryWriter(fs, System.Text.Encoding.UTF8);
+
+		// Determine platform ID from ROM info
+		byte platformId = GetPansyPlatformId(result.RomInfo);
+
+		// Collect section data
+		var symbolSection = BuildSymbolSection(result);
+		var commentSection = BuildCommentSection(result);
+		var codeDataSection = BuildCodeDataSection(result);
+
+		// Calculate section count and offsets
+		var sectionCount = 0u;
+		if (codeDataSection.Length > 0) sectionCount++;
+		if (symbolSection.Length > 0) sectionCount++;
+		if (commentSection.Length > 0) sectionCount++;
+
+		var headerSize = 32;
+		var sectionTableSize = (int)(sectionCount * 16); // 16 bytes per section entry
+		var dataOffset = headerSize + sectionTableSize;
+
+		// Write header (32 bytes)
+		writer.Write(PansyMagic);                  // 8 bytes: Magic
+		writer.Write(PansyFormatVersion);          // 2 bytes: Version
+		writer.Write((ushort)0);                   // 2 bytes: Flags
+		writer.Write(platformId);                  // 1 byte: Platform
+		writer.Write((byte)0);                     // 1 byte: Reserved
+		writer.Write((byte)0);                     // 1 byte: Reserved
+		writer.Write((byte)0);                     // 1 byte: Reserved
+		writer.Write((uint)(result.RomInfo?.Size ?? 0));  // 4 bytes: ROM size
+		writer.Write(0u);                          // 4 bytes: ROM CRC32 (unknown)
+		writer.Write(sectionCount);                // 4 bytes: Section count
+		writer.Write(0u);                          // 4 bytes: Reserved
+
+		// Write section table
+		var currentOffset = (uint)dataOffset;
+
+		if (codeDataSection.Length > 0) {
+			writer.Write(SECTION_CODE_DATA_MAP);
+			writer.Write(currentOffset);
+			writer.Write((uint)codeDataSection.Length);
+			writer.Write((uint)codeDataSection.Length);
+			currentOffset += (uint)codeDataSection.Length;
+		}
+
+		if (symbolSection.Length > 0) {
+			writer.Write(SECTION_SYMBOLS);
+			writer.Write(currentOffset);
+			writer.Write((uint)symbolSection.Length);
+			writer.Write((uint)symbolSection.Length);
+			currentOffset += (uint)symbolSection.Length;
+		}
+
+		if (commentSection.Length > 0) {
+			writer.Write(SECTION_COMMENTS);
+			writer.Write(currentOffset);
+			writer.Write((uint)commentSection.Length);
+			writer.Write((uint)commentSection.Length);
+		}
+
+		// Write section data
+		if (codeDataSection.Length > 0) writer.Write(codeDataSection);
+		if (symbolSection.Length > 0) writer.Write(symbolSection);
+		if (commentSection.Length > 0) writer.Write(commentSection);
+	}
+
+	/// <summary>
+	/// Map platform name to Pansy platform ID.
+	/// </summary>
+	private static byte GetPansyPlatformId(RomInfo? info) {
+		if (info?.Platform == null) return 0xff; // Custom/unknown
+
+		return info.Platform.ToLowerInvariant() switch {
+			"nes" => PansyLoader.PLATFORM_NES,
+			"snes" or "super nintendo" => PansyLoader.PLATFORM_SNES,
+			"gb" or "game boy" or "gameboy" => PansyLoader.PLATFORM_GB,
+			"gba" or "game boy advance" => PansyLoader.PLATFORM_GBA,
+			"genesis" or "mega drive" => PansyLoader.PLATFORM_GENESIS,
+			"sms" or "master system" => PansyLoader.PLATFORM_SMS,
+			"pce" or "turbografx" or "pc engine" => PansyLoader.PLATFORM_PCE,
+			"atari 2600" or "atari2600" or "2600" => PansyLoader.PLATFORM_ATARI_2600,
+			"lynx" or "atari lynx" => PansyLoader.PLATFORM_LYNX,
+			"wonderswan" or "ws" => PansyLoader.PLATFORM_WONDERSWAN,
+			"neogeo" or "neo geo" => PansyLoader.PLATFORM_NEOGEO,
+			"spc700" or "spc" => PansyLoader.PLATFORM_SPC700,
+			"c64" or "commodore 64" => PansyLoader.PLATFORM_C64,
+			"msx" => PansyLoader.PLATFORM_MSX,
+			"atari 7800" or "7800" => PansyLoader.PLATFORM_ATARI_7800,
+			"atari 8-bit" or "a8" => PansyLoader.PLATFORM_ATARI_8BIT,
+			"apple ii" or "apple2" => PansyLoader.PLATFORM_APPLE_II,
+			"zx spectrum" or "spectrum" => PansyLoader.PLATFORM_ZX_SPECTRUM,
+			"colecovision" or "coleco" => PansyLoader.PLATFORM_COLECO,
+			"intellivision" or "intv" => PansyLoader.PLATFORM_INTELLIVISION,
+			"vectrex" => PansyLoader.PLATFORM_VECTREX,
+			"game gear" or "gg" => PansyLoader.PLATFORM_GAMEGEAR,
+			"32x" or "sega 32x" => PansyLoader.PLATFORM_32X,
+			"sega cd" or "segacd" => PansyLoader.PLATFORM_SEGACD,
+			"virtual boy" or "vb" => PansyLoader.PLATFORM_VIRTUALBOY,
+			"amstrad cpc" or "cpc" => PansyLoader.PLATFORM_AMSTRAD_CPC,
+			"bbc micro" or "bbc" => PansyLoader.PLATFORM_BBC_MICRO,
+			"vic-20" or "vic20" => PansyLoader.PLATFORM_VIC20,
+			"plus/4" or "plus4" => PansyLoader.PLATFORM_PLUS4,
+			"c128" or "commodore 128" => PansyLoader.PLATFORM_C128,
+			_ => PansyLoader.PLATFORM_CUSTOM
+		};
+	}
+
+	/// <summary>
+	/// Build symbol section data.
+	/// Format per symbol: address (4) + type (1) + flags (1) + nameLen (2) + name + valueLen (2) [+ value]
+	/// </summary>
+	private static byte[] BuildSymbolSection(DisassemblyResult result) {
+		using var ms = new MemoryStream();
+		using var writer = new BinaryWriter(ms, System.Text.Encoding.UTF8);
+
+		// Export global labels
+		foreach (var (address, name) in result.Labels.OrderBy(x => x.Key)) {
+			writer.Write((uint)address);
+			writer.Write((byte)0);  // Type: label
+			writer.Write((byte)0);  // Flags
+			var nameBytes = System.Text.Encoding.UTF8.GetBytes(name);
+			writer.Write((ushort)nameBytes.Length);
+			writer.Write(nameBytes);
+			writer.Write((ushort)0); // No value
+		}
+
+		// Export bank-specific labels with bank in address high byte
+		foreach (var ((address, bank), name) in result.BankLabels.OrderBy(x => x.Key.Bank).ThenBy(x => x.Key.Address)) {
+			// Encode bank in high byte of 24-bit address
+			var addr24 = (uint)((bank << 16) | (int)address);
+			writer.Write(addr24);
+			writer.Write((byte)1);  // Type: bank label
+			writer.Write((byte)0);  // Flags
+			var nameBytes = System.Text.Encoding.UTF8.GetBytes(name);
+			writer.Write((ushort)nameBytes.Length);
+			writer.Write(nameBytes);
+			writer.Write((ushort)0); // No value
+		}
+
+		return ms.ToArray();
+	}
+
+	/// <summary>
+	/// Build comment section data.
+	/// Format per comment: address (4) + type (1) + textLen (2) + text
+	/// </summary>
+	private static byte[] BuildCommentSection(DisassemblyResult result) {
+		using var ms = new MemoryStream();
+		using var writer = new BinaryWriter(ms, System.Text.Encoding.UTF8);
+
+		foreach (var (address, text) in result.Comments.OrderBy(x => x.Key)) {
+			writer.Write((uint)address);
+			writer.Write((byte)0);  // Type: line comment
+			var textBytes = System.Text.Encoding.UTF8.GetBytes(text);
+			writer.Write((ushort)textBytes.Length);
+			writer.Write(textBytes);
+		}
+
+		return ms.ToArray();
+	}
+
+	/// <summary>
+	/// Build code/data map section from disassembly blocks.
+	/// Each byte: 0x00=unreached, 0x01=code, 0x02=data, 0x11=opcode
+	/// </summary>
+	private static byte[] BuildCodeDataSection(DisassemblyResult result) {
+		if (result.RomInfo?.Size == null || result.RomInfo.Size == 0)
+			return [];
+
+		var map = new byte[result.RomInfo.Size];
+
+		foreach (var block in result.Blocks) {
+			foreach (var line in block.Lines) {
+				// Determine offset from address (platform-specific)
+				var offset = GetRomOffset(line.Address, result.RomInfo);
+				if (offset < 0 || offset >= map.Length) continue;
+
+				if (block.Type == MemoryRegion.Code) {
+					// First byte is opcode, rest are operands
+					for (var i = 0; i < line.Bytes.Length && offset + i < map.Length; i++) {
+						map[offset + i] = (byte)(i == 0 ? 0x11 : 0x01); // 0x11 = Code + Opcode
+					}
+				} else if (block.Type == MemoryRegion.Data) {
+					for (var i = 0; i < line.Bytes.Length && offset + i < map.Length; i++) {
+						map[offset + i] = 0x02; // Data
+					}
+				}
+			}
+		}
+
+		return map;
+	}
+
+	/// <summary>
+	/// Convert CPU address to ROM file offset (platform-specific).
+	/// </summary>
+	private static int GetRomOffset(uint address, RomInfo info) {
+		var platform = info.Platform?.ToLowerInvariant() ?? "";
+
+		return platform switch {
+			"nes" => (int)(address - 0x8000 + 16), // Account for 16-byte iNES header
+			"snes" => ConvertSnesAddressToOffset(address, info),
+			"gb" or "gameboy" or "game boy" => (int)address, // Usually 1:1 mapping
+			"gba" or "game boy advance" => (int)(address - 0x08000000), // GBA ROM base
+			_ => (int)address // Default: direct mapping
+		};
+	}
+
+	/// <summary>
+	/// Convert SNES CPU address to ROM offset based on mapping mode.
+	/// </summary>
+	private static int ConvertSnesAddressToOffset(uint address, RomInfo info) {
+		var bank = (int)(address >> 16);
+		var offset = (int)(address & 0xffff);
+
+		// Check mapping mode from mapper name
+		var isHiROM = info.Mapper?.Contains("HiROM", StringComparison.OrdinalIgnoreCase) == true;
+
+		if (isHiROM) {
+			// HiROM: banks $C0-$FF map linearly, $40-$7D mirror
+			if (bank >= 0xC0) {
+				return ((bank - 0xC0) * 0x10000) + offset;
+			} else if (bank >= 0x40 && bank < 0x7E) {
+				return ((bank - 0x40) * 0x10000) + offset;
+			}
+		} else {
+			// LoROM: $8000-$FFFF of each bank, banks $80-$FF map to $00-$7F
+			if (offset >= 0x8000) {
+				var realBank = bank >= 0x80 ? bank - 0x80 : bank;
+				return (realBank * 0x8000) + (offset - 0x8000);
+			}
+		}
+
+		return (int)address; // Fallback
+	}
+
+	#endregion
+
 	/// <summary>
 	/// Determine Mesen label type based on address
 	/// </summary>
@@ -293,5 +552,8 @@ public enum SymbolFormat {
 	Wla,
 
 	/// <summary>BizHawk (.cht)</summary>
-	BizHawk
+	BizHawk,
+
+	/// <summary>Pansy metadata file (.pansy) - Poppy/Peony interchange</summary>
+	Pansy
 }

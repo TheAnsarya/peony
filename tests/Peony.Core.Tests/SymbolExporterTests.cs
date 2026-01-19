@@ -267,4 +267,119 @@ public class SymbolExporterTests {
 			Directory.Delete(tempDir, true);
 		}
 	}
+
+	// ========== Pansy Format Tests ==========
+
+	[Fact]
+	public void ExportPansy_CreatesValidBinaryFile() {
+		var result = CreateTestResult();
+		// Set a proper platform for Pansy export
+		result.RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>());
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+
+			Assert.True(File.Exists(tempFile));
+			var data = File.ReadAllBytes(tempFile);
+
+			// Verify magic
+			Assert.True(data.Length >= 32, "File too small for header");
+			Assert.Equal((byte)'P', data[0]);
+			Assert.Equal((byte)'A', data[1]);
+			Assert.Equal((byte)'N', data[2]);
+			Assert.Equal((byte)'S', data[3]);
+			Assert.Equal((byte)'Y', data[4]);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_CanBeLoadedByPansyLoader() {
+		var result = CreateTestResult();
+		result.RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>());
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+
+			// Load with PansyLoader and verify data
+			var loader = new PansyLoader(data);
+
+			Assert.Equal(PansyLoader.PLATFORM_NES, loader.Platform);
+			Assert.Equal(8192u, loader.RomSize);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_ContainsSymbols() {
+		// Use a result without conflicting bank labels at same addresses
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+		result.Labels[0x8000] = "reset";
+		result.Labels[0x8050] = "nmi_handler";
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+
+			var loader = new PansyLoader(data);
+
+			// Check symbols were imported
+			Assert.Equal("reset", loader.GetSymbol(0x8000));
+			Assert.Equal("nmi_handler", loader.GetSymbol(0x8050));
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_ContainsComments() {
+		var result = CreateTestResult();
+		result.RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>());
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+
+			var loader = new PansyLoader(data);
+
+			// Check comments were imported
+			Assert.Equal("Entry point", loader.GetComment(0x8000));
+			Assert.Equal("NMI interrupt handler", loader.GetComment(0x8050));
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_DetectsPlatformFromRomInfo() {
+		var snesResult = new DisassemblyResult {
+			RomInfo = new RomInfo("SNES", 32768, "LoROM", new Dictionary<string, string>())
+		};
+
+		var gbResult = new DisassemblyResult {
+			RomInfo = new RomInfo("Game Boy", 16384, "MBC1", new Dictionary<string, string>())
+		};
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(snesResult, tempFile, SymbolFormat.Pansy);
+			var snesLoader = new PansyLoader(File.ReadAllBytes(tempFile));
+			Assert.Equal(PansyLoader.PLATFORM_SNES, snesLoader.Platform);
+
+			SymbolExporter.Export(gbResult, tempFile, SymbolFormat.Pansy);
+			var gbLoader = new PansyLoader(File.ReadAllBytes(tempFile));
+			Assert.Equal(PansyLoader.PLATFORM_GB, gbLoader.Platform);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
 }

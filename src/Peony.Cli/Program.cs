@@ -273,7 +273,7 @@ rootCommand.AddCommand(infoCommand);
 var exportCommand = new Command("export", "Export symbols from disassembly to various formats");
 var exportRomArg = new Argument<FileInfo>("rom", "ROM file to disassemble for symbols");
 var exportOutputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file (required)");
-var exportFormatOpt = new Option<string>(["--format", "-f"], () => "mesen", "Symbol format: mesen, fceux, nogba, ca65, wla, bizhawk");
+var exportFormatOpt = new Option<string>(["--format", "-f"], () => "mesen", "Symbol format: mesen, fceux, nogba, ca65, wla, bizhawk, pansy");
 var exportPlatformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-detected if not specified)");
 var exportSymbolsOpt = new Option<FileInfo?>(["--symbols", "-s"], "Additional symbol file to merge");
 var exportDizOpt = new Option<FileInfo?>(["--diz", "-d"], "DIZ project file to merge");
@@ -354,6 +354,7 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
 			"ca65" or "cc65" or "dbg" => SymbolFormat.Ca65Debug,
 			"wla" or "wladx" => SymbolFormat.Wla,
 			"bizhawk" or "cht" => SymbolFormat.BizHawk,
+			"pansy" => SymbolFormat.Pansy,
 			_ => throw new ArgumentException($"Unknown symbol format: {format}")
 		};
 
