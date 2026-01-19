@@ -525,19 +525,494 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 
 rootCommand.AddCommand(verifyCommand);
 
+// ============================================================================
+// Asset Pipeline Commands
+// ============================================================================
+
+// CHR command - Extract and convert graphics
+var chrCommand = new Command("chr", "Extract and convert CHR/tile graphics from ROM");
+var chrRomArg = new Argument<FileInfo>("rom", "ROM file to extract graphics from");
+var chrOutputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file (default: rom_chr.bmp)");
+var chrOffsetOpt = new Option<string>(["--offset"], () => "0", "ROM offset to start (hex with $ or 0x prefix)");
+var chrSizeOpt = new Option<string?>(["--size", "-s"], "Size in bytes to extract (default: auto-detect)");
+var chrBitsOpt = new Option<int>(["--bits", "-b"], () => 2, "Bits per pixel (2 for NES, 4 for SNES)");
+var chrTilesPerRowOpt = new Option<int>(["--tiles-per-row", "-t"], () => 16, "Tiles per row in output image");
+var chrPaletteOpt = new Option<string?>(["--palette", "-p"], "Palette: grayscale, nes, or custom hex values");
+var chrPlatformOpt = new Option<string?>(["--platform"], "Platform hint for auto-detection");
+
+chrCommand.AddArgument(chrRomArg);
+chrCommand.AddOption(chrOutputOpt);
+chrCommand.AddOption(chrOffsetOpt);
+chrCommand.AddOption(chrSizeOpt);
+chrCommand.AddOption(chrBitsOpt);
+chrCommand.AddOption(chrTilesPerRowOpt);
+chrCommand.AddOption(chrPaletteOpt);
+chrCommand.AddOption(chrPlatformOpt);
+
+chrCommand.SetHandler((rom, output, offsetStr, sizeStr, bits, tilesPerRow, paletteStr, platform) => {
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony CHR Extractor[/]");
+		AnsiConsole.WriteLine();
+
+		// Load ROM
+		AnsiConsole.MarkupLine($"[grey]Loading:[/] {Markup.Escape(rom.FullName)}");
+		var romData = RomLoader.Load(rom.FullName);
+
+		// Parse offset
+		int offset = ParseHexOrDecimal(offsetStr);
+		AnsiConsole.MarkupLine($"[grey]Offset:[/] ${offset:x6}");
+
+		// Determine size
+		int size;
+		if (!string.IsNullOrEmpty(sizeStr)) {
+			size = ParseHexOrDecimal(sizeStr);
+		} else {
+			// Auto-detect based on platform
+			platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
+			size = platform?.ToLowerInvariant() switch {
+				"nes" => romData.Length >= 0x4010 ? 0x2000 : romData.Length - offset, // Default 8KB CHR
+				"snes" => Math.Min(0x4000, romData.Length - offset), // 16KB default
+				"gb" or "gameboy" => Math.Min(0x2000, romData.Length - offset),
+				_ => Math.Min(0x2000, romData.Length - offset)
+			};
+		}
+		AnsiConsole.MarkupLine($"[grey]Size:[/] ${size:x4} ({size} bytes)");
+
+		// Calculate tile count
+		int bytesPerTile = bits switch {
+			2 => 16,
+			4 => 32,
+			8 => 64,
+			_ => 16
+		};
+		int tileCount = size / bytesPerTile;
+		AnsiConsole.MarkupLine($"[grey]Tiles:[/] {tileCount} ({bits}bpp)");
+
+		// Extract tiles
+		var slice = romData.AsSpan(offset, size);
+		byte[] pixels = bits switch {
+			2 => TileGraphics.Decode2bppPlanar(slice, tileCount),
+			4 => TileGraphics.Decode4bppPlanar(slice, tileCount),
+			_ => TileGraphics.Decode2bppPlanar(slice, tileCount)
+		};
+
+		// Get palette
+		uint[] palette = (paletteStr?.ToLowerInvariant()) switch {
+			null or "grayscale" or "gray" => TileGraphics.NesGrayscale,
+			"nes" => TileGraphics.NesPalette,
+			_ => ParseCustomPalette(paletteStr) ?? TileGraphics.NesGrayscale
+		};
+
+		// Generate image
+		var bmpData = TileGraphics.ExportTilesToBmp(pixels, tileCount, tilesPerRow, palette);
+
+		// Write output
+		var outputPath = output?.FullName ?? Path.Combine(
+			rom.DirectoryName!,
+			Path.GetFileNameWithoutExtension(rom.Name) + "_chr.bmp");
+
+		File.WriteAllBytes(outputPath, bmpData);
+
+		int imageWidth = tilesPerRow * 8;
+		int imageHeight = ((tileCount + tilesPerRow - 1) / tilesPerRow) * 8;
+
+		AnsiConsole.WriteLine();
+		AnsiConsole.MarkupLine($"[green]✓ Exported {tileCount} tiles ({imageWidth}x{imageHeight})[/]");
+		AnsiConsole.MarkupLine($"[grey]Output:[/] {Markup.Escape(outputPath)}");
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+}, chrRomArg, chrOutputOpt, chrOffsetOpt, chrSizeOpt, chrBitsOpt, chrTilesPerRowOpt, chrPaletteOpt, chrPlatformOpt);
+
+rootCommand.AddCommand(chrCommand);
+
+// Text command - Extract text using table files
+var textCommand = new Command("text", "Extract text from ROM using table file");
+var textRomArg = new Argument<FileInfo>("rom", "ROM file to extract text from");
+var textTableOpt = new Option<FileInfo?>(["--table", "-t"], "Table file (.tbl) for character mapping");
+var textOutputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file (default: stdout)");
+var textOffsetOpt = new Option<string>(["--offset"], "ROM offset to start extraction");
+var textLengthOpt = new Option<int>(["--length", "-l"], () => 256, "Maximum length to extract");
+var textEndBytesOpt = new Option<string?>(["--end", "-e"], "End byte(s) in hex (e.g., 'ff' or '00,ff')");
+var textFormatOpt = new Option<string>(["--format", "-f"], () => "text", "Output format: text, json, script");
+var textPointerOpt = new Option<string?>(["--pointer-table", "-p"], "Extract from pointer table at offset");
+var textPointerCountOpt = new Option<int>(["--pointer-count", "-c"], () => 0, "Number of pointers in table");
+var textMinLengthOpt = new Option<int>(["--min-length"], () => 3, "Minimum text length for scanning");
+var textScanOpt = new Option<bool>(["--scan"], "Scan ROM for text instead of fixed offset");
+
+textCommand.AddArgument(textRomArg);
+textCommand.AddOption(textTableOpt);
+textCommand.AddOption(textOutputOpt);
+textCommand.AddOption(textOffsetOpt);
+textCommand.AddOption(textLengthOpt);
+textCommand.AddOption(textEndBytesOpt);
+textCommand.AddOption(textFormatOpt);
+textCommand.AddOption(textPointerOpt);
+textCommand.AddOption(textPointerCountOpt);
+textCommand.AddOption(textMinLengthOpt);
+textCommand.AddOption(textScanOpt);
+
+textCommand.SetHandler((context) => {
+	try {
+		var rom = context.ParseResult.GetValueForArgument(textRomArg);
+		var tableFile = context.ParseResult.GetValueForOption(textTableOpt);
+		var output = context.ParseResult.GetValueForOption(textOutputOpt);
+		var offsetStr = context.ParseResult.GetValueForOption(textOffsetOpt);
+		var length = context.ParseResult.GetValueForOption(textLengthOpt);
+		var endBytesStr = context.ParseResult.GetValueForOption(textEndBytesOpt);
+		var format = context.ParseResult.GetValueForOption(textFormatOpt);
+		var pointerStr = context.ParseResult.GetValueForOption(textPointerOpt);
+		var pointerCount = context.ParseResult.GetValueForOption(textPointerCountOpt);
+		var minLength = context.ParseResult.GetValueForOption(textMinLengthOpt);
+		var scan = context.ParseResult.GetValueForOption(textScanOpt);
+
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Text Extractor[/]");
+		AnsiConsole.WriteLine();
+
+		// Load ROM
+		AnsiConsole.MarkupLine($"[grey]Loading:[/] {Markup.Escape(rom.FullName)}");
+		var romData = RomLoader.Load(rom.FullName);
+
+		// Load or create table
+		TableFile table;
+		if (tableFile?.Exists == true) {
+			var content = File.ReadAllText(tableFile.FullName);
+			table = TableFile.LoadFromTbl(content);
+			AnsiConsole.MarkupLine($"[grey]Table:[/] {tableFile.Name} ({table.ByteMappings.Count} entries)");
+		} else {
+			table = TableFile.CreateAsciiTable();
+			AnsiConsole.MarkupLine("[grey]Table:[/] ASCII (default)");
+		}
+
+		// Parse end byte (single byte)
+		byte? endByte = null;
+		if (!string.IsNullOrEmpty(endBytesStr)) {
+			endByte = (byte)ParseHexOrDecimal(endBytesStr.Split(',')[0].Trim());
+		}
+
+		var options = new TextExtractionOptions {
+			EndByte = endByte,
+			MinLength = minLength,
+			MaxLength = length
+		};
+
+		List<TextBlock> blocks;
+
+		if (scan) {
+			// Scan entire ROM for text
+			AnsiConsole.MarkupLine("[cyan]Scanning ROM for text...[/]");
+			blocks = TextExtraction.ScanForText(romData, table, options);
+		} else if (!string.IsNullOrEmpty(pointerStr) && pointerCount > 0) {
+			// Extract from pointer table
+			int ptrOffset = ParseHexOrDecimal(pointerStr);
+			AnsiConsole.MarkupLine($"[grey]Pointer table:[/] ${ptrOffset:x6} ({pointerCount} pointers)");
+			// Use 0 as text bank offset (relative pointers)
+			blocks = TextExtraction.ExtractFromPointerTable(romData, ptrOffset, pointerCount, 0, table, options);
+		} else if (!string.IsNullOrEmpty(offsetStr)) {
+			// Extract from fixed offset
+			int offset = ParseHexOrDecimal(offsetStr);
+			var text = TextExtraction.ExtractText(romData, offset, length, table, options);
+			blocks = [new TextBlock { Offset = offset, Text = text, Length = text.Length, RawBytes = [] }];
+		} else {
+			AnsiConsole.MarkupLine("[yellow]No offset specified. Use --offset, --pointer-table, or --scan[/]");
+			return;
+		}
+
+		AnsiConsole.MarkupLine($"[green]Found {blocks.Count} text block(s)[/]");
+		AnsiConsole.WriteLine();
+
+		// Output based on format
+		if (output != null) {
+			switch (format.ToLowerInvariant()) {
+				case "json":
+					TextExtraction.SaveAsJson(blocks, output.FullName);
+					break;
+				case "script":
+					TextExtraction.SaveAsScript(blocks, output.FullName);
+					break;
+				default:
+					using (var writer = new StreamWriter(output.FullName)) {
+						foreach (var block in blocks) {
+							writer.WriteLine($"; ${block.Offset:x6}");
+							writer.WriteLine(block.Text);
+							writer.WriteLine();
+						}
+					}
+					break;
+			}
+			AnsiConsole.MarkupLine($"[grey]Output:[/] {Markup.Escape(output.FullName)}");
+		} else {
+			// Output to console
+			foreach (var block in blocks.Take(20)) {
+				AnsiConsole.MarkupLine($"[grey]${block.Offset:x6}:[/] {Markup.Escape(block.Text.Replace("\n", "\\n"))}");
+			}
+			if (blocks.Count > 20) {
+				AnsiConsole.MarkupLine($"[grey]... and {blocks.Count - 20} more[/]");
+			}
+		}
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+});
+
+rootCommand.AddCommand(textCommand);
+
+// Palette command - Extract palettes
+var paletteCommand = new Command("palette", "Extract palette data from ROM");
+var paletteRomArg = new Argument<FileInfo>("rom", "ROM file to extract palette from");
+var paletteOutputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file");
+var paletteOffsetOpt = new Option<string>(["--offset"], () => "0", "ROM offset");
+var paletteCountOpt = new Option<int>(["--count", "-c"], () => 16, "Number of colors");
+var paletteFormatOpt = new Option<string>(["--format", "-f"], () => "nes", "Format: nes, snes, gb, gba, raw");
+var paletteOutputFormatOpt = new Option<string>(["--output-format"], () => "json", "Output format: json, asm, hex");
+
+paletteCommand.AddArgument(paletteRomArg);
+paletteCommand.AddOption(paletteOutputOpt);
+paletteCommand.AddOption(paletteOffsetOpt);
+paletteCommand.AddOption(paletteCountOpt);
+paletteCommand.AddOption(paletteFormatOpt);
+paletteCommand.AddOption(paletteOutputFormatOpt);
+
+paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) => {
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Palette Extractor[/]");
+		AnsiConsole.WriteLine();
+
+		var romData = RomLoader.Load(rom.FullName);
+		int offset = ParseHexOrDecimal(offsetStr);
+
+		AnsiConsole.MarkupLine($"[grey]Offset:[/] ${offset:x6}");
+		AnsiConsole.MarkupLine($"[grey]Colors:[/] {count}");
+		AnsiConsole.MarkupLine($"[grey]Format:[/] {format}");
+
+		// Extract palette based on format
+		var colors = new uint[count];
+		var slice = romData.AsSpan(offset);
+
+		for (int i = 0; i < count; i++) {
+			colors[i] = format.ToLowerInvariant() switch {
+				"nes" => i < slice.Length ? TileGraphics.NesPalette[slice[i] & 0x3f] : 0xff000000,
+				"snes" => ConvertSnesColor(slice, i * 2),
+				"gba" => ConvertGbaColor(slice, i * 2),
+				"gb" or "gameboy" => ConvertGbColor(i < slice.Length ? slice[i] : (byte)0),
+				_ => (uint)(0xff000000 | (i < slice.Length ? (slice[i] << 16 | slice[i] << 8 | slice[i]) : 0))
+			};
+		}
+
+		// Display palette preview
+		AnsiConsole.WriteLine();
+		for (int row = 0; row < (count + 15) / 16; row++) {
+			var line = new System.Text.StringBuilder();
+			for (int col = 0; col < 16 && row * 16 + col < count; col++) {
+				int idx = row * 16 + col;
+				uint c = colors[idx];
+				byte r = (byte)((c >> 16) & 0xff);
+				byte g = (byte)((c >> 8) & 0xff);
+				byte b = (byte)(c & 0xff);
+				line.Append($"[rgb({r},{g},{b})]██[/]");
+			}
+			AnsiConsole.MarkupLine(line.ToString());
+		}
+
+		// Output
+		if (output != null) {
+			switch (outputFormat.ToLowerInvariant()) {
+				case "json":
+					var json = System.Text.Json.JsonSerializer.Serialize(new {
+						offset = $"0x{offset:x6}",
+						count,
+						format,
+						colors = colors.Select(c => $"#{c & 0xffffff:x6}").ToArray()
+					}, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+					File.WriteAllText(output.FullName, json);
+					break;
+				case "asm":
+					using (var writer = new StreamWriter(output.FullName)) {
+						writer.WriteLine($"; Palette extracted from ${offset:x6}");
+						writer.WriteLine($"; Format: {format}");
+						writer.WriteLine();
+						for (int i = 0; i < count; i++) {
+							uint c = colors[i];
+							writer.WriteLine($"\t.db ${(c >> 16) & 0xff:x2}, ${(c >> 8) & 0xff:x2}, ${c & 0xff:x2} ; Color {i}");
+						}
+					}
+					break;
+				default:
+					File.WriteAllText(output.FullName, string.Join("\n", colors.Select(c => $"#{c & 0xffffff:x6}")));
+					break;
+			}
+			AnsiConsole.WriteLine();
+			AnsiConsole.MarkupLine($"[grey]Output:[/] {Markup.Escape(output.FullName)}");
+		}
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+}, paletteRomArg, paletteOutputOpt, paletteOffsetOpt, paletteCountOpt, paletteFormatOpt, paletteOutputFormatOpt);
+
+rootCommand.AddCommand(paletteCommand);
+
+// TBL command - Generate or convert table files
+var tblCommand = new Command("tbl", "Generate or convert text table files");
+var tblOutputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file");
+var tblTemplateOpt = new Option<string>(["--template", "-t"], () => "ascii", "Template: ascii, sjis, pokemon, dw, ff");
+var tblFromOpt = new Option<FileInfo?>(["--from", "-f"], "Convert from existing table file");
+var tblToFormatOpt = new Option<string>(["--to-format"], () => "tbl", "Output format: tbl, json, asm");
+
+tblCommand.AddOption(tblOutputOpt);
+tblCommand.AddOption(tblTemplateOpt);
+tblCommand.AddOption(tblFromOpt);
+tblCommand.AddOption(tblToFormatOpt);
+
+tblCommand.SetHandler((output, template, fromFile, toFormat) => {
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Table Generator[/]");
+		AnsiConsole.WriteLine();
+
+		TableFile table;
+
+		if (fromFile?.Exists == true) {
+			// Convert existing table
+			var content = File.ReadAllText(fromFile.FullName);
+			table = TableFile.LoadFromTbl(content);
+			AnsiConsole.MarkupLine($"[grey]Loaded:[/] {fromFile.Name} ({table.ByteMappings.Count} entries)");
+		} else {
+			// Generate from template
+			table = template.ToLowerInvariant() switch {
+				"ascii" => TableFile.CreateAsciiTable(),
+				_ => TableFile.CreateAsciiTable()
+			};
+			AnsiConsole.MarkupLine($"[grey]Template:[/] {template} ({table.ByteMappings.Count} entries)");
+		}
+
+		if (output != null) {
+			switch (toFormat.ToLowerInvariant()) {
+				case "json":
+					var json = System.Text.Json.JsonSerializer.Serialize(new {
+						mappings = table.ByteMappings.ToDictionary(
+							kvp => $"0x{kvp.Key:x2}",
+							kvp => kvp.Value)
+					}, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+					File.WriteAllText(output.FullName, json);
+					break;
+				case "asm":
+					using (var writer = new StreamWriter(output.FullName)) {
+						writer.WriteLine("; Text table (ASM format)");
+						foreach (var kvp in table.ByteMappings.OrderBy(k => k.Key)) {
+							var escaped = kvp.Value.Replace("\"", "\\\"");
+							writer.WriteLine($".define CHAR_{kvp.Key:x2} = \"{escaped}\"");
+						}
+					}
+					break;
+				default: // tbl
+					using (var writer = new StreamWriter(output.FullName)) {
+						foreach (var kvp in table.ByteMappings.OrderBy(k => k.Key)) {
+							writer.WriteLine($"{kvp.Key:X2}={kvp.Value}");
+						}
+					}
+					break;
+			}
+			AnsiConsole.MarkupLine($"[green]Output:[/] {Markup.Escape(output.FullName)}");
+		} else {
+			// Preview to console
+			AnsiConsole.MarkupLine("[grey]Sample mappings:[/]");
+			foreach (var kvp in table.ByteMappings.Take(16)) {
+				AnsiConsole.MarkupLine($"  ${kvp.Key:x2} = {Markup.Escape(kvp.Value)}");
+			}
+			if (table.ByteMappings.Count > 16) {
+				AnsiConsole.MarkupLine($"  ... and {table.ByteMappings.Count - 16} more");
+			}
+		}
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+}, tblOutputOpt, tblTemplateOpt, tblFromOpt, tblToFormatOpt);
+
+rootCommand.AddCommand(tblCommand);
+
 // Version
 rootCommand.SetHandler(() => {
-AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.3.0[/]");
-AnsiConsole.MarkupLine("Multi-system ROM disassembler with multi-bank support");
+AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.4.0[/]");
+AnsiConsole.MarkupLine("Multi-system ROM disassembler with asset pipeline");
 AnsiConsole.WriteLine();
 AnsiConsole.MarkupLine("Supported platforms:");
 AnsiConsole.MarkupLine("  • Atari 2600 (6502)");
 AnsiConsole.MarkupLine("  • NES (6502) with MMC1 multi-bank");
-AnsiConsole.MarkupLine("  • [grey]SNES (planned)[/]");
-AnsiConsole.MarkupLine("  • [grey]Game Boy (planned)[/]");
+AnsiConsole.MarkupLine("  • SNES (65816)");
+AnsiConsole.MarkupLine("  • Game Boy (SM83)");
+AnsiConsole.MarkupLine("  • GBA (ARM7TDMI)");
+AnsiConsole.WriteLine();
+AnsiConsole.MarkupLine("Asset pipeline commands:");
+AnsiConsole.MarkupLine("  • chr     - Extract tile graphics");
+AnsiConsole.MarkupLine("  • text    - Extract text with table files");
+AnsiConsole.MarkupLine("  • palette - Extract color palettes");
+AnsiConsole.MarkupLine("  • tbl     - Generate/convert table files");
 });
 
 return await rootCommand.InvokeAsync(args);
+
+// ============================================================================
+// Helper functions
+// ============================================================================
+
+static int ParseHexOrDecimal(string value) {
+	value = value.Trim();
+	if (value.StartsWith("$") || value.StartsWith("0x", StringComparison.OrdinalIgnoreCase)) {
+		var hex = value.StartsWith("$") ? value[1..] : value[2..];
+		return Convert.ToInt32(hex, 16);
+	}
+	return int.Parse(value);
+}
+
+static uint[]? ParseCustomPalette(string value) {
+	try {
+		var colors = value.Split(',', ';', ' ')
+			.Where(s => !string.IsNullOrWhiteSpace(s))
+			.Select(s => {
+				var hex = s.Trim().TrimStart('#', '$');
+				if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+					hex = hex[2..];
+				return 0xff000000 | (uint)Convert.ToInt32(hex, 16);
+			})
+			.ToArray();
+		return colors.Length > 0 ? colors : null;
+	}
+	catch {
+		return null;
+	}
+}
+
+static uint ConvertSnesColor(ReadOnlySpan<byte> data, int offset) {
+	if (offset + 2 > data.Length) return 0xff000000;
+	ushort bgr = (ushort)(data[offset] | (data[offset + 1] << 8));
+	byte r = (byte)((bgr & 0x1f) << 3);
+	byte g = (byte)(((bgr >> 5) & 0x1f) << 3);
+	byte b = (byte)(((bgr >> 10) & 0x1f) << 3);
+	return 0xff000000 | ((uint)r << 16) | ((uint)g << 8) | b;
+}
+
+static uint ConvertGbaColor(ReadOnlySpan<byte> data, int offset) {
+	// GBA uses same format as SNES (15-bit BGR)
+	return ConvertSnesColor(data, offset);
+}
+
+static uint ConvertGbColor(byte value) {
+	// Game Boy 2-bit grayscale
+	byte gray = value switch {
+		0 => 255,
+		1 => 170,
+		2 => 85,
+		_ => 0
+	};
+	return 0xff000000 | ((uint)gray << 16) | ((uint)gray << 8) | gray;
+}
 
 // Helper methods
 static string GetDefaultOutputPath(FileInfo rom, string format) {
