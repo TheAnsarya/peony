@@ -1,5 +1,7 @@
 namespace Peony.Core;
 
+using System.Buffers.Binary;
+
 /// <summary>
 /// Interface for graphics extraction from ROMs
 /// </summary>
@@ -261,5 +263,79 @@ public static class TileGraphics {
 		}
 
 		return image;
+	}
+
+	/// <summary>
+	/// Save ARGB image data to BMP file format
+	/// </summary>
+	public static byte[] SaveToBmp(uint[] pixels, int width, int height) {
+		// Calculate row padding (BMP rows must be 4-byte aligned)
+		int rowSize = width * 3;
+		int rowPadding = (4 - (rowSize % 4)) % 4;
+		int paddedRowSize = rowSize + rowPadding;
+		int pixelDataSize = paddedRowSize * height;
+
+		// BMP file = header (14) + DIB header (40) + pixel data
+		int fileSize = 54 + pixelDataSize;
+		var bmp = new byte[fileSize];
+
+		// BMP File Header (14 bytes)
+		bmp[0] = (byte)'B';
+		bmp[1] = (byte)'M';
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(2), fileSize);
+		bmp[6] = 0; bmp[7] = 0; // Reserved
+		bmp[8] = 0; bmp[9] = 0; // Reserved
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(10), 54); // Pixel data offset
+
+		// DIB Header - BITMAPINFOHEADER (40 bytes)
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(14), 40); // Header size
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(18), width);
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(22), height); // Positive = bottom-up
+		BinaryPrimitives.WriteInt16LittleEndian(bmp.AsSpan(26), 1); // Color planes
+		BinaryPrimitives.WriteInt16LittleEndian(bmp.AsSpan(28), 24); // Bits per pixel (24-bit RGB)
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(30), 0); // No compression
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(34), pixelDataSize);
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(38), 2835); // Horizontal resolution (72 DPI)
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(42), 2835); // Vertical resolution
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(46), 0); // Colors in palette
+		BinaryPrimitives.WriteInt32LittleEndian(bmp.AsSpan(50), 0); // Important colors
+
+		// Pixel data (bottom-up, BGR format)
+		int pixelOffset = 54;
+		for (int y = height - 1; y >= 0; y--) {
+			for (int x = 0; x < width; x++) {
+				uint argb = pixels[y * width + x];
+				byte r = (byte)((argb >> 16) & 0xff);
+				byte g = (byte)((argb >> 8) & 0xff);
+				byte b = (byte)(argb & 0xff);
+
+				bmp[pixelOffset++] = b; // Blue
+				bmp[pixelOffset++] = g; // Green
+				bmp[pixelOffset++] = r; // Red
+			}
+			pixelOffset += rowPadding; // Row padding
+		}
+
+		return bmp;
+	}
+
+	/// <summary>
+	/// Export indexed pixels as BMP with palette
+	/// </summary>
+	public static byte[] ExportTilesToBmp(byte[] indexedPixels, int tileCount, int tilesPerRow, uint[] palette) {
+		var image = ArrangeTiles(indexedPixels, tileCount, tilesPerRow, palette);
+		int tileRows = (tileCount + tilesPerRow - 1) / tilesPerRow;
+		int width = tilesPerRow * 8;
+		int height = tileRows * 8;
+		return SaveToBmp(image, width, height);
+	}
+
+	/// <summary>
+	/// Save CHR tile data to BMP file
+	/// </summary>
+	public static void SaveChrToBmp(TileData tileData, string path, uint[]? palette = null) {
+		palette ??= NesGrayscale;
+		var bmpData = ExportTilesToBmp(tileData.Pixels, tileData.TileCount, 16, palette);
+		File.WriteAllBytes(path, bmpData);
 	}
 }

@@ -183,6 +183,112 @@ public class NesChrExtractorTests {
 		Assert.Equal(4, TileGraphics.NesGrayscale.Length);
 	}
 
+	#region BMP Export Tests
+
+	[Fact]
+	public void SaveToBmp_CreatesValidBmpHeader() {
+		// Create 2x2 image
+		uint[] pixels = [0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF];
+
+		var bmp = TileGraphics.SaveToBmp(pixels, 2, 2);
+
+		// BMP header checks
+		Assert.Equal((byte)'B', bmp[0]);
+		Assert.Equal((byte)'M', bmp[1]);
+
+		// DIB header size at offset 14
+		int dibSize = BitConverter.ToInt32(bmp, 14);
+		Assert.Equal(40, dibSize);
+
+		// Width at offset 18
+		int width = BitConverter.ToInt32(bmp, 18);
+		Assert.Equal(2, width);
+
+		// Height at offset 22
+		int height = BitConverter.ToInt32(bmp, 22);
+		Assert.Equal(2, height);
+
+		// Bits per pixel at offset 28
+		short bpp = BitConverter.ToInt16(bmp, 28);
+		Assert.Equal(24, bpp);
+	}
+
+	[Fact]
+	public void SaveToBmp_CorrectFileSize() {
+		// 8x8 image = 64 pixels at 24bpp = 192 bytes data + 54 header
+		// Row size = 8 * 3 = 24 bytes (already 4-byte aligned)
+		// Total = 54 + (24 * 8) = 246 bytes
+		uint[] pixels = new uint[64];
+		Array.Fill(pixels, 0xFF000000u);
+
+		var bmp = TileGraphics.SaveToBmp(pixels, 8, 8);
+
+		Assert.Equal(246, bmp.Length);
+
+		// File size in header
+		int fileSize = BitConverter.ToInt32(bmp, 2);
+		Assert.Equal(246, fileSize);
+	}
+
+	[Fact]
+	public void SaveToBmp_CorrectPixelDataOffset() {
+		uint[] pixels = [0xFF000000];
+
+		var bmp = TileGraphics.SaveToBmp(pixels, 1, 1);
+
+		int offset = BitConverter.ToInt32(bmp, 10);
+		Assert.Equal(54, offset); // Standard BMP header size
+	}
+
+	[Fact]
+	public void ExportTilesToBmp_CreatesBmpFromIndexedPixels() {
+		// 1 tile = 64 indexed pixels
+		var pixels = new byte[64];
+		Array.Fill(pixels, (byte)1); // All color index 1
+
+		var bmp = TileGraphics.ExportTilesToBmp(pixels, 1, 1, TileGraphics.NesGrayscale);
+
+		// Verify BMP header
+		Assert.Equal((byte)'B', bmp[0]);
+		Assert.Equal((byte)'M', bmp[1]);
+
+		// Should be 8x8 image
+		int width = BitConverter.ToInt32(bmp, 18);
+		int height = BitConverter.ToInt32(bmp, 22);
+		Assert.Equal(8, width);
+		Assert.Equal(8, height);
+	}
+
+	[Fact]
+	public void ExportTilesToBmp_MultipleRows() {
+		// 4 tiles arranged as 2x2 grid
+		var pixels = new byte[256]; // 4 tiles * 64 pixels
+		Array.Fill(pixels, (byte)2);
+
+		var bmp = TileGraphics.ExportTilesToBmp(pixels, 4, 2, TileGraphics.NesGrayscale);
+
+		int width = BitConverter.ToInt32(bmp, 18);
+		int height = BitConverter.ToInt32(bmp, 22);
+		Assert.Equal(16, width);  // 2 tiles * 8 pixels
+		Assert.Equal(16, height); // 2 rows * 8 pixels
+	}
+
+	[Fact]
+	public void SaveToBmp_RowPaddingIsCorrect() {
+		// 5-pixel wide image: 5 * 3 = 15 bytes per row, needs 1 byte padding
+		uint[] pixels = new uint[5];
+		Array.Fill(pixels, 0xFFFF0000u);
+
+		var bmp = TileGraphics.SaveToBmp(pixels, 5, 1);
+
+		// Row size: 5*3 = 15, padding = (4 - 15%4) % 4 = 1
+		// Pixel data size: 16 * 1 = 16
+		// Total size: 54 + 16 = 70
+		Assert.Equal(70, bmp.Length);
+	}
+
+	#endregion
+
 	/// <summary>
 	/// Create a test iNES ROM
 	/// </summary>
