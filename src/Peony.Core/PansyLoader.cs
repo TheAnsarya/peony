@@ -53,11 +53,49 @@ public class PansyLoader {
 	/// <summary>Platform ID for Atari Lynx.</summary>
 	public const byte PLATFORM_LYNX = 0x09;
 	/// <summary>Platform ID for WonderSwan.</summary>
-	public const byte PLATFORM_WONDERSWAN = 0x0A;
+	public const byte PLATFORM_WONDERSWAN = 0x0a;
 	/// <summary>Platform ID for Neo Geo.</summary>
-	public const byte PLATFORM_NEOGEO = 0x0B;
+	public const byte PLATFORM_NEOGEO = 0x0b;
 	/// <summary>Platform ID for SPC700.</summary>
-	public const byte PLATFORM_SPC700 = 0x0C;
+	public const byte PLATFORM_SPC700 = 0x0c;
+	/// <summary>Platform ID for Commodore 64.</summary>
+	public const byte PLATFORM_C64 = 0x0d;
+	/// <summary>Platform ID for MSX.</summary>
+	public const byte PLATFORM_MSX = 0x0e;
+	/// <summary>Platform ID for Atari 7800.</summary>
+	public const byte PLATFORM_ATARI_7800 = 0x0f;
+	/// <summary>Platform ID for Atari 8-bit (400/800/XL/XE).</summary>
+	public const byte PLATFORM_ATARI_8BIT = 0x10;
+	/// <summary>Platform ID for Apple II.</summary>
+	public const byte PLATFORM_APPLE_II = 0x11;
+	/// <summary>Platform ID for ZX Spectrum.</summary>
+	public const byte PLATFORM_ZX_SPECTRUM = 0x12;
+	/// <summary>Platform ID for ColecoVision.</summary>
+	public const byte PLATFORM_COLECO = 0x13;
+	/// <summary>Platform ID for Intellivision.</summary>
+	public const byte PLATFORM_INTELLIVISION = 0x14;
+	/// <summary>Platform ID for Vectrex.</summary>
+	public const byte PLATFORM_VECTREX = 0x15;
+	/// <summary>Platform ID for Sega Game Gear.</summary>
+	public const byte PLATFORM_GAMEGEAR = 0x16;
+	/// <summary>Platform ID for Sega 32X.</summary>
+	public const byte PLATFORM_32X = 0x17;
+	/// <summary>Platform ID for Sega CD.</summary>
+	public const byte PLATFORM_SEGACD = 0x18;
+	/// <summary>Platform ID for Virtual Boy.</summary>
+	public const byte PLATFORM_VIRTUALBOY = 0x19;
+	/// <summary>Platform ID for Amstrad CPC.</summary>
+	public const byte PLATFORM_AMSTRAD_CPC = 0x1a;
+	/// <summary>Platform ID for BBC Micro.</summary>
+	public const byte PLATFORM_BBC_MICRO = 0x1b;
+	/// <summary>Platform ID for Commodore VIC-20.</summary>
+	public const byte PLATFORM_VIC20 = 0x1c;
+	/// <summary>Platform ID for Commodore Plus/4.</summary>
+	public const byte PLATFORM_PLUS4 = 0x1d;
+	/// <summary>Platform ID for Commodore 128.</summary>
+	public const byte PLATFORM_C128 = 0x1e;
+	/// <summary>Platform ID for custom/unknown platform.</summary>
+	public const byte PLATFORM_CUSTOM = 0xff;
 
 	// Section types
 	private const uint SECTION_CODE_DATA_MAP = 0x0001;
@@ -313,6 +351,25 @@ public class PansyLoader {
 		PLATFORM_WONDERSWAN => "WonderSwan",
 		PLATFORM_NEOGEO => "Neo Geo",
 		PLATFORM_SPC700 => "SPC700",
+		PLATFORM_C64 => "Commodore 64",
+		PLATFORM_MSX => "MSX",
+		PLATFORM_ATARI_7800 => "Atari 7800",
+		PLATFORM_ATARI_8BIT => "Atari 8-bit",
+		PLATFORM_APPLE_II => "Apple II",
+		PLATFORM_ZX_SPECTRUM => "ZX Spectrum",
+		PLATFORM_COLECO => "ColecoVision",
+		PLATFORM_INTELLIVISION => "Intellivision",
+		PLATFORM_VECTREX => "Vectrex",
+		PLATFORM_GAMEGEAR => "Sega Game Gear",
+		PLATFORM_32X => "Sega 32X",
+		PLATFORM_SEGACD => "Sega CD",
+		PLATFORM_VIRTUALBOY => "Virtual Boy",
+		PLATFORM_AMSTRAD_CPC => "Amstrad CPC",
+		PLATFORM_BBC_MICRO => "BBC Micro",
+		PLATFORM_VIC20 => "Commodore VIC-20",
+		PLATFORM_PLUS4 => "Commodore Plus/4",
+		PLATFORM_C128 => "Commodore 128",
+		PLATFORM_CUSTOM => "Custom",
 		_ => "Unknown"
 	};
 

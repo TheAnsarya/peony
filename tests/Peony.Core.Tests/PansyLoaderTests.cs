@@ -127,7 +127,10 @@ public class PansyLoaderTests {
 		Assert.Equal("WonderSwan", PansyLoader.GetPlatformName(PansyLoader.PLATFORM_WONDERSWAN));
 		Assert.Equal("Neo Geo", PansyLoader.GetPlatformName(PansyLoader.PLATFORM_NEOGEO));
 		Assert.Equal("SPC700", PansyLoader.GetPlatformName(PansyLoader.PLATFORM_SPC700));
-		Assert.Equal("Unknown", PansyLoader.GetPlatformName(0xFF));
+		Assert.Equal("Commodore 64", PansyLoader.GetPlatformName(PansyLoader.PLATFORM_C64));
+		Assert.Equal("MSX", PansyLoader.GetPlatformName(PansyLoader.PLATFORM_MSX));
+		Assert.Equal("Custom", PansyLoader.GetPlatformName(PansyLoader.PLATFORM_CUSTOM));
+		Assert.Equal("Unknown", PansyLoader.GetPlatformName(0xFE)); // Not a defined platform
 	}
 
 	[Fact]
@@ -178,9 +181,28 @@ public class PansyLoaderTests {
 		Assert.Equal(0x07, PansyLoader.PLATFORM_PCE);
 		Assert.Equal(0x08, PansyLoader.PLATFORM_ATARI_2600);
 		Assert.Equal(0x09, PansyLoader.PLATFORM_LYNX);
-		Assert.Equal(0x0A, PansyLoader.PLATFORM_WONDERSWAN);
-		Assert.Equal(0x0B, PansyLoader.PLATFORM_NEOGEO);
-		Assert.Equal(0x0C, PansyLoader.PLATFORM_SPC700);
+		Assert.Equal(0x0a, PansyLoader.PLATFORM_WONDERSWAN);
+		Assert.Equal(0x0b, PansyLoader.PLATFORM_NEOGEO);
+		Assert.Equal(0x0c, PansyLoader.PLATFORM_SPC700);
+		Assert.Equal(0x0d, PansyLoader.PLATFORM_C64);
+		Assert.Equal(0x0e, PansyLoader.PLATFORM_MSX);
+		Assert.Equal(0x0f, PansyLoader.PLATFORM_ATARI_7800);
+		Assert.Equal(0x10, PansyLoader.PLATFORM_ATARI_8BIT);
+		Assert.Equal(0x11, PansyLoader.PLATFORM_APPLE_II);
+		Assert.Equal(0x12, PansyLoader.PLATFORM_ZX_SPECTRUM);
+		Assert.Equal(0x13, PansyLoader.PLATFORM_COLECO);
+		Assert.Equal(0x14, PansyLoader.PLATFORM_INTELLIVISION);
+		Assert.Equal(0x15, PansyLoader.PLATFORM_VECTREX);
+		Assert.Equal(0x16, PansyLoader.PLATFORM_GAMEGEAR);
+		Assert.Equal(0x17, PansyLoader.PLATFORM_32X);
+		Assert.Equal(0x18, PansyLoader.PLATFORM_SEGACD);
+		Assert.Equal(0x19, PansyLoader.PLATFORM_VIRTUALBOY);
+		Assert.Equal(0x1a, PansyLoader.PLATFORM_AMSTRAD_CPC);
+		Assert.Equal(0x1b, PansyLoader.PLATFORM_BBC_MICRO);
+		Assert.Equal(0x1c, PansyLoader.PLATFORM_VIC20);
+		Assert.Equal(0x1d, PansyLoader.PLATFORM_PLUS4);
+		Assert.Equal(0x1e, PansyLoader.PLATFORM_C128);
+		Assert.Equal(0xff, PansyLoader.PLATFORM_CUSTOM);
 	}
 
 	[Fact]
