@@ -427,4 +427,21 @@ public class DisassemblyEngineTests {
 		var refs = result.GetReferencesTo(0xFFFF);
 		Assert.Empty(refs);
 	}
+
+	[Fact]
+	public void DataRegions_ExposedInResult() {
+		var engine = new DisassemblyEngine(new MockCpuDecoder(), new MockPlatformAnalyzer());
+
+		// Add a data region manually
+		engine.AddDataRegion(0x8100, new DataDefinition("word", 10, "Test table"));
+
+		var rom = new byte[64];
+		var result = engine.Disassemble(rom, [0x8000]);
+
+		// Check that data regions are copied to result
+		Assert.Single(result.DataRegions);
+		Assert.True(result.DataRegions.ContainsKey(0x8100));
+		Assert.Equal("word", result.DataRegions[0x8100].Type);
+		Assert.Equal(10, result.DataRegions[0x8100].Count);
+	}
 }

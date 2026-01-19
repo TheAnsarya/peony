@@ -209,6 +209,9 @@ public class DisassemblyEngine {
 		// Process any discovered bank calls
 		ProcessBankCalls(rom, result);
 
+		// Detect pointer tables in unvisited regions
+		DetectPointerTables(rom, result);
+
 		// Copy global labels and comments
 		foreach (var kvp in _labels) result.Labels[kvp.Key] = kvp.Value;
 		foreach (var kvp in _comments) result.Comments[kvp.Key] = kvp.Value;
@@ -223,12 +226,94 @@ public class DisassemblyEngine {
 			result.CrossReferences[kvp.Key] = [.. kvp.Value];
 		}
 
+		// Copy detected data regions
+		foreach (var kvp in _dataDefinitions) {
+			result.DataRegions[kvp.Key] = kvp.Value;
+		}
+
 		// Also add blocks to main list
 		foreach (var bankBlocks in result.BankBlocks.Values) {
 			result.Blocks.AddRange(bankBlocks);
 		}
 
 		return result;
+	}
+
+	/// <summary>
+	/// Detect pointer tables in unvisited ROM regions.
+	/// A pointer table is consecutive word values that point to known code locations.
+	/// </summary>
+	private void DetectPointerTables(ReadOnlySpan<byte> rom, DisassemblyResult result) {
+		// Only run if we have cross-references to match against
+		if (_crossRefs.Count == 0) return;
+
+		var knownCodeAddresses = new HashSet<uint>(_visited.Keys.Select(k => k.Address));
+		var fixedBank = _platformAnalyzer.BankCount - 1;
+
+		// Scan through ROM looking for pointer table patterns
+		var headerSize = _platformAnalyzer.Platform == "NES" ? 16 : 0;
+		var scanStart = headerSize;
+		var scanEnd = Math.Min(rom.Length - 1, 0x10000); // Limit scan size
+
+		for (int offset = scanStart; offset < scanEnd - 1; offset += 2) {
+			// Check if this offset is already visited/known
+			var addr = RomOffsetToAddress((uint)offset, fixedBank);
+			if (!addr.HasValue) continue;
+			if (_visited.ContainsKey((addr.Value, fixedBank))) continue;
+
+			// Try to detect a pointer table starting here
+			var tableInfo = TryDetectPointerTable(rom, offset, knownCodeAddresses, fixedBank);
+			if (tableInfo.HasValue) {
+				var (tableAddr, count) = tableInfo.Value;
+
+				// Add as a data region
+				_dataDefinitions[tableAddr] = new DataDefinition("word", count, $"Pointer table ({count} entries)");
+				result.Comments[tableAddr] = $"Detected pointer table with {count} entries";
+
+				// Skip past this table
+				offset += (count * 2) - 2;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Try to detect a pointer table at the given ROM offset.
+	/// Returns (address, entry count) if a table is found, null otherwise.
+	/// </summary>
+	private (uint Address, int Count)? TryDetectPointerTable(
+		ReadOnlySpan<byte> rom,
+		int offset,
+		HashSet<uint> knownCodeAddresses,
+		int bank) {
+		const int MinTableSize = 3; // At least 3 consecutive pointers
+		const int MaxTableSize = 256; // Reasonable limit
+
+		var addr = RomOffsetToAddress((uint)offset, bank);
+		if (!addr.HasValue) return null;
+
+		int count = 0;
+		int currentOffset = offset;
+
+		while (count < MaxTableSize && currentOffset + 1 < rom.Length) {
+			// Read potential pointer (little-endian word)
+			var lo = rom[currentOffset];
+			var hi = rom[currentOffset + 1];
+			var pointer = (uint)(lo | (hi << 8));
+
+			// Check if this points to a known code address
+			if (!IsValidAddress(pointer) || !knownCodeAddresses.Contains(pointer)) {
+				break;
+			}
+
+			count++;
+			currentOffset += 2;
+		}
+
+		if (count >= MinTableSize) {
+			return (addr.Value, count);
+		}
+
+		return null;
 	}
 
 	/// <summary>

@@ -134,36 +134,42 @@ Dictionary<string, string> Metadata
 /// Disassembly result
 /// </summary>
 public class DisassemblyResult {
-public RomInfo RomInfo { get; set; } = null!;
-public List<DisassembledBlock> Blocks { get; } = [];
-public Dictionary<uint, string> Labels { get; } = [];
-public Dictionary<(uint Address, int Bank), string> BankLabels { get; } = [];
-public Dictionary<uint, string> Comments { get; } = [];
-public Dictionary<int, List<DisassembledBlock>> BankBlocks { get; } = [];
+	public RomInfo RomInfo { get; set; } = null!;
+	public List<DisassembledBlock> Blocks { get; } = [];
+	public Dictionary<uint, string> Labels { get; } = [];
+	public Dictionary<(uint Address, int Bank), string> BankLabels { get; } = [];
+	public Dictionary<uint, string> Comments { get; } = [];
+	public Dictionary<int, List<DisassembledBlock>> BankBlocks { get; } = [];
 
-/// <summary>
-/// Cross-references discovered during disassembly.
-/// Key is the target address, value is list of source addresses that reference it.
-/// </summary>
-public Dictionary<uint, List<CrossRef>> CrossReferences { get; } = [];
+	/// <summary>
+	/// Cross-references discovered during disassembly.
+	/// Key is the target address, value is list of source addresses that reference it.
+	/// </summary>
+	public Dictionary<uint, List<CrossRef>> CrossReferences { get; } = [];
 
-/// <summary>
-/// Get label for an address, checking bank-specific labels first if bank is provided.
-/// </summary>
-public string? GetLabel(uint address, int? bank = null) {
-	// Try bank-specific label first
-	if (bank.HasValue && BankLabels.TryGetValue((address, bank.Value), out var bankLabel))
-		return bankLabel;
-	// Fall back to global label
-	return Labels.GetValueOrDefault(address);
-}
+	/// <summary>
+	/// Detected data regions (pointer tables, etc.).
+	/// Key is the start address, value is the data definition.
+	/// </summary>
+	public Dictionary<uint, DataDefinition> DataRegions { get; } = [];
 
-/// <summary>
-/// Get cross-references to an address (who calls/jumps to this location).
-/// Returns empty list if no references exist.
-/// </summary>
-public IReadOnlyList<CrossRef> GetReferencesTo(uint address) =>
-	CrossReferences.TryGetValue(address, out var refs) ? refs : [];
+	/// <summary>
+	/// Get label for an address, checking bank-specific labels first if bank is provided.
+	/// </summary>
+	public string? GetLabel(uint address, int? bank = null) {
+		// Try bank-specific label first
+		if (bank.HasValue && BankLabels.TryGetValue((address, bank.Value), out var bankLabel))
+			return bankLabel;
+		// Fall back to global label
+		return Labels.GetValueOrDefault(address);
+	}
+
+	/// <summary>
+	/// Get cross-references to an address (who calls/jumps to this location).
+	/// Returns empty list if no references exist.
+	/// </summary>
+	public IReadOnlyList<CrossRef> GetReferencesTo(uint address) =>
+		CrossReferences.TryGetValue(address, out var refs) ? refs : [];
 }
 
 /// <summary>
