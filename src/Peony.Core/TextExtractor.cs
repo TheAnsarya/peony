@@ -392,6 +392,150 @@ public class TableFile {
 	}
 
 	/// <summary>
+	/// Create a Legend of Zelda style table (NES)
+	/// </summary>
+	public static TableFile CreateZeldaTable() {
+		var table = new TableFile { Name = "Zelda" };
+		table.EndByte = 0xff;
+
+		// Uppercase letters A-Z at 0x0a-0x23
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('A' + i);
+			table._byteToChar[(byte)(0x0a + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x0a + i);
+		}
+
+		// Numbers 0-9 at 0x00-0x09
+		for (int i = 0; i < 10; i++) {
+			var c = (char)('0' + i);
+			table._byteToChar[(byte)i] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)i;
+		}
+
+		// Space and punctuation
+		table._byteToChar[0x24] = " ";
+		table._charToByte[" "] = 0x24;
+		table._byteToChar[0x28] = ",";
+		table._byteToChar[0x29] = "!";
+		table._byteToChar[0x2a] = "'";
+		table._byteToChar[0x2b] = "&";
+		table._byteToChar[0x2c] = ".";
+		table._byteToChar[0x2d] = "\"";
+		table._byteToChar[0x2e] = "?";
+		table._byteToChar[0x2f] = "-";
+
+		// Control codes
+		table._controlCodes[0xe0] = "<line>";
+		table._controlCodes[0xe1] = "<item>";
+		table._controlCodes[0xe2] = "<rupee>";
+		table._controlCodes[0xff] = "<end>";
+
+		return table;
+	}
+
+	/// <summary>
+	/// Create a Metroid style table (NES)
+	/// </summary>
+	public static TableFile CreateMetroidTable() {
+		var table = new TableFile { Name = "Metroid" };
+		table.EndByte = 0xff;
+
+		// Uppercase letters A-Z at 0x0a-0x23
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('A' + i);
+			table._byteToChar[(byte)(0x0a + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x0a + i);
+		}
+
+		// Numbers 0-9 at 0x00-0x09
+		for (int i = 0; i < 10; i++) {
+			var c = (char)('0' + i);
+			table._byteToChar[(byte)i] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)i;
+		}
+
+		// Space
+		table._byteToChar[0x24] = " ";
+		table._charToByte[" "] = 0x24;
+		table._byteToChar[0xfe] = ".";
+
+		// Control codes
+		table._controlCodes[0xff] = "<end>";
+
+		return table;
+	}
+
+	/// <summary>
+	/// Create a Castlevania style table (NES)
+	/// </summary>
+	public static TableFile CreateCastlevaniaTable() {
+		var table = new TableFile { Name = "Castlevania" };
+		table.EndByte = 0x40;
+
+		// Uppercase letters A-Z at 0x00-0x19
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('A' + i);
+			table._byteToChar[(byte)i] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)i;
+		}
+
+		// Numbers 0-9 at 0x1a-0x23
+		for (int i = 0; i < 10; i++) {
+			var c = (char)('0' + i);
+			table._byteToChar[(byte)(0x1a + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x1a + i);
+		}
+
+		// Space and punctuation
+		table._byteToChar[0x24] = " ";
+		table._charToByte[" "] = 0x24;
+		table._byteToChar[0x28] = ".";
+		table._byteToChar[0x2c] = "-";
+		table._byteToChar[0x2d] = "!";
+		table._byteToChar[0x2e] = "'";
+
+		// Control codes
+		table._controlCodes[0x40] = "<end>";
+		table._controlCodes[0x41] = "<line>";
+
+		return table;
+	}
+
+	/// <summary>
+	/// Create a Mega Man style table (NES)
+	/// </summary>
+	public static TableFile CreateMegaManTable() {
+		var table = new TableFile { Name = "Mega Man" };
+		table.EndByte = 0xff;
+
+		// Uppercase letters A-Z at 0x00-0x19
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('A' + i);
+			table._byteToChar[(byte)i] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)i;
+		}
+
+		// Numbers 0-9 at 0x50-0x59
+		for (int i = 0; i < 10; i++) {
+			var c = (char)('0' + i);
+			table._byteToChar[(byte)(0x50 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x50 + i);
+		}
+
+		// Space and punctuation
+		table._byteToChar[0x40] = " ";
+		table._charToByte[" "] = 0x40;
+		table._byteToChar[0x1a] = ".";
+		table._byteToChar[0x1b] = "-";
+		table._byteToChar[0x1c] = "!";
+
+		// Control codes
+		table._controlCodes[0xff] = "<end>";
+
+		return table;
+	}
+
+	/// <summary>
 	/// Get a table by template name
 	/// </summary>
 	public static TableFile GetTemplate(string name) {
@@ -402,6 +546,10 @@ public class TableFile {
 			"ff" or "finalfantasy" => CreateFinalFantasyTable(),
 			"sjis" or "shiftjis" or "shift-jis" => CreateShiftJisTable(),
 			"eb" or "earthbound" or "mother" => CreateEarthBoundTable(),
+			"zelda" or "loz" => CreateZeldaTable(),
+			"metroid" => CreateMetroidTable(),
+			"castlevania" or "cv" => CreateCastlevaniaTable(),
+			"megaman" or "mm" or "rockman" => CreateMegaManTable(),
 			_ => CreateAsciiTable()
 		};
 	}

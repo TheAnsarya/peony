@@ -860,7 +860,7 @@ rootCommand.AddCommand(paletteCommand);
 // TBL command - Generate or convert table files
 var tblCommand = new Command("tbl", "Generate or convert text table files");
 var tblOutputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file");
-var tblTemplateOpt = new Option<string>(["--template", "-t"], () => "ascii", "Template: ascii, sjis, pokemon, dw, ff, earthbound");
+var tblTemplateOpt = new Option<string>(["--template", "-t"], () => "ascii", "Template: ascii, sjis, pokemon, dw, ff, earthbound, zelda, metroid, castlevania, megaman");
 var tblFromOpt = new Option<FileInfo?>(["--from", "-f"], "Convert from existing table file");
 var tblToFormatOpt = new Option<string>(["--to-format"], () => "tbl", "Output format: tbl, json, asm");
 
