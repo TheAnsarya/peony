@@ -85,25 +85,60 @@ sb.AppendLine();
 }
 
 private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine line, DisassemblyResult result, int bank = -1) {
-// Label on its own line
-if (!string.IsNullOrEmpty(line.Label)) {
-sb.AppendLine($"{line.Label}:");
+	// Add cross-reference comment before label if there are incoming references
+	var refs = result.GetReferencesTo(line.Address);
+	if (refs.Count > 0 && !string.IsNullOrEmpty(line.Label)) {
+		sb.AppendLine($"; Referenced by: {FormatCrossRefs(refs)}");
+	}
+
+	// Label on its own line
+	if (!string.IsNullOrEmpty(line.Label)) {
+		sb.AppendLine($"{line.Label}:");
+	}
+
+	// Build the instruction line
+	var bytes = string.Join(" ", line.Bytes.Select(b => $"{b:x2}"));
+
+	// Check if this operand references a known label (with bank awareness)
+	var formatted = FormatWithLabels(line.Content, result, bank);
+
+	var instruction = $"\t{formatted,-24}";
+	var bytesComment = $"; {line.Address:x4}: {bytes,-12}";
+
+	if (!string.IsNullOrEmpty(line.Comment)) {
+		sb.AppendLine($"{instruction}{bytesComment} {line.Comment}");
+	} else {
+		sb.AppendLine($"{instruction}{bytesComment}");
+	}
 }
 
-// Build the instruction line
-var bytes = string.Join(" ", line.Bytes.Select(b => $"{b:x2}"));
+/// <summary>
+/// Format cross-references for display in comments
+/// </summary>
+private static string FormatCrossRefs(IReadOnlyList<CrossRef> refs) {
+	var grouped = refs.GroupBy(r => r.Type);
+	var parts = new List<string>();
 
-// Check if this operand references a known label (with bank awareness)
-var formatted = FormatWithLabels(line.Content, result, bank);
+	foreach (var group in grouped.OrderBy(g => g.Key)) {
+		var addrs = group.Select(r => $"${r.FromAddress:x4}").ToList();
+		var prefix = group.Key switch {
+			CrossRefType.Call => "Called from",
+			CrossRefType.Jump => "Jump from",
+			CrossRefType.Branch => "Branch from",
+			CrossRefType.DataRef => "Data ref from",
+			CrossRefType.Pointer => "Pointer from",
+			_ => "Ref from"
+		};
 
-var instruction = $"\t{formatted,-24}";
-var bytesComment = $"; {line.Address:x4}: {bytes,-12}";
+		// Limit to first 5 refs to avoid overly long comments
+		if (addrs.Count > 5) {
+			parts.Add($"{prefix} {string.Join(", ", addrs.Take(5))} (+{addrs.Count - 5} more)");
+		} else {
+			parts.Add($"{prefix} {string.Join(", ", addrs)}");
+		}
+	}
 
-if (!string.IsNullOrEmpty(line.Comment)) {
-sb.AppendLine($"{instruction}{bytesComment} {line.Comment}");
-} else {
-sb.AppendLine($"{instruction}{bytesComment}");
-}
+	return string.Join("; ", parts);
 }
 
 private static string FormatWithLabels(string instruction, DisassemblyResult result, int bank = -1) {
