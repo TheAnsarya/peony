@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peony.Platform.SNES.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peony.Platform.GameBoy.Tests", "tests\Peony.Platform.GameBoy.Tests\Peony.Platform.GameBoy.Tests.csproj", "{F3416E02-AF41-49B9-999E-65875A11684C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peony.Platform.GBA.Tests", "tests\Peony.Platform.GBA.Tests\Peony.Platform.GBA.Tests.csproj", "{72A85358-FBC1-4BE7-8434-906F02DB2A3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -213,6 +215,18 @@ Global
 		{F3416E02-AF41-49B9-999E-65875A11684C}.Release|x64.Build.0 = Release|Any CPU
 		{F3416E02-AF41-49B9-999E-65875A11684C}.Release|x86.ActiveCfg = Release|Any CPU
 		{F3416E02-AF41-49B9-999E-65875A11684C}.Release|x86.Build.0 = Release|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Debug|x64.Build.0 = Debug|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Debug|x86.Build.0 = Debug|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|x64.ActiveCfg = Release|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|x64.Build.0 = Release|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|x86.ActiveCfg = Release|Any CPU
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -224,5 +238,6 @@ Global
 		{94AEFEA3-F6CE-47F0-A31F-DC85B18FC8B8} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{56727588-4E8E-4652-9012-49BE564BEFE7} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{F3416E02-AF41-49B9-999E-65875A11684C} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{72A85358-FBC1-4BE7-8434-906F02DB2A3D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
