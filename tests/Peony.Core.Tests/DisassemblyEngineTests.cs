@@ -285,4 +285,146 @@ public class DisassemblyEngineTests {
 		// Bank-specific is NOT user-defined
 		Assert.False(engine.IsUserDefinedLabel(0x8000, bank: 0));
 	}
+
+	/// <summary>
+	/// Extended mock CPU decoder that supports control flow for cross-reference testing
+	/// </summary>
+	private class ControlFlowMockCpuDecoder : ICpuDecoder {
+		public string Architecture => "Test6502";
+		private readonly Dictionary<byte, (string mnemonic, uint target)> _controlFlow = [];
+
+		public void AddControlFlow(byte opcode, string mnemonic, uint target) {
+			_controlFlow[opcode] = (mnemonic, target);
+		}
+
+		public DecodedInstruction Decode(ReadOnlySpan<byte> data, uint address) {
+			if (data.Length == 0) return new DecodedInstruction("", "", [], AddressingMode.Implied);
+
+			var opcode = data[0];
+			if (_controlFlow.TryGetValue(opcode, out var cf)) {
+				// Return a 3-byte instruction (opcode + 2-byte address)
+				var bytes = data.Length >= 3 ? data[..3].ToArray() : [opcode, 0, 0];
+				return new DecodedInstruction(cf.mnemonic, $"${cf.target:x4}", bytes, AddressingMode.Absolute);
+			}
+
+			return new DecodedInstruction("nop", "", [data[0]], AddressingMode.Implied);
+		}
+
+		public bool IsControlFlow(DecodedInstruction instruction) {
+			var mnemonic = instruction.Mnemonic.ToUpperInvariant();
+			return mnemonic is "JMP" or "JSR" or "BNE" or "BEQ" or "RTS";
+		}
+
+		public IEnumerable<uint> GetTargets(DecodedInstruction instruction, uint currentAddress) {
+			foreach (var cf in _controlFlow.Values) {
+				if (cf.mnemonic == instruction.Mnemonic) {
+					yield return cf.target;
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Extended mock platform analyzer for cross-reference testing
+	/// </summary>
+	private class CrossRefMockPlatformAnalyzer : IPlatformAnalyzer {
+		public string Platform => "NES";
+		public int BankCount => 1;
+		public ICpuDecoder CpuDecoder { get; }
+
+		public CrossRefMockPlatformAnalyzer(ICpuDecoder cpuDecoder) {
+			CpuDecoder = cpuDecoder;
+		}
+
+		public RomInfo Analyze(ReadOnlySpan<byte> rom) => new(
+			Platform: "NES",
+			Size: rom.Length,
+			Mapper: null,
+			Metadata: []
+		);
+
+		public int AddressToOffset(uint address, int romLength) => (int)(address - 0x8000);
+		public int AddressToOffset(uint address, int romLength, int bank) => (int)(address - 0x8000);
+		public string? GetRegisterLabel(uint address) => null;
+		public bool IsInSwitchableRegion(uint address) => address < 0xc000;
+		public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) => null;
+		public MemoryRegion GetMemoryRegion(uint address) => MemoryRegion.Code;
+		public uint[] GetEntryPoints(ReadOnlySpan<byte> rom) => [0x8000];
+	}
+
+	[Fact]
+	public void Disassemble_TracksCrossReferences_ForJumpInstructions() {
+		var cpuDecoder = new ControlFlowMockCpuDecoder();
+		cpuDecoder.AddControlFlow(0x4c, "JMP", 0x8020); // JMP $8020 at $8000
+
+		var analyzer = new CrossRefMockPlatformAnalyzer(cpuDecoder);
+		var engine = new DisassemblyEngine(cpuDecoder, analyzer);
+
+		// ROM: JMP $8020, then NOPs, then target at $8020
+		var rom = new byte[64];
+		rom[0] = 0x4c; // JMP
+		rom[1] = 0x20; // Low byte of $8020
+		rom[2] = 0x80; // High byte of $8020
+		rom[0x20] = 0x60; // RTS at target
+
+		var result = engine.Disassemble(rom, [0x8000]);
+
+		// Check cross-references exist for target $8020
+		var refs = result.GetReferencesTo(0x8020);
+		Assert.NotEmpty(refs);
+		Assert.Contains(refs, r => r.FromAddress == 0x8000 && r.Type == CrossRefType.Jump);
+	}
+
+	[Fact]
+	public void Disassemble_TracksCrossReferences_ForCallInstructions() {
+		var cpuDecoder = new ControlFlowMockCpuDecoder();
+		cpuDecoder.AddControlFlow(0x20, "JSR", 0x8030); // JSR $8030 at $8000
+
+		var analyzer = new CrossRefMockPlatformAnalyzer(cpuDecoder);
+		var engine = new DisassemblyEngine(cpuDecoder, analyzer);
+
+		var rom = new byte[64];
+		rom[0] = 0x20; // JSR
+		rom[1] = 0x30; // Low byte
+		rom[2] = 0x80; // High byte
+		rom[0x30] = 0x60; // RTS at target
+
+		var result = engine.Disassemble(rom, [0x8000]);
+
+		var refs = result.GetReferencesTo(0x8030);
+		Assert.NotEmpty(refs);
+		Assert.Contains(refs, r => r.FromAddress == 0x8000 && r.Type == CrossRefType.Call);
+	}
+
+	[Fact]
+	public void Disassemble_TracksCrossReferences_ForBranchInstructions() {
+		var cpuDecoder = new ControlFlowMockCpuDecoder();
+		cpuDecoder.AddControlFlow(0xd0, "BNE", 0x8010); // BNE $8010 at $8000
+
+		var analyzer = new CrossRefMockPlatformAnalyzer(cpuDecoder);
+		var engine = new DisassemblyEngine(cpuDecoder, analyzer);
+
+		var rom = new byte[32];
+		rom[0] = 0xd0; // BNE
+		rom[1] = 0x0e; // Offset
+		rom[2] = 0x00;
+		rom[0x10] = 0x60; // RTS at target
+
+		var result = engine.Disassemble(rom, [0x8000]);
+
+		var refs = result.GetReferencesTo(0x8010);
+		Assert.NotEmpty(refs);
+		Assert.Contains(refs, r => r.FromAddress == 0x8000 && r.Type == CrossRefType.Branch);
+	}
+
+	[Fact]
+	public void GetReferencesTo_ReturnsEmptyForUnreferencedAddress() {
+		var engine = new DisassemblyEngine(new MockCpuDecoder(), new MockPlatformAnalyzer());
+
+		var rom = new byte[16];
+		var result = engine.Disassemble(rom, [0x8000]);
+
+		var refs = result.GetReferencesTo(0xFFFF);
+		Assert.Empty(refs);
+	}
 }

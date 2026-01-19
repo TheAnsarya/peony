@@ -19,6 +19,9 @@ public class DisassemblyEngine {
 	private readonly Queue<(uint Address, int Bank)> _codeQueue = new();
 	private readonly HashSet<(int TargetBank, uint TargetAddress)> _bankCalls = [];
 
+	// Cross-reference tracking
+	private readonly Dictionary<uint, List<CrossRef>> _crossRefs = [];
+
 	// Track which labels are user-defined (from DIZ/symbol files)
 	private readonly HashSet<uint> _userDefinedLabels = [];
 	private readonly HashSet<(uint Address, int Bank)> _userDefinedBankLabels = [];
@@ -28,6 +31,36 @@ public class DisassemblyEngine {
 	public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer) {
 		_cpuDecoder = cpuDecoder;
 		_platformAnalyzer = platformAnalyzer;
+	}
+
+	/// <summary>
+	/// Add a cross-reference from one address to another
+	/// </summary>
+	private void AddCrossRef(uint fromAddress, int fromBank, uint toAddress, CrossRefType type) {
+		if (!_crossRefs.TryGetValue(toAddress, out var refs)) {
+			refs = [];
+			_crossRefs[toAddress] = refs;
+		}
+
+		// Avoid duplicates
+		var crossRef = new CrossRef(fromAddress, fromBank, type);
+		if (!refs.Contains(crossRef)) {
+			refs.Add(crossRef);
+		}
+	}
+
+	/// <summary>
+	/// Determine cross-reference type based on instruction mnemonic
+	/// </summary>
+	private CrossRefType GetCrossRefType(DecodedInstruction instruction) {
+		var mnemonic = instruction.Mnemonic.ToUpperInvariant();
+		return mnemonic switch {
+			"JMP" or "BRA" => CrossRefType.Jump,
+			"JSR" or "JSL" => CrossRefType.Call,
+			"BCC" or "BCS" or "BEQ" or "BMI" or "BNE" or "BPL" or "BVC" or "BVS" => CrossRefType.Branch,
+			"LDA" or "LDX" or "LDY" or "STA" or "STX" or "STY" => CrossRefType.DataRef,
+			_ => CrossRefType.Jump // Default for other control flow
+		};
 	}
 
 	/// <summary>
@@ -185,6 +218,11 @@ public class DisassemblyEngine {
 			result.BankLabels[kvp.Key] = kvp.Value;
 		}
 
+		// Copy cross-references
+		foreach (var kvp in _crossRefs) {
+			result.CrossReferences[kvp.Key] = [.. kvp.Value];
+		}
+
 		// Also add blocks to main list
 		foreach (var bankBlocks in result.BankBlocks.Values) {
 			result.Blocks.AddRange(bankBlocks);
@@ -298,28 +336,33 @@ FormatInstruction(instruction), lineComment, bank
 
 // Handle control flow
 if (_cpuDecoder.IsControlFlow(instruction)) {
-foreach (var target in _cpuDecoder.GetTargets(instruction, address)) {
-if (!IsValidAddress(target)) continue;
+	var crossRefType = GetCrossRefType(instruction);
 
-// Determine target bank
-var targetBank = bank;
-if (_platformAnalyzer.Platform == "NES") {
-// In NES MMC1, $C000-$FFFF is fixed (last bank)
-// $8000-$BFFF uses current switchable bank
-if (target >= 0xc000) {
-targetBank = _platformAnalyzer.BankCount - 1;
-}
-}
+	foreach (var target in _cpuDecoder.GetTargets(instruction, address)) {
+		if (!IsValidAddress(target)) continue;
 
-// ALWAYS create label (even for backward branches)
-AddLabel(target, $"loc_{target:x4}", targetBank);
+		// Record cross-reference
+		AddCrossRef(address, bank, target, crossRefType);
 
-if (!_visited.ContainsKey((target, targetBank))) {
-_codeQueue.Enqueue((target, targetBank));
-}
-}
+		// Determine target bank
+		var targetBank = bank;
+		if (_platformAnalyzer.Platform == "NES") {
+			// In NES MMC1, $C000-$FFFF is fixed (last bank)
+			// $8000-$BFFF uses current switchable bank
+			if (target >= 0xc000) {
+				targetBank = _platformAnalyzer.BankCount - 1;
+			}
+		}
 
-if (IsUnconditionalBranch(instruction)) break;
+		// ALWAYS create label (even for backward branches)
+		AddLabel(target, $"loc_{target:x4}", targetBank);
+
+		if (!_visited.ContainsKey((target, targetBank))) {
+			_codeQueue.Enqueue((target, targetBank));
+		}
+	}
+
+	if (IsUnconditionalBranch(instruction)) break;
 }
 
 address += (uint)instruction.Bytes.Length;
