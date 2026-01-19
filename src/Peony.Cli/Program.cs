@@ -860,7 +860,7 @@ rootCommand.AddCommand(paletteCommand);
 // TBL command - Generate or convert table files
 var tblCommand = new Command("tbl", "Generate or convert text table files");
 var tblOutputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file");
-var tblTemplateOpt = new Option<string>(["--template", "-t"], () => "ascii", "Template: ascii, sjis, pokemon, dw, ff");
+var tblTemplateOpt = new Option<string>(["--template", "-t"], () => "ascii", "Template: ascii, sjis, pokemon, dw, ff, earthbound");
 var tblFromOpt = new Option<FileInfo?>(["--from", "-f"], "Convert from existing table file");
 var tblToFormatOpt = new Option<string>(["--to-format"], () => "tbl", "Output format: tbl, json, asm");
 
@@ -883,11 +883,8 @@ tblCommand.SetHandler((output, template, fromFile, toFormat) => {
 			AnsiConsole.MarkupLine($"[grey]Loaded:[/] {fromFile.Name} ({table.ByteMappings.Count} entries)");
 		} else {
 			// Generate from template
-			table = template.ToLowerInvariant() switch {
-				"ascii" => TableFile.CreateAsciiTable(),
-				_ => TableFile.CreateAsciiTable()
-			};
-			AnsiConsole.MarkupLine($"[grey]Template:[/] {template} ({table.ByteMappings.Count} entries)");
+			table = TableFile.GetTemplate(template);
+			AnsiConsole.MarkupLine($"[grey]Template:[/] {template} → {table.Name} ({table.ByteMappings.Count} byte + {table.WordMappings.Count} word entries)");
 		}
 
 		if (output != null) {

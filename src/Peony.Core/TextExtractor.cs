@@ -165,6 +165,248 @@ public class TableFile {
 	}
 
 	/// <summary>
+	/// Create a Pokemon Red/Blue style table (Game Boy)
+	/// </summary>
+	public static TableFile CreatePokemonTable() {
+		var table = new TableFile { Name = "Pokemon" };
+		table.EndByte = 0x50; // End marker
+
+		// Uppercase letters A-Z at 0x80-0x99
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('A' + i);
+			table._byteToChar[(byte)(0x80 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x80 + i);
+		}
+
+		// Lowercase letters a-z at 0xa0-0xb9
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('a' + i);
+			table._byteToChar[(byte)(0xa0 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0xa0 + i);
+		}
+
+		// Numbers 0-9 at 0xf6-0xff
+		for (int i = 0; i < 10; i++) {
+			var c = (char)('0' + i);
+			table._byteToChar[(byte)(0xf6 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0xf6 + i);
+		}
+
+		// Common punctuation
+		table._byteToChar[0x7f] = " ";
+		table._charToByte[" "] = 0x7f;
+		table._byteToChar[0xe7] = "!";
+		table._byteToChar[0xe8] = ".";
+		table._byteToChar[0xf4] = ",";
+		table._byteToChar[0xf2] = "-";
+		table._byteToChar[0xf3] = "'";
+
+		// Control codes
+		table._controlCodes[0x4f] = "<line>";
+		table._controlCodes[0x50] = "<end>";
+		table._controlCodes[0x51] = "<para>";
+		table._controlCodes[0x55] = "<cont>";
+		table._controlCodes[0x57] = "<done>";
+
+		return table;
+	}
+
+	/// <summary>
+	/// Create a Dragon Quest/Warrior style table (NES/SNES)
+	/// </summary>
+	public static TableFile CreateDragonQuestTable() {
+		var table = new TableFile { Name = "Dragon Quest" };
+		table.EndByte = 0xff;
+
+		// Uppercase A-Z starting at 0x80
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('A' + i);
+			table._byteToChar[(byte)(0x80 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x80 + i);
+		}
+
+		// Lowercase a-z starting at 0x9a
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('a' + i);
+			table._byteToChar[(byte)(0x9a + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x9a + i);
+		}
+
+		// Numbers 0-9 starting at 0xb4
+		for (int i = 0; i < 10; i++) {
+			var c = (char)('0' + i);
+			table._byteToChar[(byte)(0xb4 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0xb4 + i);
+		}
+
+		// Common characters
+		table._byteToChar[0xbe] = " ";
+		table._charToByte[" "] = 0xbe;
+		table._byteToChar[0xbf] = ".";
+		table._byteToChar[0xc0] = ",";
+		table._byteToChar[0xc1] = "-";
+		table._byteToChar[0xc2] = "!";
+		table._byteToChar[0xc3] = "?";
+		table._byteToChar[0xc4] = "'";
+		table._byteToChar[0xc5] = "\"";
+		table._byteToChar[0xc6] = ":";
+
+		// Control codes
+		table._controlCodes[0xf0] = "<name>";
+		table._controlCodes[0xf1] = "<item>";
+		table._controlCodes[0xf2] = "<number>";
+		table._controlCodes[0xfc] = "<line>";
+		table._controlCodes[0xfd] = "<para>";
+		table._controlCodes[0xfe] = "<wait>";
+		table._controlCodes[0xff] = "<end>";
+
+		return table;
+	}
+
+	/// <summary>
+	/// Create a Final Fantasy style table (NES/SNES)
+	/// </summary>
+	public static TableFile CreateFinalFantasyTable() {
+		var table = new TableFile { Name = "Final Fantasy" };
+		table.EndByte = 0x00;
+
+		// Uppercase A-Z starting at 0x8a
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('A' + i);
+			table._byteToChar[(byte)(0x8a + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x8a + i);
+		}
+
+		// Lowercase a-z starting at 0xa4
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('a' + i);
+			table._byteToChar[(byte)(0xa4 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0xa4 + i);
+		}
+
+		// Numbers 0-9 starting at 0x80
+		for (int i = 0; i < 10; i++) {
+			var c = (char)('0' + i);
+			table._byteToChar[(byte)(0x80 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x80 + i);
+		}
+
+		// Common punctuation
+		table._byteToChar[0xff] = " ";
+		table._charToByte[" "] = 0xff;
+		table._byteToChar[0xc0] = ".";
+		table._byteToChar[0xc1] = ",";
+		table._byteToChar[0xc2] = "-";
+		table._byteToChar[0xc3] = "'";
+		table._byteToChar[0xc4] = "!";
+		table._byteToChar[0xc5] = "?";
+		table._byteToChar[0xbe] = ":";
+
+		// Control codes
+		table._controlCodes[0x00] = "<end>";
+		table._controlCodes[0x01] = "<line>";
+		table._controlCodes[0x02] = "<name>";
+		table._controlCodes[0x03] = "<item>";
+
+		return table;
+	}
+
+	/// <summary>
+	/// Create a basic Shift-JIS compatible table for Japanese text
+	/// </summary>
+	public static TableFile CreateShiftJisTable() {
+		var table = new TableFile { Name = "Shift-JIS" };
+
+		// ASCII range (single byte)
+		for (int i = 0x20; i <= 0x7e; i++) {
+			table._byteToChar[(byte)i] = ((char)i).ToString();
+			table._charToByte[((char)i).ToString()] = (byte)i;
+		}
+
+		// Half-width katakana (0xa1-0xdf)
+		var katakana = "。「」、・ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン゛゜";
+		for (int i = 0; i < katakana.Length && i < 63; i++) {
+			table._byteToChar[(byte)(0xa1 + i)] = katakana[i].ToString();
+			table._charToByte[katakana[i].ToString()] = (byte)(0xa1 + i);
+		}
+
+		// Common two-byte hiragana (82xx range)
+		var hiragana = "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをん";
+		for (int i = 0; i < hiragana.Length && i < 83; i++) {
+			ushort code = (ushort)(0x829f + i);
+			// Skip gaps in Shift-JIS encoding
+			if (i >= 31) code++;
+			table._wordToChar[code] = hiragana[i].ToString();
+			table._charToWord[hiragana[i].ToString()] = code;
+		}
+
+		return table;
+	}
+
+	/// <summary>
+	/// Create a Mother/EarthBound style table (SNES)
+	/// </summary>
+	public static TableFile CreateEarthBoundTable() {
+		var table = new TableFile { Name = "EarthBound" };
+		table.EndByte = 0x02;
+
+		// Uppercase A-Z at 0x30-0x49
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('A' + i);
+			table._byteToChar[(byte)(0x30 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x30 + i);
+		}
+
+		// Lowercase a-z at 0x4a-0x63
+		for (int i = 0; i < 26; i++) {
+			var c = (char)('a' + i);
+			table._byteToChar[(byte)(0x4a + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x4a + i);
+		}
+
+		// Numbers 0-9 at 0x60-0x69
+		for (int i = 0; i < 10; i++) {
+			var c = (char)('0' + i);
+			table._byteToChar[(byte)(0x60 + i)] = c.ToString();
+			table._charToByte[c.ToString()] = (byte)(0x60 + i);
+		}
+
+		// Space and punctuation
+		table._byteToChar[0x00] = " ";
+		table._charToByte[" "] = 0x00;
+		table._byteToChar[0x1e] = "-";
+		table._byteToChar[0x1f] = "'";
+		table._byteToChar[0x6a] = "!";
+		table._byteToChar[0x6b] = "?";
+		table._byteToChar[0x6c] = ".";
+		table._byteToChar[0x6d] = ",";
+
+		// Control codes
+		table._controlCodes[0x02] = "<end>";
+		table._controlCodes[0x03] = "<line>";
+		table._controlCodes[0x04] = "<page>";
+		table._controlCodes[0x1c] = "<name>";
+		table._controlCodes[0x1d] = "<item>";
+
+		return table;
+	}
+
+	/// <summary>
+	/// Get a table by template name
+	/// </summary>
+	public static TableFile GetTemplate(string name) {
+		return name.ToLowerInvariant() switch {
+			"ascii" => CreateAsciiTable(),
+			"pokemon" or "pkmn" => CreatePokemonTable(),
+			"dw" or "dq" or "dragonquest" or "dragonwarrior" => CreateDragonQuestTable(),
+			"ff" or "finalfantasy" => CreateFinalFantasyTable(),
+			"sjis" or "shiftjis" or "shift-jis" => CreateShiftJisTable(),
+			"eb" or "earthbound" or "mother" => CreateEarthBoundTable(),
+			_ => CreateAsciiTable()
+		};
+	}
+
+	/// <summary>
 	/// Decode a single byte to its character representation
 	/// </summary>
 	public string? DecodeByte(byte b) {
