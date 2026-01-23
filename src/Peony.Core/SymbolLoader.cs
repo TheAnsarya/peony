@@ -174,7 +174,7 @@ public class SymbolLoader {
 	/// Gets memory regions from Pansy data, if available.
 	/// Memory regions define address ranges with their types and banks.
 	/// </summary>
-	public IReadOnlyList<PansyLoader.MemoryRegion>? GetMemoryRegions() =>
+	public IReadOnlyList<Pansy.Core.MemoryRegion>? GetMemoryRegions() =>
 		_pansyLoader?.MemoryRegions;
 
 	/// <summary>
@@ -198,7 +198,7 @@ public class SymbolLoader {
 	/// </summary>
 	/// <param name="address">The CPU address to look up.</param>
 	/// <returns>The memory region, or null if no matching region found.</returns>
-	public PansyLoader.MemoryRegion? GetMemoryRegionForAddress(uint address) {
+	public Pansy.Core.MemoryRegion? GetMemoryRegionForAddress(uint address) {
 		if (_pansyLoader is null) return null;
 
 		foreach (var region in _pansyLoader.MemoryRegions) {
