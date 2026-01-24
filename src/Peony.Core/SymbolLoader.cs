@@ -144,13 +144,16 @@ public class SymbolLoader {
 	/// Checks if an address/offset is code according to CDL/DIZ/Pansy data.
 	/// </summary>
 	/// <param name="offset">The ROM file offset.</param>
-	/// <returns>True if marked as code, null if no CDL/DIZ/Pansy loaded.</returns>
+	/// <returns>True if marked as code, false if marked as data, null if unknown.</returns>
 	public bool? IsCode(int offset) {
 		if (_cdlLoader is not null)
 			return _cdlLoader.IsCode(offset);
 		if (_dizLoader is not null)
 			return _dizLoader.IsCode(offset);
-		if (_pansyLoader is not null)
+		// For Pansy, only return a value if the file has code/data map info
+		// (i.e., has any offsets marked). Otherwise, return null to indicate
+		// "no information available" rather than "not code".
+		if (_pansyLoader is not null && _pansyLoader.HasCodeDataMap)
 			return _pansyLoader.IsCode(offset);
 		return null;
 	}
@@ -159,13 +162,14 @@ public class SymbolLoader {
 	/// Checks if an address/offset is data according to CDL/DIZ/Pansy data.
 	/// </summary>
 	/// <param name="offset">The ROM file offset.</param>
-	/// <returns>True if marked as data, null if no CDL/DIZ/Pansy loaded.</returns>
+	/// <returns>True if marked as data, false if marked as code, null if unknown.</returns>
 	public bool? IsData(int offset) {
 		if (_cdlLoader is not null)
 			return _cdlLoader.IsData(offset);
 		if (_dizLoader is not null)
 			return _dizLoader.IsData(offset);
-		if (_pansyLoader is not null)
+		// For Pansy, only return a value if the file has code/data map info
+		if (_pansyLoader is not null && _pansyLoader.HasCodeDataMap)
 			return _pansyLoader.IsData(offset);
 		return null;
 	}
