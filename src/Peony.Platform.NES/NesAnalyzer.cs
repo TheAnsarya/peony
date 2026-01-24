@@ -173,6 +173,44 @@ return 16 + (bank * 16384) + (int)(address - 0x8000);
 }
 }
 
+public uint? OffsetToAddress(int offset) {
+	// For CDL offsets, assume they're already file offsets including header
+	var headerSize = 16;
+	var prgOffset = offset - headerSize;
+	if (prgOffset < 0) return null;
+
+	var prgSize = PrgBanks * 16384;
+	if (prgSize == 0) return null;
+
+	if (Mapper == 0) {
+		// NROM: simple mapping to $8000-$FFFF
+		if (prgSize <= 16384) {
+			// 16K mirrored
+			return (uint)(0x8000 + (prgOffset & 0x3fff));
+		} else {
+			// 32K
+			return (uint)(0x8000 + prgOffset);
+		}
+	} else if (Mapper == 1) {
+		// MMC1: Check if in fixed bank ($C000-$FFFF)
+		var lastBankStart = prgSize - 16384;
+		if (prgOffset >= lastBankStart) {
+			// In fixed bank
+			return (uint)(0xc000 + (prgOffset - lastBankStart));
+		}
+		// In switchable bank - return $8000+ address
+		// Bank number would be prgOffset / 16384
+		return (uint)(0x8000 + (prgOffset % 16384));
+	} else {
+		// Generic mapping
+		var lastBankStart = prgSize - 16384;
+		if (prgOffset >= lastBankStart) {
+			return (uint)(0xc000 + (prgOffset - lastBankStart));
+		}
+		return (uint)(0x8000 + (prgOffset % 16384));
+	}
+}
+
 /// <summary>
 /// Detect BRK-based bank switch calls
 /// Dragon Warrior 1 format: BRK, function_index, bank_number

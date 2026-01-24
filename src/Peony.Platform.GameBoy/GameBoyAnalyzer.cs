@@ -171,6 +171,14 @@ public class GameBoyAnalyzer : IPlatformAnalyzer {
 		return -1;
 	}
 
+	public uint? OffsetToAddress(int offset) {
+		// GB: Bank 0 at $0000-$3fff, bank 1+ at $4000-$7fff
+		if (offset < 0x4000)
+			return (uint)offset;
+		// Return switchable bank address
+		return (uint)(0x4000 + (offset % 0x4000));
+	}
+
 	public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 		// Game Boy doesn't use BRK for bank switching
 		// Bank switches happen via MBC register writes

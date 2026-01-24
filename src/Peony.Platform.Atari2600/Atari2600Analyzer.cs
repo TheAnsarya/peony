@@ -150,6 +150,12 @@ _ => (address >= 0xf000) ? (int)(address - 0xf000) : -1
 };
 }
 
+public uint? OffsetToAddress(int offset) {
+	// Atari 2600: ROM maps to $F000-$FFFF (4K) or $F800-$FFFF (2K)
+	// Just return $F000 + offset for simple mapping
+	return (uint)(0xf000 + offset);
+}
+
 public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 // Atari 2600 doesn't use BRK for bank switching
 // Bank switches happen via hotspot accesses

@@ -239,6 +239,37 @@ public class SnesAnalyzer : IPlatformAnalyzer {
 		};
 	}
 
+	public uint? OffsetToAddress(int offset) {
+		var headerOffset = HasCopierHeader ? 512 : 0;
+		var adjustedOffset = offset - headerOffset;
+		if (adjustedOffset < 0) return null;
+
+		return MapMode switch {
+			SnesMapMode.LoRom => LoRomOffsetToAddress(adjustedOffset),
+			SnesMapMode.HiRom => HiRomOffsetToAddress(adjustedOffset),
+			SnesMapMode.ExLoRom => LoRomOffsetToAddress(adjustedOffset), // Same formula, different bank range
+			SnesMapMode.ExHiRom => HiRomOffsetToAddress(adjustedOffset),
+			_ => null
+		};
+	}
+
+	private static uint LoRomOffsetToAddress(int offset) {
+		// LoROM: ROM offset maps to bank:8000-FFFF
+		// Offset 0x0000 -> $00:8000 or $80:8000
+		// Offset 0x8000 -> $01:8000 or $81:8000
+		var bank = (offset / 0x8000) & 0x7f; // Banks 00-7F
+		var addr = 0x8000 + (offset % 0x8000);
+		return (uint)((bank << 16) | addr);
+	}
+
+	private static uint HiRomOffsetToAddress(int offset) {
+		// HiROM: ROM offset maps directly to bank:0000-FFFF
+		// Offset 0x0000 -> $C0:0000 (or $40:0000)
+		var bank = 0xc0 + (offset / 0x10000);
+		var addr = offset % 0x10000;
+		return (uint)((bank << 16) | addr);
+	}
+
 	public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 		// SNES uses direct long addressing (JSL/JML) for cross-bank calls
 		// No BRK-based switching like NES mappers

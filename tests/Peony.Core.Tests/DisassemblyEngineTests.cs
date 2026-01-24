@@ -39,6 +39,7 @@ public class DisassemblyEngineTests {
 
 		public int AddressToOffset(uint address, int romLength) => (int)address;
 		public int AddressToOffset(uint address, int romLength, int bank) => (int)address;
+		public uint? OffsetToAddress(int offset) => (uint)(0x8000 + offset);
 		public string? GetRegisterLabel(uint address) => null;
 		public bool IsInSwitchableRegion(uint address) => false;
 		public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) => null;
@@ -345,6 +346,7 @@ public class DisassemblyEngineTests {
 
 		public int AddressToOffset(uint address, int romLength) => (int)(address - 0x8000);
 		public int AddressToOffset(uint address, int romLength, int bank) => (int)(address - 0x8000);
+		public uint? OffsetToAddress(int offset) => (uint)(0x8000 + offset);
 		public string? GetRegisterLabel(uint address) => null;
 		public bool IsInSwitchableRegion(uint address) => address < 0xc000;
 		public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) => null;

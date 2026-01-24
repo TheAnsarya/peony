@@ -178,6 +178,11 @@ public class GbaAnalyzer : IPlatformAnalyzer {
 		return -1;
 	}
 
+	public uint? OffsetToAddress(int offset) {
+		// GBA: ROM at $08000000+
+		return (uint)(0x08000000 + offset);
+	}
+
 	public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 		// GBA doesn't use bank switching
 		return null;

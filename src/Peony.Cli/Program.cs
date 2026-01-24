@@ -92,14 +92,26 @@ IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 
 AnsiConsole.WriteLine();
 
-// Get entry points
-uint[] entryPoints = analyzer switch {
-Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
-NesAnalyzer nes => nes.GetEntryPoints(romData),
-_ => [0x8000]
+// Get entry points from platform analyzer
+uint[] platformEntryPoints = analyzer switch {
+	Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
+	NesAnalyzer nes => nes.GetEntryPoints(romData),
+	_ => [0x8000]
 };
 
-AnsiConsole.MarkupLine($"[grey]Entry points:[/] {string.Join(", ", entryPoints.Select(e => $"${e:x4}"))}");
+// Combine with CDL subroutine entry points if available
+var entryPointSet = new HashSet<uint>(platformEntryPoints);
+if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
+	// Convert ROM file offsets to CPU addresses using the analyzer's mapper
+	foreach (var offset in cdlData.SubEntryPoints) {
+		var addr = analyzer.OffsetToAddress(offset);
+		if (addr.HasValue)
+			entryPointSet.Add(addr.Value);
+	}
+}
+var entryPoints = entryPointSet.ToArray();
+
+AnsiConsole.MarkupLine($"[grey]Entry points:[/] {platformEntryPoints.Length} platform + {(entryPoints.Length - platformEntryPoints.Length)} CDL = {entryPoints.Length} total");
 
 // Create engine and disassemble
 var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);

@@ -48,6 +48,9 @@ int AddressToOffset(uint address, int romLength);
 /// <summary>Convert CPU address to file offset for specific bank</summary>
 int AddressToOffset(uint address, int romLength, int bank);
 
+/// <summary>Convert file offset to CPU address (for display purposes)</summary>
+uint? OffsetToAddress(int offset);
+
 /// <summary>Check if address is in switchable bank region</summary>
 bool IsInSwitchableRegion(uint address);
 
