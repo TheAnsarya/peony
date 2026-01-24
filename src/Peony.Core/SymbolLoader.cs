@@ -144,10 +144,20 @@ public class SymbolLoader {
 	/// Checks if an address/offset is code according to CDL/DIZ/Pansy data.
 	/// </summary>
 	/// <param name="offset">The ROM file offset.</param>
-	/// <returns>True if marked as code, false if marked as data, null if unknown.</returns>
+	/// <returns>True if marked as code, false if marked as data, null if unknown/unreached.</returns>
 	public bool? IsCode(int offset) {
-		if (_cdlLoader is not null)
-			return _cdlLoader.IsCode(offset);
+		// For CDL, we need to distinguish between:
+		// - Marked as code -> return true
+		// - Marked as data -> return false
+		// - Unreached (neither code nor data) -> return null (let disassembler try)
+		if (_cdlLoader is not null) {
+			if (_cdlLoader.IsCode(offset))
+				return true;
+			if (_cdlLoader.IsData(offset))
+				return false;
+			// Unreached - no information, let disassembler decide
+			return null;
+		}
 		if (_dizLoader is not null)
 			return _dizLoader.IsCode(offset);
 		// For Pansy, only return a value if the file has code/data map info
@@ -162,10 +172,17 @@ public class SymbolLoader {
 	/// Checks if an address/offset is data according to CDL/DIZ/Pansy data.
 	/// </summary>
 	/// <param name="offset">The ROM file offset.</param>
-	/// <returns>True if marked as data, false if marked as code, null if unknown.</returns>
+	/// <returns>True if marked as data, false if marked as code, null if unknown/unreached.</returns>
 	public bool? IsData(int offset) {
-		if (_cdlLoader is not null)
-			return _cdlLoader.IsData(offset);
+		// Same logic as IsCode but reversed
+		if (_cdlLoader is not null) {
+			if (_cdlLoader.IsData(offset))
+				return true;
+			if (_cdlLoader.IsCode(offset))
+				return false;
+			// Unreached - no information
+			return null;
+		}
 		if (_dizLoader is not null)
 			return _dizLoader.IsData(offset);
 		// For Pansy, only return a value if the file has code/data map info

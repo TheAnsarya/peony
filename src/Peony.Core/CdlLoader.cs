@@ -38,6 +38,8 @@ public class CdlLoader {
 		FCEUX,
 		/// <summary>Mesen CDL format ("CDL\x01" header + bytes)</summary>
 		Mesen,
+		/// <summary>Mesen2 CDL format ("CDLv2" header + CRC32 + bytes)</summary>
+		MesenV2,
 		/// <summary>bsnes CDL format</summary>
 		Bsnes
 	}
@@ -127,7 +129,12 @@ public class CdlLoader {
 	/// </summary>
 	/// <returns>Tuple of (codeBytes, dataBytes, totalSize, coveragePercent).</returns>
 	public (int CodeBytes, int DataBytes, int TotalSize, double CoveragePercent) GetCoverageStats() {
-		var dataSize = _format == CdlFormat.Mesen ? _cdlData.Length - 4 : _cdlData.Length;
+		var headerSize = _format switch {
+			CdlFormat.Mesen => 4,
+			CdlFormat.MesenV2 => 9,
+			_ => 0
+		};
+		var dataSize = _cdlData.Length - headerSize;
 		var totalMarked = _codeOffsets.Count + _dataOffsets.Count;
 		var coverage = dataSize > 0 ? (totalMarked * 100.0) / dataSize : 0;
 		return (_codeOffsets.Count, _dataOffsets.Count, dataSize, coverage);
@@ -140,9 +147,13 @@ public class CdlLoader {
 		if (data.Length < 4)
 			return CdlFormat.FCEUX;  // Too small for header
 
-		// Check for Mesen header "CDL\x01"
-		if (data[0] == 'C' && data[1] == 'D' && data[2] == 'L' && data[3] == 0x01)
-			return CdlFormat.Mesen;
+		// Check for Mesen header "CDL\x01" (old) or "CDLv2" (new)
+		if (data[0] == 'C' && data[1] == 'D' && data[2] == 'L') {
+			if (data[3] == 0x01)
+				return CdlFormat.Mesen;
+			if (data.Length >= 5 && data[3] == 'v' && data[4] == '2')
+				return CdlFormat.MesenV2;
+		}
 
 		// bsnes uses different flags, detect by checking common patterns
 		// For now, default to FCEUX if no header
@@ -157,8 +168,11 @@ public class CdlLoader {
 		ReadOnlySpan<byte> cdl;
 
 		if (_format == CdlFormat.Mesen) {
-			// Skip "CDL\x01" header
+			// Skip "CDL\x01" header (4 bytes)
 			startOffset = 4;
+		} else if (_format == CdlFormat.MesenV2) {
+			// Skip "CDLv2" header (5 bytes) + CRC32 (4 bytes) = 9 bytes
+			startOffset = 9;
 		}
 
 		cdl = _cdlData.AsSpan(startOffset);
@@ -167,7 +181,7 @@ public class CdlLoader {
 			var flags = cdl[i];
 			if (flags == 0) continue;  // Unreached
 
-			if (_format == CdlFormat.Mesen) {
+			if (_format == CdlFormat.Mesen || _format == CdlFormat.MesenV2) {
 				if ((flags & MESEN_CODE) != 0)
 					_codeOffsets.Add(i);
 

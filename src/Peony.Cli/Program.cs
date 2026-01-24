@@ -74,6 +74,22 @@ IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 			AnsiConsole.MarkupLine($"[grey]Symbols:[/] {symbolLoader.Labels.Count} labels loaded");
 		}
 
+		// Load CDL if provided
+		if (cdlFile?.Exists == true) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadCdl(cdlFile.FullName);
+			var stats = symbolLoader.CdlData!.GetCoverageStats();
+			AnsiConsole.MarkupLine($"[grey]CDL:[/] {stats.CodeBytes:N0} code bytes, {stats.DataBytes:N0} data bytes ({stats.CoveragePercent:F1}% coverage)");
+			AnsiConsole.MarkupLine($"[grey]CDL Entry Points:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0} subroutines detected");
+		}
+
+		// Load DIZ if provided
+		if (dizFile?.Exists == true) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadDiz(dizFile.FullName);
+			AnsiConsole.MarkupLine($"[grey]DIZ:[/] Loaded DiztinGUIsh project");
+		}
+
 AnsiConsole.WriteLine();
 
 // Get entry points
