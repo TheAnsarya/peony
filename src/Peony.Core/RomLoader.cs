@@ -48,9 +48,15 @@ var ext = Path.GetExtension(path).ToLowerInvariant();
 
 // Extension hints
 if (ext is ".a26") return "atari2600";
+if (ext is ".lnx" or ".lyx") return "lynx";
 if (ext is ".nes") return "nes";
 if (ext is ".sfc" or ".smc") return "snes";
 if (ext is ".gb" or ".gbc") return "gb";
+if (ext is ".gba") return "gba";
+
+// LNX header detection (Atari Lynx)
+if (rom.Length >= 64 && rom[0] == 'L' && rom[1] == 'Y' && rom[2] == 'N' && rom[3] == 'X')
+return "lynx";
 
 // Size-based detection for Atari 2600
 if (rom.Length is 2048 or 4096 or 8192 or 16384 or 32768) {
@@ -61,6 +67,10 @@ if (rom.Length <= 4096) return "atari2600";
 // NES detection (iNES header present)
 if (rom.Length > 16 && rom[0] == 0x4e && rom[1] == 0x45 && rom[2] == 0x53 && rom[3] == 0x1a)
 return "nes";
+
+// GBA detection (Nintendo logo at 0x04)
+if (rom.Length >= 0xb0 && rom[0xb2] == 0x96)
+return "gba";
 
 // Default to unknown
 return "unknown";

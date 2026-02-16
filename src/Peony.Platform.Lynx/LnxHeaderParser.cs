@@ -1,4 +1,4 @@
-namespace Peony.Platform.Lynx;
+﻿namespace Peony.Platform.Lynx;
 
 /// <summary>
 /// Parser for Atari Lynx LNX ROM header format.

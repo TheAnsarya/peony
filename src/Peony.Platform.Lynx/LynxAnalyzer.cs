@@ -1,4 +1,4 @@
-namespace Peony.Platform.Lynx;
+﻿namespace Peony.Platform.Lynx;
 
 using Peony.Core;
 using Peony.Cpu;
