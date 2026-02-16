@@ -1,7 +1,8 @@
-using System.CommandLine;
+﻿using System.CommandLine;
 using Pansy.Core;
 using Peony.Core;
 using Peony.Platform.Atari2600;
+using Peony.Platform.Lynx;
 using Peony.Platform.NES;
 using Peony.Platform.GameBoy;
 using Peony.Platform.GBA;
@@ -48,6 +49,7 @@ AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
 // Get platform analyzer
 IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 "atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+"lynx" or "atari lynx" => new LynxAnalyzer(),
 "nes" => new NesAnalyzer(),
 "snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
 			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
@@ -212,6 +214,7 @@ var platform = RomLoader.DetectPlatform(romData, file.FullName);
 
 IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 "atari2600" or "atari 2600" => new Atari2600Analyzer(),
+"lynx" or "atari lynx" => new LynxAnalyzer(),
 "nes" => new NesAnalyzer(),
 _ => throw new NotSupportedException($"Unknown platform: {platform}")
 };
@@ -219,6 +222,7 @@ _ => throw new NotSupportedException($"Unknown platform: {platform}")
 var info = analyzer.Analyze(romData);
 var entryPoints = analyzer switch {
 Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
+LynxAnalyzer lynx => lynx.GetEntryPoints(romData),
 NesAnalyzer nes => nes.GetEntryPoints(romData),
 _ => [0x8000]
 };
@@ -256,14 +260,16 @@ rootCommand.AddCommand(batchCommand);
 // Info command
 var infoCommand = new Command("info", "Show ROM information");
 var infoRomArg = new Argument<FileInfo>("rom", "ROM file to analyze");
+var infoPlatformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-detected if not specified)");
 infoCommand.AddArgument(infoRomArg);
+infoCommand.AddOption(infoPlatformOpt);
 
-infoCommand.SetHandler((rom) => {
+infoCommand.SetHandler((rom, platform) => {
 AnsiConsole.MarkupLine("[bold magenta]🌺 Peony ROM Info[/]");
 AnsiConsole.WriteLine();
 
 var romData = RomLoader.Load(rom.FullName);
-var platform = RomLoader.DetectPlatform(romData, rom.FullName);
+platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
 
 var table = new Table();
 table.AddColumn("Property");
@@ -275,6 +281,15 @@ table.AddRow("Platform", platform ?? "Unknown");
 
 if (platform?.ToLowerInvariant() is "atari2600" or "atari 2600") {
 var analyzer = new Atari2600Analyzer();
+var info = analyzer.Analyze(romData);
+table.AddRow("Mapper", info.Mapper ?? "None");
+table.AddRow("Banks", analyzer.BankCount.ToString());
+foreach (var (key, value) in info.Metadata)
+table.AddRow(Markup.Escape(key), Markup.Escape(value));
+var entries = analyzer.GetEntryPoints(romData);
+table.AddRow("Entry Points", string.Join(", ", entries.Select(e => $"${e:x4}")));
+} else if (platform?.ToLowerInvariant() is "lynx" or "atari lynx") {
+var analyzer = new LynxAnalyzer();
 var info = analyzer.Analyze(romData);
 table.AddRow("Mapper", info.Mapper ?? "None");
 table.AddRow("Banks", analyzer.BankCount.ToString());
@@ -294,7 +309,7 @@ table.AddRow("Entry Points", string.Join(", ", entries.Select(e => $"${e:x4}")))
 }
 
 AnsiConsole.Write(table);
-}, infoRomArg);
+}, infoRomArg, infoPlatformOpt);
 
 rootCommand.AddCommand(infoCommand);
 
@@ -335,6 +350,7 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
 		// Get platform analyzer
 		IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 			"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+			"lynx" or "atari lynx" => new LynxAnalyzer(),
 			"nes" => new NesAnalyzer(),
 			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
 			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
@@ -441,6 +457,7 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 			var platform = RomLoader.DetectPlatform(romData, original.FullName);
 			IPlatformAnalyzer rtAnalyzer = platform?.ToLowerInvariant() switch {
 				"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+				"lynx" or "atari lynx" => new LynxAnalyzer(),
 				"nes" => new NesAnalyzer(),
 				"snes" or "super nintendo" => new Peony.Platform.SNES.SnesAnalyzer(),
 				_ => throw new NotSupportedException($"Platform not supported: {platform}")
@@ -467,6 +484,7 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 
 			IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 				"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+				"lynx" or "atari lynx" => new LynxAnalyzer(),
 				"nes" => new NesAnalyzer(),
 				"snes" or "super nintendo" => new Peony.Platform.SNES.SnesAnalyzer(),
 				_ => throw new NotSupportedException($"Platform not supported: {platform}")
