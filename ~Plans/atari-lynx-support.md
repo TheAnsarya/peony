@@ -1,4 +1,4 @@
-# Atari Lynx Disassembly Support for Peony
+﻿# Atari Lynx Disassembly Support for Peony
 
 **Created:** February 16, 2026
 **Status:** Planning (Implementation Later)

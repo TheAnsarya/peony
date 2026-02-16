@@ -95,18 +95,33 @@ string? FunctionName
 /// Addressing modes
 /// </summary>
 public enum AddressingMode {
-Implied,
-Immediate,
-ZeroPage,
-ZeroPageX,
-ZeroPageY,
-Absolute,
-AbsoluteX,
-AbsoluteY,
-Indirect,
-IndirectX,
-IndirectY,
-Relative
+	Implied,
+	Accumulator,
+	Immediate,
+	ZeroPage,
+	ZeroPageX,
+	ZeroPageY,
+	ZeroPageIndirect,       // 65C02: (zp)
+	Absolute,
+	AbsoluteX,
+	AbsoluteY,
+	AbsoluteIndirectX,      // 65C02: (abs,X) for JMP
+	Indirect,
+	IndirectX,
+	IndirectY,
+	Relative,
+	RelativeLong,           // 65816: brl
+	StackRelative,          // 65816: d,s
+	StackRelativeIndirectY, // 65816: (d,s),y
+	Direct,                 // 65816: direct page
+	DirectX,                // 65816: d,x
+	DirectY,                // 65816: d,y
+	DirectIndirect,         // 65816: (d)
+	DirectIndirectLong,     // 65816: [d]
+	DirectIndirectLongY,    // 65816: [d],y
+	AbsoluteLong,           // 65816: al
+	AbsoluteLongX,          // 65816: al,x
+	BlockMove               // 65816: MVP/MVN
 }
 
 /// <summary>
