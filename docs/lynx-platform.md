@@ -1,4 +1,4 @@
-# 🦁 Atari Lynx Platform Support
+﻿# 🦁 Atari Lynx Platform Support
 
 ## Overview
 

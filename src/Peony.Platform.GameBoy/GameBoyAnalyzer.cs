@@ -1,4 +1,4 @@
-namespace Peony.Platform.GameBoy;
+﻿namespace Peony.Platform.GameBoy;
 
 using Peony.Core;
 using Peony.Cpu.GameBoy;

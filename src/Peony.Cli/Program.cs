@@ -97,7 +97,11 @@ AnsiConsole.WriteLine();
 // Get entry points from platform analyzer
 uint[] platformEntryPoints = analyzer switch {
 	Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
+	LynxAnalyzer lynx => lynx.GetEntryPoints(romData),
 	NesAnalyzer nes => nes.GetEntryPoints(romData),
+	Peony.Platform.SNES.SnesAnalyzer snes => snes.GetEntryPoints(romData),
+	GameBoyAnalyzer gb => gb.GetEntryPoints(romData),
+	GbaAnalyzer gba => gba.GetEntryPoints(romData),
 	_ => [0x8000]
 };
 

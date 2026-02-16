@@ -1,4 +1,4 @@
-namespace Peony.Platform.GBA;
+﻿namespace Peony.Platform.GBA;
 
 using Peony.Core;
 using Peony.Cpu.ARM7TDMI;
