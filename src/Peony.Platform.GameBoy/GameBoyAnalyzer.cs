@@ -10,6 +10,7 @@ public class GameBoyAnalyzer : IPlatformAnalyzer {
 	public string Platform => "Game Boy";
 	public ICpuDecoder CpuDecoder { get; } = new GameBoyCpuDecoder();
 	public int BankCount => _romBanks;
+	public int RomDataOffset => 0; // Game Boy ROMs have no file header
 
 	private int _romBanks = 1;
 	private int _ramBanks = 0;

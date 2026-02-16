@@ -13,6 +13,7 @@ public int Mapper { get; private set; }
 public int PrgBanks { get; private set; }
 public int ChrBanks { get; private set; }
 public int BankCount => PrgBanks;
+public int RomDataOffset => 16; // iNES header is always 16 bytes
 
 // Dragon Warrior 1 BRK-based bank function pointer table
 // Format: BRK followed by 2 bytes: function_index, bank_number

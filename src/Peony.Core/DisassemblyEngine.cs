@@ -1,4 +1,4 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 /// <summary>
 /// Core disassembly engine with multi-bank support and CDL/DIZ integration
@@ -251,7 +251,7 @@ public class DisassemblyEngine {
 		var fixedBank = _platformAnalyzer.BankCount - 1;
 
 		// Scan through ROM looking for pointer table patterns
-		var headerSize = _platformAnalyzer.Platform == "NES" ? 16 : 0;
+		var headerSize = _platformAnalyzer.RomDataOffset;
 		var scanStart = headerSize;
 		var scanEnd = Math.Min(rom.Length - 1, 0x10000); // Limit scan size
 
@@ -317,30 +317,37 @@ public class DisassemblyEngine {
 	}
 
 	/// <summary>
-	/// Convert ROM file offset to CPU address (inverse of AddressToOffset)
+	/// Convert ROM file offset to CPU address using the platform analyzer's mapping.
 	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// Each platform has different memory mapping: NES uses $8000-$ffff with 16-byte
+	/// iNES header, Atari 2600 maps to $f000-$ffff, Lynx loads ROM to $0200, etc.
+	/// </para>
+	/// <para>
+	/// The platform analyzer's OffsetToAddress method handles all platform-specific
+	/// mapping logic, so we delegate to it for consistent behavior.
+	/// </para>
+	/// </remarks>
 	private uint? RomOffsetToAddress(uint offset, int bank) {
-		if (_platformAnalyzer.Platform == "NES") {
-			// NES: PRG ROM typically starts at $8000, with 16-byte iNES header
-			if (offset >= 0x10) {
-				var prgOffset = offset - 0x10;
-				return (uint)(0x8000 + prgOffset);
-			}
-		}
-		if (_platformAnalyzer.Platform == "Atari 2600") {
-			// Atari 2600: ROM at $f000-$ffff for 4K
-			return (uint)(0xf000 + offset);
-		}
-		// Default: assume direct mapping
-		return offset;
+		// Use the platform analyzer's OffsetToAddress for consistent mapping
+		return _platformAnalyzer.OffsetToAddress((int)offset);
 	}
 
+	/// <summary>
+	/// Check if an address is valid for the current platform.
+	/// </summary>
 	private bool IsValidAddress(uint address) {
 		if (_platformAnalyzer.Platform == "Atari 2600") {
 			return address >= 0xf000 && address <= 0xffff;
 		}
 		if (_platformAnalyzer.Platform == "NES") {
 			return address >= 0x8000 && address <= 0xffff;
+		}
+		if (_platformAnalyzer.Platform == "Atari Lynx") {
+			// Lynx: ROM loaded to $0200-$fbff (RAM region)
+			// $fc00-$ffff are hardware registers and boot ROM
+			return address >= 0x0200 && address < 0xfc00;
 		}
 		return true;
 	}

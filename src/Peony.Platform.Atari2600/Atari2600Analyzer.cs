@@ -12,6 +12,7 @@ public string Platform => "Atari 2600";
 public ICpuDecoder CpuDecoder { get; } = new Cpu6502Decoder();
 public string? DetectedScheme { get; private set; }
 public int BankCount => GetBankCount(_romLength, DetectedScheme);
+public int RomDataOffset => 0; // Atari 2600 ROMs have no file header
 
 private int _romLength;
 

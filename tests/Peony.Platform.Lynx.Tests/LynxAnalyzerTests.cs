@@ -114,4 +114,110 @@ public class LynxAnalyzerTests {
 	}
 
 	#endregion
+
+	#region Memory Mapping Tests
+
+	[Fact]
+	public void OffsetToAddress_WithoutHeader_MapsToRamLoadAddress() {
+		// Raw ROM without LNX header - offset 0 maps to $0200
+		var romData = new byte[1024];
+		_analyzer.Analyze(romData);
+
+		var address = _analyzer.OffsetToAddress(0);
+
+		Assert.Equal(0x0200u, address);
+	}
+
+	[Fact]
+	public void OffsetToAddress_WithLnxHeader_MapsAfterHeader() {
+		// LNX header is 64 bytes, so ROM data starts at offset 64
+		var romData = new byte[128];
+		// LNX magic
+		romData[0] = 0x4c; // L
+		romData[1] = 0x59; // Y
+		romData[2] = 0x4e; // N
+		romData[3] = 0x58; // X
+		// Bank0 size (little-endian)
+		romData[4] = 0x40; // 64 bytes
+		romData[5] = 0x00;
+
+		_analyzer.Analyze(romData);
+
+		// Offset 64 (start of ROM data after header) → $0200
+		var address = _analyzer.OffsetToAddress(64);
+
+		Assert.Equal(0x0200u, address);
+	}
+
+	[Theory]
+	[InlineData(0, 0x0200u)]      // First byte of ROM → RAM position
+	[InlineData(100, 0x0264u)]    // 100 bytes in → $0200 + 100
+	[InlineData(0x1000, 0x1200u)] // 4KB in → $0200 + 0x1000
+	public void OffsetToAddress_WithoutHeader_CalculatesCorrectly(int offset, uint expectedAddress) {
+		var romData = new byte[0x10000]; // 64KB bare ROM
+		_analyzer.Analyze(romData);
+
+		var address = _analyzer.OffsetToAddress(offset);
+
+		Assert.Equal(expectedAddress, address);
+	}
+
+	[Theory]
+	[InlineData(0x0200u, 0)]      // Start of loaded ROM
+	[InlineData(0x0264u, 100)]    // $0200 + 100
+	[InlineData(0x1200u, 0x1000)] // $0200 + 0x1000
+	public void AddressToOffset_WithoutHeader_CalculatesCorrectly(uint address, int expectedOffset) {
+		var romData = new byte[0x10000]; // 64KB bare ROM
+		_analyzer.Analyze(romData);
+
+		var offset = _analyzer.AddressToOffset(address, romData.Length);
+
+		Assert.Equal(expectedOffset, offset);
+	}
+
+	[Fact]
+	public void AddressToOffset_BelowLoadAddress_ReturnsMinusOne() {
+		var romData = new byte[1024];
+		_analyzer.Analyze(romData);
+
+		var offset = _analyzer.AddressToOffset(0x01ff, romData.Length);
+
+		Assert.Equal(-1, offset);
+	}
+
+	[Fact]
+	public void AddressToOffset_InHardwareRegion_ReturnsMinusOne() {
+		var romData = new byte[1024];
+		_analyzer.Analyze(romData);
+
+		var offset = _analyzer.AddressToOffset(0xfc00, romData.Length);
+
+		Assert.Equal(-1, offset);
+	}
+
+	[Fact]
+	public void RomDataOffset_WithoutHeader_ReturnsZero() {
+		var romData = new byte[1024]; // No LNX header
+		_analyzer.Analyze(romData);
+
+		Assert.Equal(0, _analyzer.RomDataOffset);
+	}
+
+	[Fact]
+	public void RomDataOffset_WithLnxHeader_Returns64() {
+		var romData = new byte[128];
+		// LNX magic
+		romData[0] = 0x4c; // L
+		romData[1] = 0x59; // Y
+		romData[2] = 0x4e; // N
+		romData[3] = 0x58; // X
+		romData[4] = 0x40; // Bank0 size: 64 bytes
+		romData[5] = 0x00;
+
+		_analyzer.Analyze(romData);
+
+		Assert.Equal(64, _analyzer.RomDataOffset);
+	}
+
+	#endregion
 }

@@ -30,6 +30,12 @@ ICpuDecoder CpuDecoder { get; }
 /// <summary>Number of PRG banks (for multi-bank ROMs)</summary>
 int BankCount { get; }
 
+/// <summary>
+/// Offset to ROM data within the file (after any header).
+/// For example, NES has 16-byte iNES header, Lynx has 64-byte LNX header.
+/// </summary>
+int RomDataOffset { get; }
+
 /// <summary>Detect ROM type and configuration</summary>
 RomInfo Analyze(ReadOnlySpan<byte> rom);
 

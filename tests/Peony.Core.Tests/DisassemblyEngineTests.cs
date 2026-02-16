@@ -1,4 +1,4 @@
-using Peony.Core;
+﻿using Peony.Core;
 using Xunit;
 
 namespace Peony.Core.Tests;
@@ -28,6 +28,7 @@ public class DisassemblyEngineTests {
 	private class MockPlatformAnalyzer : IPlatformAnalyzer {
 		public string Platform => "Test";
 		public int BankCount => 1;
+		public int RomDataOffset => 0;
 		public ICpuDecoder CpuDecoder => new MockCpuDecoder();
 
 		public RomInfo Analyze(ReadOnlySpan<byte> rom) => new(
@@ -331,6 +332,7 @@ public class DisassemblyEngineTests {
 	private class CrossRefMockPlatformAnalyzer : IPlatformAnalyzer {
 		public string Platform => "NES";
 		public int BankCount => 1;
+		public int RomDataOffset => 0;
 		public ICpuDecoder CpuDecoder { get; }
 
 		public CrossRefMockPlatformAnalyzer(ICpuDecoder cpuDecoder) {

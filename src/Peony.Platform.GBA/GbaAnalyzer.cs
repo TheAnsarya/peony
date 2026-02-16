@@ -10,6 +10,7 @@ public class GbaAnalyzer : IPlatformAnalyzer {
 	public string Platform => "Game Boy Advance";
 	public ICpuDecoder CpuDecoder { get; } = new Arm7TdmiDecoder();
 	public int BankCount => 1; // GBA doesn't use traditional banking
+	public int RomDataOffset => 0; // GBA ROMs have no file header
 
 	// Hardware registers
 	private static readonly Dictionary<uint, string> HardwareRegisters = new() {

@@ -12,6 +12,11 @@ public class SnesAnalyzer : IPlatformAnalyzer {
 	public int BankCount => _romBanks;
 
 	/// <summary>
+	/// ROM data offset (512 if SMC copier header present, 0 otherwise).
+	/// </summary>
+	public int RomDataOffset => HasCopierHeader ? 512 : 0;
+
+	/// <summary>
 	/// SNES ROM mapping mode
 	/// </summary>
 	public SnesMapMode MapMode { get; private set; } = SnesMapMode.LoRom;
