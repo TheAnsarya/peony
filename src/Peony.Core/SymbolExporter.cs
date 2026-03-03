@@ -234,90 +234,61 @@ public static class SymbolExporter {
 
 	#region Pansy Export
 
-	// Pansy file constants (matching PansyGenerator/PansyLoader)
-	private static readonly byte[] PansyMagic = "PANSY\0\0\0"u8.ToArray();
-	private const ushort PansyFormatVersion = 0x0100; // v1.0
-	private const uint SECTION_CODE_DATA_MAP = 0x0001;
-	private const uint SECTION_SYMBOLS = 0x0002;
-	private const uint SECTION_COMMENTS = 0x0003;
-
 	/// <summary>
 	/// Export disassembly result to Pansy binary format (.pansy).
-	/// This format is compatible with Poppy assembler and provides
-	/// comprehensive metadata for roundtrip assembly/disassembly.
+	/// Uses Pansy.Core.PansyWriter for spec-compliant file generation.
+	/// Includes all available sections: code/data map, symbols, comments,
+	/// memory regions, cross-references, and metadata.
 	/// </summary>
 	public static void ExportPansy(DisassemblyResult result, string outputPath) {
-		using var fs = File.Create(outputPath);
-		using var writer = new BinaryWriter(fs, System.Text.Encoding.UTF8);
+		var writer = new PansyWriter {
+			Platform = GetPansyPlatformId(result.RomInfo),
+			RomSize = (uint)(result.RomInfo?.Size ?? 0),
+			EnableCompression = true,
+			ProjectName = result.RomInfo?.Platform ?? "",
+			ProjectVersion = "1.0",
+		};
 
-		// Determine platform ID from ROM info
-		byte platformId = GetPansyPlatformId(result.RomInfo);
-
-		// Collect section data
-		var symbolSection = BuildSymbolSection(result);
-		var commentSection = BuildCommentSection(result);
-		var codeDataSection = BuildCodeDataSection(result);
-
-		// Calculate section count and offsets
-		var sectionCount = 0u;
-		if (codeDataSection.Length > 0) sectionCount++;
-		if (symbolSection.Length > 0) sectionCount++;
-		if (commentSection.Length > 0) sectionCount++;
-
-		var headerSize = 32;
-		var sectionTableSize = (int)(sectionCount * 16); // 16 bytes per section entry
-		var dataOffset = headerSize + sectionTableSize;
-
-		// Write header (32 bytes)
-		writer.Write(PansyMagic);                  // 8 bytes: Magic
-		writer.Write(PansyFormatVersion);          // 2 bytes: Version
-		writer.Write((ushort)0);                   // 2 bytes: Flags
-		writer.Write(platformId);                  // 1 byte: Platform
-		writer.Write((byte)0);                     // 1 byte: Reserved
-		writer.Write((byte)0);                     // 1 byte: Reserved
-		writer.Write((byte)0);                     // 1 byte: Reserved
-		writer.Write((uint)(result.RomInfo?.Size ?? 0));  // 4 bytes: ROM size
-		writer.Write(0u);                          // 4 bytes: ROM CRC32 (unknown)
-		writer.Write(sectionCount);                // 4 bytes: Section count
-		writer.Write(0u);                          // 4 bytes: Reserved
-
-		// Write section table
-		var currentOffset = (uint)dataOffset;
-
-		if (codeDataSection.Length > 0) {
-			writer.Write(SECTION_CODE_DATA_MAP);
-			writer.Write(currentOffset);
-			writer.Write((uint)codeDataSection.Length);
-			writer.Write((uint)codeDataSection.Length);
-			currentOffset += (uint)codeDataSection.Length;
+		// Add symbols from global labels
+		foreach (var (address, name) in result.Labels) {
+			writer.AddSymbol(address, name, DetectPansySymbolType(address, name, result));
 		}
 
-		if (symbolSection.Length > 0) {
-			writer.Write(SECTION_SYMBOLS);
-			writer.Write(currentOffset);
-			writer.Write((uint)symbolSection.Length);
-			writer.Write((uint)symbolSection.Length);
-			currentOffset += (uint)symbolSection.Length;
+		// Add bank-specific labels (encode bank in high byte of address)
+		foreach (var ((address, bank), name) in result.BankLabels) {
+			var addr24 = (uint)((bank << 16) | (int)address);
+			writer.AddSymbol(addr24, name, SymbolType.Label);
 		}
 
-		if (commentSection.Length > 0) {
-			writer.Write(SECTION_COMMENTS);
-			writer.Write(currentOffset);
-			writer.Write((uint)commentSection.Length);
-			writer.Write((uint)commentSection.Length);
+		// Add comments
+		foreach (var (address, text) in result.Comments) {
+			writer.AddComment(address, text, (byte)CommentType.Inline);
 		}
 
-		// Write section data
-		if (codeDataSection.Length > 0) writer.Write(codeDataSection);
-		if (symbolSection.Length > 0) writer.Write(symbolSection);
-		if (commentSection.Length > 0) writer.Write(commentSection);
+		// Add code/data map from disassembly blocks
+		PopulateCodeDataMap(writer, result);
+
+		// Add cross-references
+		foreach (var (targetAddress, refs) in result.CrossReferences) {
+			foreach (var xref in refs) {
+				var pansyType = MapCrossRefType(xref.Type);
+				writer.AddCrossReference(new CrossReference(xref.FromAddress, targetAddress, pansyType));
+			}
+		}
+
+		// Add memory regions from disassembly blocks
+		AddMemoryRegions(writer, result);
+
+		// Generate and write the file
+		var data = writer.Generate();
+		File.WriteAllBytes(outputPath, data);
 	}
 
 	/// <summary>
 	/// Map platform name to Pansy platform ID.
 	/// </summary>
 	private static byte GetPansyPlatformId(RomInfo? info) {
-		if (info?.Platform == null) return 0xff; // Custom/unknown
+		if (info?.Platform == null) return PansyLoader.PLATFORM_CUSTOM;
 
 		return info.Platform.ToLowerInvariant() switch {
 			"nes" => PansyLoader.PLATFORM_NES,
@@ -355,89 +326,130 @@ public static class SymbolExporter {
 	}
 
 	/// <summary>
-	/// Build symbol section data.
-	/// Format per symbol: address (4) + type (1) + flags (1) + nameLen (2) + name + valueLen (2) [+ value]
+	/// Detect Pansy symbol type from disassembly context.
 	/// </summary>
-	private static byte[] BuildSymbolSection(DisassemblyResult result) {
-		using var ms = new MemoryStream();
-		using var writer = new BinaryWriter(ms, System.Text.Encoding.UTF8);
+	private static SymbolType DetectPansySymbolType(uint address, string name, DisassemblyResult result) {
+		var nameLower = name.ToLowerInvariant();
 
-		// Export global labels
-		foreach (var (address, name) in result.Labels.OrderBy(x => x.Key)) {
-			writer.Write((uint)address);
-			writer.Write((byte)0);  // Type: label
-			writer.Write((byte)0);  // Flags
-			var nameBytes = System.Text.Encoding.UTF8.GetBytes(name);
-			writer.Write((ushort)nameBytes.Length);
-			writer.Write(nameBytes);
-			writer.Write((ushort)0); // No value
+		// Check if this is an interrupt vector
+		if (nameLower.Contains("nmi") || nameLower.Contains("irq") || nameLower.Contains("reset") ||
+			nameLower.Contains("interrupt") || nameLower.Contains("brk") || nameLower.Contains("cop") ||
+			nameLower.Contains("abort")) {
+			return SymbolType.InterruptVector;
 		}
 
-		// Export bank-specific labels with bank in address high byte
-		foreach (var ((address, bank), name) in result.BankLabels.OrderBy(x => x.Key.Bank).ThenBy(x => x.Key.Address)) {
-			// Encode bank in high byte of 24-bit address
-			var addr24 = (uint)((bank << 16) | (int)address);
-			writer.Write(addr24);
-			writer.Write((byte)1);  // Type: bank label
-			writer.Write((byte)0);  // Flags
-			var nameBytes = System.Text.Encoding.UTF8.GetBytes(name);
-			writer.Write((ushort)nameBytes.Length);
-			writer.Write(nameBytes);
-			writer.Write((ushort)0); // No value
+		// Check if this is a subroutine entry point (has JSR/CALL cross-refs)
+		if (result.CrossReferences.TryGetValue(address, out var refs)) {
+			if (refs.Any(r => r.Type == CrossRefType.Call)) {
+				return SymbolType.Function;
+			}
 		}
 
-		return ms.ToArray();
+		// Check if address is in zero page / RAM area (likely a constant)
+		if (address < 0x100 && nameLower.StartsWith("zp_")) {
+			return SymbolType.Constant;
+		}
+
+		// Check for local label patterns
+		if (name.StartsWith('.') || name.StartsWith('@') || name.StartsWith('+') || name.StartsWith('-')) {
+			return SymbolType.Local;
+		}
+
+		return SymbolType.Label;
 	}
 
 	/// <summary>
-	/// Build comment section data.
-	/// Format per comment: address (4) + type (1) + textLen (2) + text
+	/// Map Peony CrossRefType to Pansy CrossRefType.
 	/// </summary>
-	private static byte[] BuildCommentSection(DisassemblyResult result) {
-		using var ms = new MemoryStream();
-		using var writer = new BinaryWriter(ms, System.Text.Encoding.UTF8);
-
-		foreach (var (address, text) in result.Comments.OrderBy(x => x.Key)) {
-			writer.Write((uint)address);
-			writer.Write((byte)0);  // Type: line comment
-			var textBytes = System.Text.Encoding.UTF8.GetBytes(text);
-			writer.Write((ushort)textBytes.Length);
-			writer.Write(textBytes);
-		}
-
-		return ms.ToArray();
+	private static Pansy.Core.CrossRefType MapCrossRefType(CrossRefType type) {
+		return type switch {
+			CrossRefType.Call => Pansy.Core.CrossRefType.Jsr,
+			CrossRefType.Jump => Pansy.Core.CrossRefType.Jmp,
+			CrossRefType.Branch => Pansy.Core.CrossRefType.Branch,
+			CrossRefType.DataRef => Pansy.Core.CrossRefType.Read,
+			CrossRefType.Pointer => Pansy.Core.CrossRefType.Read,
+			_ => Pansy.Core.CrossRefType.Read,
+		};
 	}
 
 	/// <summary>
-	/// Build code/data map section from disassembly blocks.
-	/// Each byte: 0x00=unreached, 0x01=code, 0x02=data, 0x11=opcode
+	/// Populate the PansyWriter code/data map from disassembly blocks.
+	/// Uses proper Pansy CDL flags: CODE=0x01, DATA=0x02, OPCODE=0x10, etc.
 	/// </summary>
-	private static byte[] BuildCodeDataSection(DisassemblyResult result) {
+	private static void PopulateCodeDataMap(PansyWriter writer, DisassemblyResult result) {
 		if (result.RomInfo?.Size == null || result.RomInfo.Size == 0)
-			return [];
-
-		var map = new byte[result.RomInfo.Size];
+			return;
 
 		foreach (var block in result.Blocks) {
 			foreach (var line in block.Lines) {
-				// Determine offset from address (platform-specific)
 				var offset = GetRomOffset(line.Address, result.RomInfo);
-				if (offset < 0 || offset >= map.Length) continue;
+				if (offset < 0 || offset >= result.RomInfo.Size) continue;
 
 				if (block.Type == MemoryRegion.Code) {
-					// First byte is opcode, rest are operands
-					for (var i = 0; i < line.Bytes.Length && offset + i < map.Length; i++) {
-						map[offset + i] = (byte)(i == 0 ? 0x11 : 0x01); // 0x11 = Code + Opcode
+					for (var i = 0; i < line.Bytes.Length && offset + i < result.RomInfo.Size; i++) {
+						var addr = (uint)(offset + i);
+						writer.MarkAsCode(addr);
+						if (i == 0) {
+							writer.MarkAsOpcode(addr);
+						}
 					}
-				} else if (block.Type == MemoryRegion.Data) {
-					for (var i = 0; i < line.Bytes.Length && offset + i < map.Length; i++) {
-						map[offset + i] = 0x02; // Data
+				} else if (block.Type == MemoryRegion.Data || block.Type == MemoryRegion.Graphics ||
+						   block.Type == MemoryRegion.Audio) {
+					for (var i = 0; i < line.Bytes.Length && offset + i < result.RomInfo.Size; i++) {
+						writer.MarkAsData((uint)(offset + i));
 					}
 				}
 			}
 		}
 
-		return map;
+		// Mark jump targets and subroutine entry points from cross-references
+		foreach (var (targetAddress, refs) in result.CrossReferences) {
+			var offset = GetRomOffset(targetAddress, result.RomInfo);
+			if (offset < 0 || offset >= result.RomInfo.Size) continue;
+
+			foreach (var xref in refs) {
+				if (xref.Type == CrossRefType.Jump || xref.Type == CrossRefType.Branch) {
+					writer.MarkAsJumpTarget((uint)offset);
+				} else if (xref.Type == CrossRefType.Call) {
+					writer.MarkAsSubroutine((uint)offset);
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Add memory regions derived from disassembly blocks.
+	/// </summary>
+	private static void AddMemoryRegions(PansyWriter writer, DisassemblyResult result) {
+		// Collect contiguous regions from blocks
+		foreach (var block in result.Blocks) {
+			var regionType = MapMemoryRegionType(block.Type);
+			if (regionType == 0) continue; // Skip unknown
+
+			writer.AddMemoryRegion(new Pansy.Core.MemoryRegion(
+				block.StartAddress,
+				block.EndAddress,
+				regionType,
+				(byte)(block.Bank >= 0 ? block.Bank : 0),
+				$"{block.Type}_{block.StartAddress:x4}"
+			));
+		}
+	}
+
+	/// <summary>
+	/// Map Peony MemoryRegion enum to Pansy MemoryRegionType byte value.
+	/// </summary>
+	private static byte MapMemoryRegionType(MemoryRegion type) {
+		return type switch {
+			MemoryRegion.Code => (byte)MemoryRegionType.ROM,
+			MemoryRegion.Data => (byte)MemoryRegionType.ROM,
+			MemoryRegion.Graphics => (byte)MemoryRegionType.ROM,
+			MemoryRegion.Audio => (byte)MemoryRegionType.ROM,
+			MemoryRegion.Ram => (byte)MemoryRegionType.RAM,
+			MemoryRegion.Rom => (byte)MemoryRegionType.ROM,
+			MemoryRegion.Hardware => (byte)MemoryRegionType.IO,
+			_ => 0,
+		};
 	}
 
 	/// <summary>

@@ -1,4 +1,4 @@
-using Pansy.Core;
+﻿using Pansy.Core;
 using Peony.Core;
 using Xunit;
 
@@ -379,6 +379,352 @@ public class SymbolExporterTests {
 			SymbolExporter.Export(gbResult, tempFile, SymbolFormat.Pansy);
 			var gbLoader = new PansyLoader(File.ReadAllBytes(tempFile));
 			Assert.Equal(PansyLoader.PLATFORM_GB, gbLoader.Platform);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_CompressedFlag_IsSet() {
+		var result = CreateTestResult();
+		result.RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>());
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+
+			// Flags at offset 10 (2 bytes LE)
+			var flags = BitConverter.ToUInt16(data, 10);
+			Assert.Equal(1, flags & 1); // Compressed flag should be set
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_CrossReferences_AreExported() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+		result.Labels[0x8000] = "reset";
+		result.Labels[0x8100] = "subroutine";
+
+		// Add cross-references
+		result.CrossReferences[0x8100] = [
+			new CrossRef(0x8010, 0, CrossRefType.Call),
+			new CrossRef(0x8020, 0, CrossRefType.Jump),
+		];
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+			var loader = new PansyLoader(data);
+
+			// Verify cross-references were loaded
+			var crossRefs = loader.CrossReferences;
+			Assert.NotNull(crossRefs);
+			Assert.True(crossRefs.Count >= 2, $"Expected >= 2 cross-refs, got {crossRefs.Count}");
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_CrossRefTypeMapping_IsCorrect() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+
+		// Add cross-references of different types
+		result.CrossReferences[0x8100] = [
+			new CrossRef(0x8010, 0, CrossRefType.Call),    // → Jsr (1)
+			new CrossRef(0x8020, 0, CrossRefType.Jump),    // → Jmp (2)
+			new CrossRef(0x8030, 0, CrossRefType.Branch),  // → Branch (3)
+			new CrossRef(0x8040, 0, CrossRefType.DataRef), // → Read (4)
+			new CrossRef(0x8050, 0, CrossRefType.Pointer), // → Read (4)
+		];
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+			var loader = new PansyLoader(data);
+
+			var crossRefs = loader.CrossReferences;
+			Assert.Equal(5, crossRefs.Count);
+
+			// Verify type mappings
+			var byType = crossRefs.GroupBy(x => x.Type).ToDictionary(g => g.Key, g => g.Count());
+			Assert.True(byType.ContainsKey(Pansy.Core.CrossRefType.Jsr), "Should have Jsr cross-ref");
+			Assert.True(byType.ContainsKey(Pansy.Core.CrossRefType.Jmp), "Should have Jmp cross-ref");
+			Assert.True(byType.ContainsKey(Pansy.Core.CrossRefType.Branch), "Should have Branch cross-ref");
+			Assert.True(byType.ContainsKey(Pansy.Core.CrossRefType.Read), "Should have Read cross-ref");
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_MemoryRegions_AreExported() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+
+		// Add code blocks that become memory regions
+		result.Blocks.Add(new DisassembledBlock(
+			0x8000, 0x80ff, Peony.Core.MemoryRegion.Code,
+			[new DisassembledLine(0x8000, [0xa9, 0x00], null, "lda #$00", null)]
+		));
+
+		result.Blocks.Add(new DisassembledBlock(
+			0x8100, 0x81ff, Peony.Core.MemoryRegion.Data,
+			[new DisassembledLine(0x8100, [0xff], null, ".db $ff", null)]
+		));
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+			var loader = new PansyLoader(data);
+
+			var regions = loader.MemoryRegions;
+			Assert.NotNull(regions);
+			Assert.True(regions.Count >= 2, $"Expected >= 2 memory regions, got {regions.Count}");
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_Metadata_IsExported() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+		result.Labels[0x8000] = "reset";
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+			var loader = new PansyLoader(data);
+
+			// Metadata section should be present
+			Assert.NotNull(loader.ProjectName);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_SymbolTypes_AreDetected() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+
+		// Interrupt vector names should be detected
+		result.Labels[0xfffa] = "nmi_handler";
+		result.Labels[0xfffc] = "reset_vector";
+		result.Labels[0xfffe] = "irq_handler";
+
+		// Regular label
+		result.Labels[0x8050] = "main_loop";
+
+		// Local label pattern
+		result.Labels[0x8060] = ".loop";
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+			var loader = new PansyLoader(data);
+
+			// Check that interrupt vectors were detected
+			var nmiEntry = loader.GetSymbolEntry((int)0xfffa);
+			Assert.NotNull(nmiEntry);
+			Assert.Equal(SymbolType.InterruptVector, nmiEntry.Type);
+
+			var resetEntry = loader.GetSymbolEntry((int)0xfffc);
+			Assert.NotNull(resetEntry);
+			Assert.Equal(SymbolType.InterruptVector, resetEntry.Type);
+
+			// Local label
+			var localEntry = loader.GetSymbolEntry(0x8060);
+			Assert.NotNull(localEntry);
+			Assert.Equal(SymbolType.Local, localEntry.Type);
+
+			// Regular label
+			var mainEntry = loader.GetSymbolEntry(0x8050);
+			Assert.NotNull(mainEntry);
+			Assert.Equal(SymbolType.Label, mainEntry.Type);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_FunctionDetection_FromCrossRefs() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+
+		result.Labels[0x8100] = "my_function";
+
+		// Cross-ref of type Call pointing to 0x8100
+		result.CrossReferences[0x8100] = [
+			new CrossRef(0x8010, 0, CrossRefType.Call),
+		];
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+			var loader = new PansyLoader(data);
+
+			var funcEntry = loader.GetSymbolEntry(0x8100);
+			Assert.NotNull(funcEntry);
+			Assert.Equal(SymbolType.Function, funcEntry.Type);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_CommentType_IsInline() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+		result.Comments[0x8000] = "This is a comment";
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+			var loader = new PansyLoader(data);
+
+			var commentEntry = loader.GetCommentEntry(0x8000);
+			Assert.NotNull(commentEntry);
+			Assert.Equal(CommentType.Inline, commentEntry.Type);
+			Assert.Equal("This is a comment", commentEntry.Text);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_AllPlatformIds_AreCorrect() {
+		var platformTests = new Dictionary<string, byte> {
+			["NES"] = PansyLoader.PLATFORM_NES,
+			["SNES"] = PansyLoader.PLATFORM_SNES,
+			["Game Boy"] = PansyLoader.PLATFORM_GB,
+			["Game Boy Advance"] = PansyLoader.PLATFORM_GBA,
+			["Genesis"] = PansyLoader.PLATFORM_GENESIS,
+			["Master System"] = PansyLoader.PLATFORM_SMS,
+			["Atari 2600"] = PansyLoader.PLATFORM_ATARI_2600,
+			["Lynx"] = PansyLoader.PLATFORM_LYNX,
+			["WonderSwan"] = PansyLoader.PLATFORM_WONDERSWAN,
+		};
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			foreach (var (platform, expectedId) in platformTests) {
+				var result = new DisassemblyResult {
+					RomInfo = new RomInfo(platform, 1024, null, new Dictionary<string, string>())
+				};
+
+				SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+				var data = File.ReadAllBytes(tempFile);
+				var loader = new PansyLoader(data);
+
+				Assert.Equal(expectedId, loader.Platform);
+			}
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_UnknownPlatform_UsesCustomId() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("UnknownSystem", 1024, null, new Dictionary<string, string>())
+		};
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+			var loader = new PansyLoader(data);
+
+			Assert.Equal(PansyLoader.PLATFORM_CUSTOM, loader.Platform);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_SectionCount_IncludesAllSections() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+		result.Labels[0x8000] = "reset";
+		result.Comments[0x8000] = "Entry point";
+		result.CrossReferences[0x8000] = [
+			new CrossRef(0x8010, 0, CrossRefType.Call),
+		];
+		result.Blocks.Add(new DisassembledBlock(
+			0x8000, 0x80ff, Peony.Core.MemoryRegion.Code,
+			[new DisassembledLine(0x8000, [0xa9, 0x00], null, "lda #$00", null)]
+		));
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+
+			// Section count at offset 24
+			var sectionCount = BitConverter.ToUInt32(data, 24);
+
+			// Should have: code_data_map, symbols, comments, memory_regions, cross_refs, metadata
+			Assert.True(sectionCount >= 5, $"Expected >= 5 sections, got {sectionCount}");
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_Version_Is0x0100() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 8192, "NROM", new Dictionary<string, string>())
+		};
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+
+			// Version at offset 8 (2 bytes LE)
+			var version = BitConverter.ToUInt16(data, 8);
+			Assert.Equal(0x0100, version);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	[Fact]
+	public void ExportPansy_RomSize_IsPreserved() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 32768, "NROM", new Dictionary<string, string>())
+		};
+
+		var tempFile = Path.GetTempFileName();
+		try {
+			SymbolExporter.Export(result, tempFile, SymbolFormat.Pansy);
+			var data = File.ReadAllBytes(tempFile);
+
+			// ROM size at offset 16 (4 bytes LE)
+			var romSize = BitConverter.ToUInt32(data, 16);
+			Assert.Equal(32768u, romSize);
 		} finally {
 			File.Delete(tempFile);
 		}
