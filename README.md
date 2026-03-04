@@ -1,4 +1,4 @@
-# 🌺 Peony - Multi-System Disassembler Framework
+﻿# 🌺 Peony - Multi-System Disassembler Framework
 
 > The anti-Poppy: ROM → Source code conversion
 
@@ -31,7 +31,8 @@ Peony is a multi-system disassembler framework designed to work alongside [Poppy
 - **Roundtrip Guarantee**: Disassembled code reassembles to identical ROM
 - **Multiple Algorithms**: Linear sweep, recursive descent, speculative, hybrid
 - **Platform-Aware**: Automatic register labeling, kernel detection
-- **Integration**: Import from Mesen2 CDL, DiztinGUIsh, FCEUX
+- **Integration**: Import from Mesen2 CDL, DiztinGUIsh, FCEUX, Pansy metadata
+- **Nexen Integration**: Import `.nexen-pack.zip` game packages with CDL + Pansy
 - **Poppy Output**: Native .pasm output format
 
 ## 🚀 Quick Start
@@ -85,11 +86,22 @@ dotnet pack
 
 ## 📖 Documentation
 
-- [Architecture](docs/Architecture.md)
-- [CPU Support](docs/CPU-Support.md)
-- [Platform Support](docs/Platform-Support.md)
-- [Output Formats](docs/Output-Formats.md)
+### Architecture & Design
+- [Architecture Overview](docs/ARCHITECTURE.md) — High-level design, pipeline, project structure
+- [Disassembly Engine](docs/DISASSEMBLY-ENGINE.md) — Recursive descent algorithm in detail
+- [Interfaces & Types](docs/INTERFACES.md) — Complete API reference for all core abstractions
+- [Multi-Bank Architecture](docs/MULTI-BANK.md) — Per-platform banking guide (NES, SNES, GB, GBA, 2600, Lynx)
+
+### Integration & Workflow
+- [CDL & Pansy Integration](docs/CDL-PANSY-INTEGRATION.md) — How CDL/Pansy metadata improves disassembly
+- [Nexen Game Pack Workflow](docs/NEXEN-PACK-WORKFLOW.md) — Disassemble from `.nexen-pack.zip` files
+- [Improving Disassembly](docs/IMPROVING-DISASSEMBLY.md) — Guide to correcting and enhancing output
+
+### Platform-Specific
 - [Atari 2600 Asset Extraction](docs/Atari-2600-Asset-Extraction.md)
+- [Platform Comparison](docs/Platform-Comparison.md)
+
+### Project
 - [Session Logs](~docs/session-logs/)
 
 ## 🤝 Related Projects
