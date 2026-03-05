@@ -1104,6 +1104,217 @@ pansyCommand.SetHandler((file, verbose) => {
 
 rootCommand.AddCommand(pansyCommand);
 
+// ============================================================================
+// Import Command - Nexen Pack Import Pipeline
+// ============================================================================
+
+var importCommand = new Command("import", "Import a Nexen game pack (.nexen-pack.zip) and disassemble");
+var importPackArg = new Argument<FileInfo>("pack-path", "Path to .nexen-pack.zip file");
+var importProjectDirOpt = new Option<DirectoryInfo?>(["--project-dir", "-d"], "Project directory (default: derived from game name)");
+var importAllBanksOpt = new Option<bool>(["--all-banks", "-b"], "Disassemble all banks for banked ROMs");
+var importFormatOpt = new Option<string>(["--format", "-f"], () => "poppy", "Output format: poppy, asm");
+var importNoScaffoldOpt = new Option<bool>("--no-scaffold", "Skip project scaffolding, just disassemble");
+var importForceOpt = new Option<bool>("--force", "Overwrite existing project directory");
+
+importCommand.AddArgument(importPackArg);
+importCommand.AddOption(importProjectDirOpt);
+importCommand.AddOption(importAllBanksOpt);
+importCommand.AddOption(importFormatOpt);
+importCommand.AddOption(importNoScaffoldOpt);
+importCommand.AddOption(importForceOpt);
+
+importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, force) => {
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Nexen Pack Import[/]");
+		AnsiConsole.WriteLine();
+
+		if (!packFile.Exists) {
+			AnsiConsole.MarkupLine($"[red]Error:[/] File not found: {Markup.Escape(packFile.FullName)}");
+			Environment.Exit(1);
+			return;
+		}
+
+		// Step 1: Extract pack
+		AnsiConsole.MarkupLine($"[grey]Loading pack:[/] {Markup.Escape(packFile.Name)}");
+		var pack = NexenPackLoader.Load(packFile.FullName);
+		AnsiConsole.MarkupLine($"[grey]Game:[/] {Markup.Escape(pack.GameName)}");
+		if (pack.System != null) AnsiConsole.MarkupLine($"[grey]System:[/] {Markup.Escape(pack.System)}");
+		if (pack.RomCrc32 != null) AnsiConsole.MarkupLine($"[grey]CRC32:[/] {Markup.Escape(pack.RomCrc32)}");
+		AnsiConsole.MarkupLine($"[grey]ROM:[/] {Markup.Escape(pack.RomFileName ?? Path.GetFileName(pack.RomPath))}");
+		AnsiConsole.WriteLine();
+
+		// Step 2: Scaffold project (unless --no-scaffold)
+		ScaffoldResult? scaffold = null;
+		string romPath = pack.RomPath;
+		string outputDir;
+
+		if (!noScaffold) {
+			var projDir = projectDir?.FullName
+				?? Path.Combine(Directory.GetCurrentDirectory(), pack.GameName.Replace(' ', '-'));
+			AnsiConsole.MarkupLine($"[grey]Scaffolding project:[/] {Markup.Escape(projDir)}");
+
+			scaffold = ProjectScaffolder.Scaffold(pack, projDir, new ScaffoldOptions {
+				Force = force,
+				PackZipPath = packFile.FullName
+			});
+
+			romPath = scaffold.RomPath;
+			outputDir = Path.Combine(projDir, "output");
+			AnsiConsole.MarkupLine($"[green]✓[/] Project created ({scaffold.MetadataFileCount} metadata files)");
+		} else {
+			outputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
+			Directory.CreateDirectory(outputDir);
+			AnsiConsole.MarkupLine("[grey]Scaffolding skipped[/]");
+		}
+		AnsiConsole.WriteLine();
+
+		// Step 3: Load ROM and detect platform
+		AnsiConsole.MarkupLine("[grey]Loading ROM...[/]");
+		var romData = RomLoader.Load(romPath);
+		AnsiConsole.MarkupLine($"[grey]Size:[/] {romData.Length} bytes ({romData.Length / 1024}K)");
+
+		// Use pack system for platform detection, fall back to auto-detect
+		var platform = pack.System != null
+			? ProjectScaffolder.NormalizePlatform(pack.System)
+			: RomLoader.DetectPlatform(romData, romPath);
+		AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
+
+		// Step 4: Get platform analyzer
+		IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
+			"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+			"lynx" or "atari lynx" => new LynxAnalyzer(),
+			"nes" => new NesAnalyzer(),
+			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
+			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
+			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
+			_ => throw new NotSupportedException($"Platform not supported: {platform}")
+		};
+
+		var info = analyzer.Analyze(romData);
+		AnsiConsole.MarkupLine($"[grey]Mapper:[/] {info.Mapper ?? "None"}");
+		if (analyzer.BankCount > 1) {
+			AnsiConsole.MarkupLine($"[grey]Banks:[/] {analyzer.BankCount}");
+		}
+
+		// Step 5: Load metadata (CDL, Pansy, labels)
+		SymbolLoader? symbolLoader = null;
+
+		if (pack.CdlPath != null && File.Exists(pack.CdlPath)) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadCdl(pack.CdlPath);
+			var stats = symbolLoader.CdlData!.GetCoverageStats();
+			AnsiConsole.MarkupLine($"[grey]CDL:[/] {stats.CodeBytes:N0} code, {stats.DataBytes:N0} data ({stats.CoveragePercent:F1}% coverage)");
+			AnsiConsole.MarkupLine($"[grey]CDL Subroutines:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0}");
+		}
+
+		if (pack.PansyPath != null && File.Exists(pack.PansyPath)) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadPansy(pack.PansyPath);
+			AnsiConsole.MarkupLine($"[grey]Pansy:[/] {symbolLoader.Labels.Count} labels, {symbolLoader.Comments.Count} comments");
+		}
+
+		if (pack.LabelsPath != null && File.Exists(pack.LabelsPath)) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.Load(pack.LabelsPath);
+			AnsiConsole.MarkupLine($"[grey]Labels:[/] {symbolLoader.Labels.Count} total labels");
+		}
+
+		AnsiConsole.WriteLine();
+
+		// Step 6: Build entry points
+		uint[] platformEntryPoints = analyzer switch {
+			Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
+			LynxAnalyzer lynx => lynx.GetEntryPoints(romData),
+			NesAnalyzer nes => nes.GetEntryPoints(romData),
+			Peony.Platform.SNES.SnesAnalyzer snes => snes.GetEntryPoints(romData),
+			GameBoyAnalyzer gb => gb.GetEntryPoints(romData),
+			GbaAnalyzer gba => gba.GetEntryPoints(romData),
+			_ => [0x8000]
+		};
+
+		var entryPointSet = new HashSet<uint>(platformEntryPoints);
+		if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
+			foreach (var offset in cdlData.SubEntryPoints) {
+				var addr = analyzer.OffsetToAddress(offset);
+				if (addr.HasValue)
+					entryPointSet.Add(addr.Value);
+			}
+		}
+		var entryPoints = entryPointSet.ToArray();
+
+		AnsiConsole.MarkupLine($"[grey]Entry points:[/] {platformEntryPoints.Length} platform + {(entryPoints.Length - platformEntryPoints.Length)} CDL = {entryPoints.Length} total");
+
+		// Step 7: Disassemble
+		AnsiConsole.MarkupLine("[grey]Disassembling...[/]");
+		var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+
+		if (symbolLoader != null) {
+			engine.SetSymbolLoader(symbolLoader);
+			foreach (var (addr, label) in symbolLoader.Labels) {
+				engine.AddLabel(addr, label);
+			}
+			foreach (var (addr, comment) in symbolLoader.Comments) {
+				engine.AddComment(addr, comment);
+			}
+			foreach (var (addr, dataDef) in symbolLoader.DataDefinitions) {
+				engine.AddDataRegion(addr, dataDef);
+			}
+		}
+
+		var result = engine.Disassemble(romData, entryPoints, allBanks);
+		result.RomInfo = info;
+
+		AnsiConsole.MarkupLine($"[green]✓[/] Disassembled {result.Blocks.Count} blocks, {result.Labels.Count} labels");
+		AnsiConsole.WriteLine();
+
+		// Step 8: Write output
+		var outputBaseName = Path.GetFileNameWithoutExtension(pack.RomFileName ?? pack.GameName);
+		var outputPath = Path.Combine(outputDir, outputBaseName + ".pasm");
+
+		if (format == "poppy") {
+			var formatter = new PoppyFormatter();
+			formatter.Generate(result, outputPath);
+			AnsiConsole.MarkupLine($"[green]Output:[/] {Markup.Escape(outputPath)}");
+		} else {
+			using var writer = new StreamWriter(outputPath);
+			WriteAsmOutput(writer, packFile, info, result);
+			AnsiConsole.MarkupLine($"[green]Output:[/] {Markup.Escape(outputPath)}");
+		}
+
+		// Step 9: Export Pansy metadata
+		var pansyOutputPath = Path.ChangeExtension(outputPath, ".pansy");
+		SymbolExporter.Export(result, pansyOutputPath, SymbolFormat.Pansy);
+		AnsiConsole.MarkupLine($"[green]Pansy:[/] {Markup.Escape(pansyOutputPath)}");
+		AnsiConsole.WriteLine();
+
+		// Step 10: Summary
+		AnsiConsole.MarkupLine("[bold green]Import complete![/]");
+		var summaryTable = new Table()
+			.Border(TableBorder.Rounded)
+			.AddColumn("Item")
+			.AddColumn("Value");
+
+		summaryTable.AddRow("Game", Markup.Escape(pack.GameName));
+		summaryTable.AddRow("Platform", platform ?? "Unknown");
+		summaryTable.AddRow("ROM Size", $"{romData.Length:N0} bytes");
+		summaryTable.AddRow("Blocks", $"{result.Blocks.Count}");
+		summaryTable.AddRow("Labels", $"{result.Labels.Count}");
+		summaryTable.AddRow("Output", Markup.Escape(outputPath));
+		summaryTable.AddRow("Pansy", Markup.Escape(pansyOutputPath));
+		if (scaffold != null) {
+			summaryTable.AddRow("Project", Markup.Escape(scaffold.ProjectDirectory));
+		}
+
+		AnsiConsole.Write(summaryTable);
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+}, importPackArg, importProjectDirOpt, importAllBanksOpt, importFormatOpt, importNoScaffoldOpt, importForceOpt);
+
+rootCommand.AddCommand(importCommand);
+
 // Version
 rootCommand.SetHandler(() => {
 	AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.4.0[/]");
@@ -1121,6 +1332,7 @@ AnsiConsole.MarkupLine("  • chr     - Extract tile graphics");
 AnsiConsole.MarkupLine("  • text    - Extract text with table files");
 AnsiConsole.MarkupLine("  • palette - Extract color palettes");
 AnsiConsole.MarkupLine("  • tbl     - Generate/convert table files");
+AnsiConsole.MarkupLine("  • import  - Import Nexen game pack");
 });
 
 return await rootCommand.InvokeAsync(args);
