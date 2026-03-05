@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peony.Platform.Lynx", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peony.Platform.Lynx.Tests", "tests\Peony.Platform.Lynx.Tests\Peony.Platform.Lynx.Tests.csproj", "{38B23106-D7A0-4C53-A446-BD53F837CC0A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peony.Platform.Atari2600.Tests", "tests\Peony.Platform.Atari2600.Tests\Peony.Platform.Atari2600.Tests.csproj", "{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -283,6 +285,18 @@ Global
 		{38B23106-D7A0-4C53-A446-BD53F837CC0A}.Release|x64.Build.0 = Release|Any CPU
 		{38B23106-D7A0-4C53-A446-BD53F837CC0A}.Release|x86.ActiveCfg = Release|Any CPU
 		{38B23106-D7A0-4C53-A446-BD53F837CC0A}.Release|x86.Build.0 = Release|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Debug|x64.Build.0 = Debug|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Debug|x86.Build.0 = Debug|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Release|x64.ActiveCfg = Release|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Release|x64.Build.0 = Release|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Release|x86.ActiveCfg = Release|Any CPU
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -298,5 +312,6 @@ Global
 		{9C191360-B224-4B7B-8E6C-ECB570EE125F} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{3EF58260-C166-4AD6-8112-96E6E67FF455} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{38B23106-D7A0-4C53-A446-BD53F837CC0A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{F31BB6CB-7D78-4573-BE2D-32EDA5F299BD} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
