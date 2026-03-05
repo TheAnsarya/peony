@@ -325,6 +325,7 @@ var exportFormatOpt = new Option<string>(["--format", "-f"], () => "mesen", "Sym
 var exportPlatformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-detected if not specified)");
 var exportSymbolsOpt = new Option<FileInfo?>(["--symbols", "-s"], "Additional symbol file to merge");
 var exportDizOpt = new Option<FileInfo?>(["--diz", "-d"], "DIZ project file to merge");
+var exportCdlOpt = new Option<FileInfo?>(["--cdl", "-c"], "CDL (Code/Data Log) file for code/data hints");
 
 exportCommand.AddArgument(exportRomArg);
 exportCommand.AddOption(exportOutputOpt);
@@ -332,8 +333,9 @@ exportCommand.AddOption(exportFormatOpt);
 exportCommand.AddOption(exportPlatformOpt);
 exportCommand.AddOption(exportSymbolsOpt);
 exportCommand.AddOption(exportDizOpt);
+exportCommand.AddOption(exportCdlOpt);
 
-exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
+exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile, cdlFile) => {
 	try {
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Symbol Exporter[/]");
 		AnsiConsole.WriteLine();
@@ -378,8 +380,28 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
 			AnsiConsole.MarkupLine($"[grey]Merged DIZ:[/] {symbolLoader.Labels.Count} labels");
 		}
 
+		// Load CDL if provided
+		if (cdlFile?.Exists == true) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadCdl(cdlFile.FullName);
+			var stats = symbolLoader.CdlData!.GetCoverageStats();
+			AnsiConsole.MarkupLine($"[grey]CDL:[/] {stats.CodeBytes:N0} code bytes, {stats.DataBytes:N0} data bytes ({stats.CoveragePercent:F1}% coverage)");
+			AnsiConsole.MarkupLine($"[grey]CDL Entry Points:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0} subroutines detected");
+		}
+
 		// Get entry points and disassemble
 		var entryPoints = analyzer.GetEntryPoints(romData);
+
+		// Combine with CDL subroutine entry points if available
+		var entryPointSet = new HashSet<uint>(entryPoints);
+		if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
+			foreach (var offset in cdlData.SubEntryPoints) {
+				var addr = analyzer.OffsetToAddress(offset);
+				if (addr.HasValue)
+					entryPointSet.Add(addr.Value);
+			}
+		}
+
 		var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
 
 		if (symbolLoader != null) {
@@ -392,10 +414,8 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
 			}
 		}
 
-		var result = engine.Disassemble(romData, entryPoints);
+		var result = engine.Disassemble(romData, entryPointSet.ToArray());
 		result.RomInfo = info;
-
-		// Determine symbol format
 		var symFormat = format.ToLowerInvariant() switch {
 			"mesen" or "mlb" => SymbolFormat.Mesen,
 			"fceux" or "nl" => SymbolFormat.FCEUX,
@@ -417,7 +437,7 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile) => {
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
-}, exportRomArg, exportOutputOpt, exportFormatOpt, exportPlatformOpt, exportSymbolsOpt, exportDizOpt);
+}, exportRomArg, exportOutputOpt, exportFormatOpt, exportPlatformOpt, exportSymbolsOpt, exportDizOpt, exportCdlOpt);
 
 rootCommand.AddCommand(exportCommand);
 

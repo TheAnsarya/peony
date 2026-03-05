@@ -1,4 +1,4 @@
-# Peony CLI Reference
+﻿# Peony CLI Reference
 
 > Complete command reference for the Peony disassembler CLI.
 
@@ -114,12 +114,16 @@ peony export <rom> --output <file> [options]
 | `--platform` | `-p` | auto | Platform hint |
 | `--symbols` | `-s` | — | Additional symbol file to merge |
 | `--diz` | `-d` | — | DIZ project file to merge |
+| `--cdl` | `-c` | — | CDL (Code/Data Log) file for code/data hints |
 
 ### Examples
 
 ```bash
 # Export as Mesen labels
 peony export game.nes -o game.mlb -f mesen
+
+# Export as Pansy metadata with CDL
+peony export game.sfc -o game.pansy -f pansy --cdl game.cdl
 
 # Export as Pansy metadata
 peony export game.nes -o game.pansy -f pansy
