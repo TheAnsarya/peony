@@ -1,4 +1,4 @@
-# Interfaces & Data Structures — API Reference
+﻿# Interfaces & Data Structures — API Reference
 
 > Complete reference for Peony's core abstractions and types.
 

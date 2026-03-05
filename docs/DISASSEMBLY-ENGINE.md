@@ -1,4 +1,4 @@
-# Disassembly Engine — Detailed Algorithm
+﻿# Disassembly Engine — Detailed Algorithm
 
 > How Peony converts ROM bytes into structured assembly code.
 

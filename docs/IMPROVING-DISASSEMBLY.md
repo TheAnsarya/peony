@@ -1,4 +1,4 @@
-# Improving Disassembly — Correcting and Enhancing Output
+﻿# Improving Disassembly — Correcting and Enhancing Output
 
 > A practical guide to identifying problems in disassembly output and fixing them.
 

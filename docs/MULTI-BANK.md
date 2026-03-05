@@ -1,4 +1,4 @@
-# Multi-Bank Architecture — Per-Platform Banking Guide
+﻿# Multi-Bank Architecture — Per-Platform Banking Guide
 
 > How Peony handles ROM bank switching across all supported platforms.
 
