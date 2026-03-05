@@ -1,4 +1,4 @@
-# Nexen Game Pack Workflow — Disassembling from .nexen-pack.zip
+﻿# Nexen Game Pack Workflow — Disassembling from .nexen-pack.zip
 
 > How to create a disassembly project starting from a Nexen game package.
 
@@ -41,9 +41,9 @@ A `.nexen-pack.zip` is Nexen's game package export format. It bundles the ROM wi
 
 ---
 
-## Current Workflow (Manual)
+## Manual Workflow (Alternative)
 
-Until Peony has built-in `.nexen-pack.zip` support, follow these steps:
+For more control, or if the automated import doesn't suit your needs, you can extract and disassemble manually:
 
 ### Step 1: Create the Game Pack in Nexen
 
@@ -116,43 +116,71 @@ peony verify "$rom" "$workDir/output/rebuilt.nes"
 
 ---
 
-## Planned Workflow (Automated)
+## Automated Workflow
 
-The goal is a single command that does everything:
+A single command handles the entire pipeline:
 
-### peony import Command (Planned)
+### peony import Command
 
 ```bash
-# Import from game pack — creates a full project
+# Import from game pack — creates a full disassembly project
 peony import "Super Mario Bros (2026-01-15).nexen-pack.zip" \
   --project-dir ./smb-disassembly/ \
   --all-banks
 
-# This would:
-# 1. Extract the zip to a temp directory
-# 2. Detect platform from ROM header
-# 3. Load CDL + Pansy automatically
-# 4. Run disassembly with optimal settings
-# 5. Create a project structure:
-#    smb-disassembly/
-#    ├── rom/
-#    │   └── smb.nes
-#    ├── source/
-#    │   ├── main.pasm
-#    │   ├── bank00.pasm (if multi-bank)
-#    │   ├── bank01.pasm
-#    │   └── ...
-#    ├── metadata/
-#    │   ├── game.cdl
-#    │   ├── game.pansy
-#    │   └── game.mlb
-#    ├── output/
-#    │   └── (assembled ROM goes here)
-#    ├── peony.json (project config)
-#    └── README.md (auto-generated project docs)
+# Minimal — uses game name as project directory
+peony import game.nexen-pack.zip
+
+# Skip project scaffolding, just disassemble
+peony import game.nexen-pack.zip --no-scaffold
+
+# Overwrite existing project
+peony import game.nexen-pack.zip --project-dir ./project/ --force
 ```
 
-### peony.json Project Config (Planned)
+#### What `peony import` Does
+
+1. Extracts the `.nexen-pack.zip` to a temp directory
+2. Parses `manifest.txt` for game name, system, CRC32
+3. Detects platform from manifest system or ROM header
+4. Creates project structure via `ProjectScaffolder` (unless `--no-scaffold`)
+5. Loads CDL, Pansy, and label files if present in the pack
+6. Combines platform entry points with CDL subroutine entry points
+7. Runs `DisassemblyEngine` with all metadata hints
+8. Writes `.pasm` output via `PoppyFormatter`
+9. Exports a Pansy metadata file alongside the disassembly
+10. Prints a summary table with stats
+
+#### CLI Options
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `<pack-path>` | — | required | Path to `.nexen-pack.zip` file |
+| `--project-dir` | `-d` | game name | Project directory to create |
+| `--all-banks` | `-b` | false | Disassemble all banks for banked ROMs |
+| `--format` | `-f` | `poppy` | Output format: `poppy`, `asm` |
+| `--no-scaffold` | — | false | Skip project scaffolding, just disassemble |
+| `--force` | — | false | Overwrite existing project directory |
+
+### Generated Project Structure
+
+```
+smb-disassembly/
+├── rom/
+│   └── smb.nes                 # Copied from pack
+├── source/                     # (empty, for user edits)
+├── metadata/
+│   ├── game.cdl                # Copied from pack Debug/
+│   ├── game.pansy              # Copied from pack Debug/
+│   └── game.mlb                # Copied from pack Debug/
+├── output/
+│   ├── smb.pasm                # Generated disassembly
+│   └── smb.pansy               # Generated Pansy metadata
+├── peony.json                  # Project config
+└── README.md                   # Auto-generated project docs
+```
+
+### peony.json Project Config
 
 ```json
 {

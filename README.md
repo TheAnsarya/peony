@@ -55,6 +55,12 @@ peony disasm game.bin -f poppy -o game.pasm
 
 # Disassemble all banks (for banked ROMs)
 peony disasm game.nes --all-banks -o game.pasm
+
+# Import a Nexen game pack (extracts, scaffolds, disassembles)
+peony import game.nexen-pack.zip --project-dir ./my-project/
+
+# Verify roundtrip (disassemble → reassemble → compare)
+peony verify original.nes -r rebuilt.nes
 ```
 
 ## 📁 Project Structure
@@ -93,6 +99,7 @@ dotnet pack
 - [Multi-Bank Architecture](docs/MULTI-BANK.md) — Per-platform banking guide (NES, SNES, GB, GBA, 2600, Lynx)
 
 ### Integration & Workflow
+- [CLI Reference](docs/CLI-REFERENCE.md) — Complete command reference for all CLI commands
 - [CDL & Pansy Integration](docs/CDL-PANSY-INTEGRATION.md) — How CDL/Pansy metadata improves disassembly
 - [Nexen Game Pack Workflow](docs/NEXEN-PACK-WORKFLOW.md) — Disassemble from `.nexen-pack.zip` files
 - [Improving Disassembly](docs/IMPROVING-DISASSEMBLY.md) — Guide to correcting and enhancing output
