@@ -469,6 +469,21 @@ continue;
 }
 
 var label = GetLabel(address, bank);
+
+// Handle unknown opcodes — emit .db directives instead of ???
+if (instruction.Mnemonic == "???") {
+	foreach (var b in instruction.Bytes) {
+		var byteLabel = GetLabel(address, bank);
+		lines.Add(new DisassembledLine(
+			address, [b], byteLabel, $".db ${b:x2}",
+			"Unknown opcode", bank
+		));
+		address++;
+	}
+	// Unknown opcodes break the code flow — stop disassembling this block
+	break;
+}
+
 var operandAddr = GetOperandAddress(instruction);
 var hwLabel = operandAddr.HasValue ? _platformAnalyzer.GetRegisterLabel(operandAddr.Value) : null;
 var lineComment = _comments.GetValueOrDefault(address) ?? hwLabel;
