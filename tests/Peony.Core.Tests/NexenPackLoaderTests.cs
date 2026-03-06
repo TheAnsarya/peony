@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using Peony.Core;
+using StreamHash.Core;
 using Xunit;
 
 namespace Peony.Core.Tests;
@@ -474,13 +475,7 @@ public class NexenPackLoaderTests : IDisposable {
 	public void VerifyRomCrc32_MatchingCrc_ReturnsTrue() {
 		byte[] romData = [0x4e, 0x45, 0x53, 0x1a, 0x02, 0x01, 0x00, 0x00];
 		// Compute the actual CRC32 of this data to put in manifest
-		uint crc = 0xffffffff;
-		foreach (byte b in romData) {
-			crc ^= b;
-			for (int bit = 0; bit < 8; bit++)
-				crc = (crc >> 1) ^ (0xedb88320 & ~((crc & 1) - 1));
-		}
-		crc = ~crc;
+		uint crc = BitConverter.ToUInt32(HashFacade.ComputeCrc32(romData));
 		string crcHex = crc.ToString("x8");
 
 		string manifest = $"""

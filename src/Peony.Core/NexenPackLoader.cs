@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using StreamHash.Core;
 
 namespace Peony.Core;
 
@@ -74,13 +75,7 @@ public sealed class NexenPackResult {
 	}
 
 	private static uint ComputeCrc32(byte[] data) {
-		uint crc = 0xffffffff;
-		foreach (byte b in data) {
-			crc ^= b;
-			for (int bit = 0; bit < 8; bit++)
-				crc = (crc >> 1) ^ (0xedb88320 & ~((crc & 1) - 1));
-		}
-		return ~crc;
+		return BitConverter.ToUInt32(HashFacade.ComputeCrc32(data));
 	}
 
 	/// <summary>
