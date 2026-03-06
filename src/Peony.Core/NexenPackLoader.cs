@@ -19,6 +19,21 @@ public sealed class NexenPackResult {
 	/// <summary>Path to the extracted labels file, or null if not present.</summary>
 	public string? LabelsPath { get; init; }
 
+	/// <summary>Path to the debug workspace JSON file, or null if not present.</summary>
+	public string? DebugWorkspacePath { get; init; }
+
+	/// <summary>Paths to extracted save state files.</summary>
+	public IReadOnlyList<string> SaveStatePaths { get; init; } = [];
+
+	/// <summary>Paths to extracted movie files.</summary>
+	public IReadOnlyList<string> MoviePaths { get; init; } = [];
+
+	/// <summary>Paths to extracted save/SRAM files.</summary>
+	public IReadOnlyList<string> SavePaths { get; init; } = [];
+
+	/// <summary>Paths to extracted cheat files.</summary>
+	public IReadOnlyList<string> CheatPaths { get; init; } = [];
+
 	/// <summary>Game name parsed from the manifest.</summary>
 	public required string GameName { get; init; }
 
@@ -31,12 +46,90 @@ public sealed class NexenPackResult {
 	/// <summary>Original ROM filename from the manifest.</summary>
 	public string? RomFileName { get; init; }
 
+	/// <summary>Nexen version that created this pack, if available.</summary>
+	public string? NexenVersion { get; init; }
+
+	/// <summary>Timestamp when the pack was created, if available.</summary>
+	public string? CreatedDate { get; init; }
+
 	/// <summary>Root directory where the pack was extracted.</summary>
 	public required string ExtractDirectory { get; init; }
 
 	/// <summary>All parsed manifest key-value pairs.</summary>
 	public IReadOnlyDictionary<string, string> Manifest { get; init; } = new Dictionary<string, string>();
+
+	/// <summary>
+	/// Verify the ROM CRC32 matches the manifest value.
+	/// Returns null if no manifest CRC32 is available, true if match, false if mismatch.
+	/// </summary>
+	public bool? VerifyRomCrc32() {
+		if (RomCrc32 is null || !File.Exists(RomPath))
+			return null;
+
+		var romData = File.ReadAllBytes(RomPath);
+		var computed = ComputeCrc32(romData);
+		var computedHex = computed.ToString("x8");
+
+		return string.Equals(computedHex, RomCrc32, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static uint ComputeCrc32(byte[] data) {
+		uint crc = 0xffffffff;
+		foreach (byte b in data) {
+			crc ^= b;
+			for (int bit = 0; bit < 8; bit++)
+				crc = (crc >> 1) ^ (0xedb88320 & ~((crc & 1) - 1));
+		}
+		return ~crc;
+	}
+
+	/// <summary>
+	/// Compute CDL coverage statistics for the ROM.
+	/// Returns null if no CDL file is present.
+	/// </summary>
+	public CdlCoverageStats? GetCdlCoverage() {
+		if (CdlPath is null || !File.Exists(CdlPath) || !File.Exists(RomPath))
+			return null;
+
+		var cdlData = File.ReadAllBytes(CdlPath);
+		var romData = File.ReadAllBytes(RomPath);
+
+		int codeBytes = 0, dataBytes = 0, drawnBytes = 0, unclassified = 0;
+		for (int i = 0; i < cdlData.Length; i++) {
+			byte flags = cdlData[i];
+			if ((flags & 0x01) != 0) codeBytes++;
+			else if ((flags & 0x02) != 0) dataBytes++;
+			else if ((flags & 0x10) != 0) drawnBytes++;  // Mesen DRAWN flag
+			else unclassified++;
+		}
+
+		int classified = codeBytes + dataBytes + drawnBytes;
+		return new CdlCoverageStats(
+			TotalBytes: cdlData.Length,
+			CodeBytes: codeBytes,
+			DataBytes: dataBytes,
+			DrawnBytes: drawnBytes,
+			ClassifiedBytes: classified,
+			UnclassifiedBytes: unclassified,
+			CoveragePercent: cdlData.Length > 0 ? (double)classified / cdlData.Length * 100 : 0,
+			RomSize: romData.Length
+		);
+	}
 }
+
+/// <summary>
+/// CDL coverage statistics for a ROM.
+/// </summary>
+public record CdlCoverageStats(
+	int TotalBytes,
+	int CodeBytes,
+	int DataBytes,
+	int DrawnBytes,
+	int ClassifiedBytes,
+	int UnclassifiedBytes,
+	double CoveragePercent,
+	int RomSize
+);
 
 /// <summary>
 /// Loads Nexen game pack archives (.nexen-pack.zip) exported by the Nexen emulator.
@@ -54,6 +147,11 @@ public static class NexenPackLoader {
 	private static readonly string[] CdlExtensions = [".cdl"];
 	private static readonly string[] PansyExtensions = [".pansy"];
 	private static readonly string[] LabelExtensions = [".nexen-labels", ".mlb", ".nl"];
+	private static readonly string[] SaveStateExtensions = [".nexen-save", ".mss"];
+	private static readonly string[] MovieExtensions = [".nexen-movie", ".mmo"];
+	private static readonly string[] SaveExtensions = [".sav", ".srm", ".rtc", ".eeprom"];
+	private static readonly string[] CheatExtensions = [".cht", ".json"];
+	private static readonly string[] DebugWorkspaceExtensions = [".json"];
 
 	/// <summary>
 	/// Load and extract a Nexen game pack from a zip file path.
@@ -134,6 +232,15 @@ public static class NexenPackLoader {
 			?? FindFileByExtension(extractedFiles, outputDirectory, PansyExtensions);
 		string? labelsPath = FindFileByFolder(outputDirectory, "Debug", LabelExtensions)
 			?? FindFileByExtension(extractedFiles, outputDirectory, LabelExtensions);
+		string? debugWorkspacePath = FindFileByFolder(outputDirectory, "Config", DebugWorkspaceExtensions);
+
+		// Locate collections of files
+		var saveStatePaths = FindAllFilesByFolder(outputDirectory, "SaveStates", SaveStateExtensions);
+		var moviePaths = FindAllFilesByFolder(outputDirectory, "Movies", MovieExtensions);
+		var savePaths = FindAllFilesByFolder(outputDirectory, "Saves", SaveExtensions);
+		var cheatPaths = FindAllFilesByFolder(outputDirectory, "Config", CheatExtensions)
+			.Where(p => Path.GetExtension(p).Equals(".cht", StringComparison.OrdinalIgnoreCase))
+			.ToList();
 
 		if (romPath is null)
 			throw new InvalidDataException("No ROM file found in Nexen pack.");
@@ -146,10 +253,17 @@ public static class NexenPackLoader {
 			CdlPath = cdlPath,
 			PansyPath = pansyPath,
 			LabelsPath = labelsPath,
+			DebugWorkspacePath = debugWorkspacePath,
+			SaveStatePaths = saveStatePaths,
+			MoviePaths = moviePaths,
+			SavePaths = savePaths,
+			CheatPaths = cheatPaths,
 			GameName = gameName,
 			System = manifest.GetValueOrDefault("System"),
 			RomCrc32 = manifest.GetValueOrDefault("ROM CRC32"),
 			RomFileName = manifest.GetValueOrDefault("ROM File"),
+			NexenVersion = manifest.GetValueOrDefault("Nexen Version"),
+			CreatedDate = manifest.GetValueOrDefault("Created"),
 			ExtractDirectory = outputDirectory,
 			Manifest = manifest
 		};
@@ -237,6 +351,23 @@ public static class NexenPackLoader {
 				return file;
 		}
 		return null;
+	}
+
+	/// <summary>
+	/// Find all files in a specific subfolder matching the given extensions.
+	/// </summary>
+	private static List<string> FindAllFilesByFolder(string outputDir, string subfolder, string[] extensions) {
+		string folderPath = Path.Combine(outputDir, subfolder);
+		if (!Directory.Exists(folderPath))
+			return [];
+
+		var results = new List<string>();
+		foreach (string file in Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories)) {
+			string ext = Path.GetExtension(file);
+			if (extensions.Any(e => string.Equals(ext, e, StringComparison.OrdinalIgnoreCase)))
+				results.Add(file);
+		}
+		return results;
 	}
 
 	/// <summary>
