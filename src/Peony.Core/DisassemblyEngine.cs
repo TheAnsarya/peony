@@ -27,6 +27,7 @@ public class DisassemblyEngine {
 	private readonly HashSet<(uint Address, int Bank)> _userDefinedBankLabels = [];
 
 	private SymbolLoader? _symbolLoader;
+	private ClassificationResult? _classification;
 
 	public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer) {
 		_cpuDecoder = cpuDecoder;
@@ -105,10 +106,18 @@ public class DisassemblyEngine {
 	}
 
 	/// <summary>
-	/// Check if an address is in a data region (from definitions or CDL/DIZ)
+	/// Check if an address is in a data region (from static analysis, definitions, or CDL/DIZ)
 	/// </summary>
 	private bool IsInDataRegion(uint address, int romOffset = -1) {
-		// Check explicit data definitions first
+		// Check static analysis classification first
+		if (_classification is not null && romOffset >= 0 && romOffset < _classification.Map.Length) {
+			var c = _classification.Map[romOffset];
+			if (c != ByteClassification.Unknown && c != ByteClassification.Code) {
+				return true; // Classified as data/graphics/pointer/etc.
+			}
+		}
+
+		// Check explicit data definitions
 		foreach (var (dataAddr, def) in _dataDefinitions) {
 			var size = def.Type.ToLowerInvariant() switch {
 				"byte" => 1,
@@ -130,9 +139,18 @@ public class DisassemblyEngine {
 	}
 
 	/// <summary>
-	/// Check if a ROM offset should be treated as code according to CDL/DIZ
+	/// Check if a ROM offset should be treated as code according to static analysis or CDL/DIZ
 	/// </summary>
 	private bool? ShouldTreatAsCode(int romOffset) {
+		// Check static analysis classification first
+		if (_classification is not null && romOffset >= 0 && romOffset < _classification.Map.Length) {
+			var c = _classification.Map[romOffset];
+			if (c.HasFlag(ByteClassification.Code))
+				return true;
+			if (c != ByteClassification.Unknown)
+				return false; // Classified as non-code
+		}
+
 		if (_symbolLoader is null)
 			return null;
 
@@ -145,7 +163,9 @@ public class DisassemblyEngine {
 	public DisassemblyResult Disassemble(ReadOnlySpan<byte> rom, uint[] entryPoints, bool allBanks = false) {
 		var romInfo = _platformAnalyzer.Analyze(rom);
 		var result = new DisassemblyResult { RomInfo = romInfo };
-
+		// Run static analysis classification before recursive descent
+		var staticAnalyzer = new StaticAnalyzer(_platformAnalyzer, _symbolLoader);
+		_classification = staticAnalyzer.Classify(rom);
 		// Initialize bank blocks dictionary
 		for (int i = 0; i < _platformAnalyzer.BankCount; i++) {
 			result.BankBlocks[i] = [];

@@ -79,7 +79,15 @@ public class SymbolLoader {
 	/// </summary>
 	/// <param name="path">Path to the CDL file.</param>
 	public void LoadCdl(string path) {
-		_cdlLoader = CdlLoader.Load(path);
+		LoadCdlData(CdlLoader.Load(path));
+	}
+
+	/// <summary>
+	/// Load CDL data from a pre-constructed CdlLoader instance.
+	/// </summary>
+	/// <param name="cdlLoader">The CDL loader with parsed data.</param>
+	public void LoadCdlData(CdlLoader cdlLoader) {
+		_cdlLoader = cdlLoader;
 
 		// Generate labels for subroutine entry points
 		foreach (var offset in _cdlLoader.SubEntryPoints) {
