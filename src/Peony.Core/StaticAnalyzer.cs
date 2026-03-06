@@ -1,4 +1,4 @@
-using Pansy.Core;
+﻿using Pansy.Core;
 
 namespace Peony.Core;
 
@@ -179,10 +179,12 @@ public sealed class ClassificationResult {
 public sealed class StaticAnalyzer {
 	private readonly IPlatformAnalyzer _platform;
 	private readonly SymbolLoader? _symbolLoader;
+	private readonly InstructionAnalyzer _instructionAnalyzer;
 
 	public StaticAnalyzer(IPlatformAnalyzer platform, SymbolLoader? symbolLoader = null) {
 		_platform = platform;
 		_symbolLoader = symbolLoader;
+		_instructionAnalyzer = new InstructionAnalyzer(platform.CpuDecoder, platform);
 	}
 
 	/// <summary>
@@ -365,56 +367,29 @@ public sealed class StaticAnalyzer {
 	/// Phase 6: Analyze instruction operands in classified code regions to find data refs.
 	/// </summary>
 	private void ApplyOperandAnalysis(ClassificationResult result, ReadOnlySpan<byte> rom) {
-		var decoder = _platform.CpuDecoder;
-		int i = 0;
+		var refs = _instructionAnalyzer.FindDataReferences(rom, result.Map, 0, rom.Length);
 
-		while (i < rom.Length) {
-			if (!result.Map[i].HasFlag(ByteClassification.Code)) {
-				i++;
-				continue;
-			}
+		foreach (var dataRef in refs) {
+			result.DataReferences.Add(dataRef);
 
-			// Decode instruction at this code offset
-			uint address = _platform.OffsetToAddress(i) ?? (uint)i;
-			DecodedInstruction instr;
-			try {
-				instr = decoder.Decode(rom[i..], address);
-			} catch {
-				i++;
-				continue;
-			}
+			// Mark the target as data if it's still unknown
+			int targetOffset = _platform.AddressToOffset(dataRef.TargetAddress, rom.Length);
+			if (targetOffset >= 0 && targetOffset < rom.Length
+				&& result.Sources[targetOffset] == ClassificationSource.Unknown) {
+				var targetClass = dataRef.RefType switch {
+					DataRefType.Read => ByteClassification.Data,
+					DataRefType.Write => ByteClassification.Data,
+					DataRefType.Call => ByteClassification.Code,
+					DataRefType.Jump => ByteClassification.Code,
+					DataRefType.Branch => ByteClassification.Code,
+					DataRefType.Indirect => ByteClassification.Pointer,
+					_ => ByteClassification.Unknown,
+				};
 
-			if (instr.Bytes.Length == 0) {
-				i++;
-				continue;
-			}
-
-			// Check if this instruction references a data address
-			var dataRef = AnalyzeOperand(instr, address, i);
-			if (dataRef is not null) {
-				result.DataReferences.Add(dataRef);
-
-				// Mark the target as data if it's still unknown
-				int targetOffset = _platform.AddressToOffset(dataRef.TargetAddress, rom.Length);
-				if (targetOffset >= 0 && targetOffset < rom.Length
-					&& result.Sources[targetOffset] == ClassificationSource.Unknown) {
-					var targetClass = dataRef.RefType switch {
-						DataRefType.Read => ByteClassification.Data,
-						DataRefType.Write => ByteClassification.Data,
-						DataRefType.Call => ByteClassification.Code,
-						DataRefType.Jump => ByteClassification.Code,
-						DataRefType.Branch => ByteClassification.Code,
-						DataRefType.Indirect => ByteClassification.Pointer,
-						_ => ByteClassification.Unknown,
-					};
-
-					if (targetClass != ByteClassification.Unknown) {
-						SetClassification(result, targetOffset, targetClass, ClassificationSource.OperandTrace);
-					}
+				if (targetClass != ByteClassification.Unknown) {
+					SetClassification(result, targetOffset, targetClass, ClassificationSource.OperandTrace);
 				}
 			}
-
-			i += instr.Bytes.Length;
 		}
 	}
 
@@ -432,99 +407,6 @@ public sealed class StaticAnalyzer {
 				SetClassification(result, i, known.Value, ClassificationSource.PlatformMap);
 			}
 		}
-	}
-
-	/// <summary>
-	/// Analyze an instruction's operand to determine if it references data.
-	/// </summary>
-	private DataReference? AnalyzeOperand(DecodedInstruction instr, uint address, int offset) {
-		// Only absolute/zero-page addressing modes reference specific addresses
-		if (!IsDataAddressingMode(instr.Mode))
-			return null;
-
-		uint? target = ExtractTargetAddress(instr);
-		if (target is null)
-			return null;
-
-		// Skip hardware register accesses — those aren't data in the ROM
-		if (_platform.GetRegisterLabel(target.Value) is not null)
-			return null;
-
-		var refType = GetRefType(instr.Mnemonic, instr.Mode);
-		if (refType is null)
-			return null;
-
-		return new DataReference(offset, address, target.Value, refType.Value);
-	}
-
-	/// <summary>
-	/// Check if an addressing mode implies a memory address reference.
-	/// </summary>
-	private static bool IsDataAddressingMode(AddressingMode mode) => mode switch {
-		AddressingMode.Absolute => true,
-		AddressingMode.AbsoluteX => true,
-		AddressingMode.AbsoluteY => true,
-		AddressingMode.ZeroPage => true,
-		AddressingMode.ZeroPageX => true,
-		AddressingMode.ZeroPageY => true,
-		AddressingMode.Indirect => true,
-		AddressingMode.IndirectX => true,
-		AddressingMode.IndirectY => true,
-		AddressingMode.AbsoluteLong => true,
-		AddressingMode.AbsoluteLongX => true,
-		_ => false,
-	};
-
-	/// <summary>
-	/// Extract the target address from instruction bytes based on addressing mode.
-	/// </summary>
-	private static uint? ExtractTargetAddress(DecodedInstruction instr) {
-		if (instr.Bytes.Length < 2)
-			return null;
-
-		return instr.Mode switch {
-			AddressingMode.ZeroPage or AddressingMode.ZeroPageX or AddressingMode.ZeroPageY
-				=> instr.Bytes[1],
-
-			AddressingMode.Absolute or AddressingMode.AbsoluteX or AddressingMode.AbsoluteY
-			or AddressingMode.Indirect or AddressingMode.IndirectX or AddressingMode.IndirectY
-				when instr.Bytes.Length >= 3
-				=> (uint)(instr.Bytes[1] | (instr.Bytes[2] << 8)),
-
-			AddressingMode.AbsoluteLong or AddressingMode.AbsoluteLongX
-				when instr.Bytes.Length >= 4
-				=> (uint)(instr.Bytes[1] | (instr.Bytes[2] << 8) | (instr.Bytes[3] << 16)),
-
-			_ => null,
-		};
-	}
-
-	/// <summary>
-	/// Determine the reference type based on instruction mnemonic.
-	/// </summary>
-	private static DataRefType? GetRefType(string mnemonic, AddressingMode mode) {
-		var lower = mnemonic.ToLowerInvariant();
-
-		// Code references
-		if (lower is "jsr" or "call")
-			return DataRefType.Call;
-		if (lower is "jmp" or "bra" or "brl") {
-			return mode == AddressingMode.Indirect ? DataRefType.Indirect : DataRefType.Jump;
-		}
-		if (lower is "bne" or "beq" or "bcc" or "bcs" or "bpl" or "bmi" or "bvc" or "bvs"
-			or "jr" or "jp")
-			return DataRefType.Branch;
-
-		// Data read references
-		if (lower is "lda" or "ldx" or "ldy" or "ld" or "cmp" or "cpx" or "cpy"
-			or "adc" or "sbc" or "and" or "ora" or "eor" or "bit")
-			return DataRefType.Read;
-
-		// Data write references
-		if (lower is "sta" or "stx" or "sty" or "stz")
-			return DataRefType.Write;
-
-		return null;
 	}
 
 	/// <summary>
