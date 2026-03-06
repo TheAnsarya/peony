@@ -1,4 +1,4 @@
-# Nexen Debug API Research — Issue #71
+﻿# Nexen Debug API Research — Issue #71
 
 ## Overview
 

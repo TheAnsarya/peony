@@ -1,4 +1,4 @@
-# Nexen-Peony IPC Protocol Specification
+﻿# Nexen-Peony IPC Protocol Specification
 
 ## Overview
 

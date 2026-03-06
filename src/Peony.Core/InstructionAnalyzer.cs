@@ -1,4 +1,4 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 /// <summary>
 /// Analyzes decoded instructions to extract data references from operands.

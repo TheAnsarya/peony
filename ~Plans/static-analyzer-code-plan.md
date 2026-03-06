@@ -1,4 +1,4 @@
-# StaticAnalyzer Code Plan
+﻿# StaticAnalyzer Code Plan
 
 ## Purpose
 

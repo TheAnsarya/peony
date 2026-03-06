@@ -1,4 +1,4 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 /// <summary>
 /// A ROM interrupt/reset vector entry.
