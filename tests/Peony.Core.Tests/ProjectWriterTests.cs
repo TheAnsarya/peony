@@ -192,6 +192,116 @@ public class ProjectWriterTests {
 				Directory.Delete(tempDir, true);
 		}
 	}
+
+	private static DisassemblyResult MakeMultiBankResult() {
+		var result = new DisassemblyResult {
+			RomInfo = new RomInfo("NES", 65536, "MMC3", new Dictionary<string, string>())
+		};
+
+		for (int bank = 0; bank < 4; bank++) {
+			uint baseAddr = (uint)(0x8000 + bank * 0x4000);
+			var lines = new List<DisassembledLine> {
+				new(baseAddr, [0x78], $"bank{bank}_start", "sei", null),
+				new(baseAddr + 1, [0xd8], null, "cld", null)
+			};
+			var block = new DisassembledBlock(baseAddr, baseAddr + 1, MemoryRegion.Code, lines, bank);
+			result.Blocks.Add(block);
+			result.Labels[baseAddr] = $"bank{bank}_start";
+			result.BankBlocks.TryAdd(bank, []);
+			result.BankBlocks[bank].Add(block);
+		}
+
+		return result;
+	}
+
+	[Fact]
+	public void WriteProjectFolder_SplitBanks_CreatesPerBankFiles() {
+		var tempDir = Path.Combine(Path.GetTempPath(), $"peony-test-{Guid.NewGuid():N}");
+		try {
+			var options = new ProjectOptions {
+				ProjectName = "test-rom",
+				RomPath = "test.nes",
+				SplitBanks = true
+			};
+			var writer = new ProjectWriter(options);
+			writer.WriteProjectFolder(tempDir, MakeMultiBankResult(), new byte[65536]);
+
+			Assert.True(File.Exists(Path.Combine(tempDir, "src", "main.pasm")));
+			Assert.True(Directory.Exists(Path.Combine(tempDir, "src", "banks")));
+			Assert.True(File.Exists(Path.Combine(tempDir, "src", "banks", "bank00.pasm")));
+			Assert.True(File.Exists(Path.Combine(tempDir, "src", "banks", "bank01.pasm")));
+			Assert.True(File.Exists(Path.Combine(tempDir, "src", "banks", "bank02.pasm")));
+			Assert.True(File.Exists(Path.Combine(tempDir, "src", "banks", "bank03.pasm")));
+		} finally {
+			if (Directory.Exists(tempDir))
+				Directory.Delete(tempDir, true);
+		}
+	}
+
+	[Fact]
+	public void WriteProjectFolder_SplitBanks_MainPasmIncludesAllBanks() {
+		var tempDir = Path.Combine(Path.GetTempPath(), $"peony-test-{Guid.NewGuid():N}");
+		try {
+			var options = new ProjectOptions {
+				ProjectName = "test-rom",
+				RomPath = "test.nes",
+				SplitBanks = true
+			};
+			var writer = new ProjectWriter(options);
+			writer.WriteProjectFolder(tempDir, MakeMultiBankResult(), new byte[65536]);
+
+			var mainContent = File.ReadAllText(Path.Combine(tempDir, "src", "main.pasm"));
+			Assert.Contains(".include \"banks/bank00.pasm\"", mainContent);
+			Assert.Contains(".include \"banks/bank01.pasm\"", mainContent);
+			Assert.Contains(".include \"banks/bank02.pasm\"", mainContent);
+			Assert.Contains(".include \"banks/bank03.pasm\"", mainContent);
+			Assert.Contains(".include \"include/hardware.inc\"", mainContent);
+		} finally {
+			if (Directory.Exists(tempDir))
+				Directory.Delete(tempDir, true);
+		}
+	}
+
+	[Fact]
+	public void WriteProjectFolder_NoSplitBanks_MonolithicOutput() {
+		var tempDir = Path.Combine(Path.GetTempPath(), $"peony-test-{Guid.NewGuid():N}");
+		try {
+			var options = new ProjectOptions {
+				ProjectName = "test-rom",
+				RomPath = "test.nes",
+				SplitBanks = false
+			};
+			var writer = new ProjectWriter(options);
+			writer.WriteProjectFolder(tempDir, MakeMultiBankResult(), new byte[65536]);
+
+			Assert.True(File.Exists(Path.Combine(tempDir, "src", "main.pasm")));
+			Assert.False(Directory.Exists(Path.Combine(tempDir, "src", "banks")));
+		} finally {
+			if (Directory.Exists(tempDir))
+				Directory.Delete(tempDir, true);
+		}
+	}
+
+	[Fact]
+	public void WriteProjectFolder_MultiBankCoverageJsonIncludesBanks() {
+		var tempDir = Path.Combine(Path.GetTempPath(), $"peony-test-{Guid.NewGuid():N}");
+		try {
+			var options = new ProjectOptions {
+				ProjectName = "test-rom",
+				RomPath = "test.nes"
+			};
+			var writer = new ProjectWriter(options);
+			writer.WriteProjectFolder(tempDir, MakeMultiBankResult(), new byte[65536]);
+
+			var json = File.ReadAllText(Path.Combine(tempDir, "analysis", "coverage.json"));
+			var doc = JsonDocument.Parse(json);
+			Assert.True(doc.RootElement.TryGetProperty("banks", out var banks));
+			Assert.Equal(4, banks.GetArrayLength());
+		} finally {
+			if (Directory.Exists(tempDir))
+				Directory.Delete(tempDir, true);
+		}
+	}
 }
 
 public class HardwareIncludeGeneratorTests {

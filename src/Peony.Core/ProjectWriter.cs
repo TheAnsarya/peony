@@ -50,9 +50,13 @@ public sealed class ProjectWriter {
 	};
 
 	private readonly ProjectOptions _options;
+	private readonly IGraphicsExtractor? _graphicsExtractor;
+	private readonly ITextExtractor? _textExtractor;
 
-	public ProjectWriter(ProjectOptions options) {
+	public ProjectWriter(ProjectOptions options, IGraphicsExtractor? graphicsExtractor = null, ITextExtractor? textExtractor = null) {
 		_options = options;
+		_graphicsExtractor = graphicsExtractor;
+		_textExtractor = textExtractor;
 	}
 
 	/// <summary>
@@ -68,6 +72,8 @@ public sealed class ProjectWriter {
 		if (_options.GenerateIncludes)
 			WriteIncludeFiles(outputDir, result.RomInfo);
 		WriteAnalysisFiles(outputDir, result, romBytes);
+		if (_options.ExtractAssets)
+			WriteAssetFiles(outputDir, result, romBytes);
 		if (_options.GenerateDocs)
 			WriteDocFiles(outputDir, result);
 		WriteVersionFile(outputDir);
@@ -93,47 +99,10 @@ public sealed class ProjectWriter {
 
 	/// <summary>
 	/// Compute coverage statistics for a disassembly result.
+	/// Delegates to <see cref="CoverageAnalyzer.Analyze"/>.
 	/// </summary>
-	public static CoverageReport ComputeCoverage(DisassemblyResult result) {
-		int codeBytes = 0, dataBytes = 0, graphicsBytes = 0;
-		int blockCount = result.Blocks.Count;
-		int pointerTableCount = result.DataRegions.Count;
-
-		foreach (var block in result.Blocks) {
-			var byteCount = block.Lines.Sum(l => l.Bytes.Length);
-			switch (block.Type) {
-				case MemoryRegion.Code:
-					codeBytes += byteCount;
-					break;
-				case MemoryRegion.Data:
-					dataBytes += byteCount;
-					break;
-				case MemoryRegion.Graphics:
-					graphicsBytes += byteCount;
-					break;
-				default:
-					dataBytes += byteCount;
-					break;
-			}
-		}
-
-		var totalBytes = result.RomInfo?.Size ?? (codeBytes + dataBytes + graphicsBytes);
-		var unknownBytes = Math.Max(0, totalBytes - codeBytes - dataBytes - graphicsBytes);
-
-		return new CoverageReport {
-			TotalBytes = totalBytes,
-			CodeBytes = codeBytes,
-			DataBytes = dataBytes,
-			GraphicsBytes = graphicsBytes,
-			UnknownBytes = unknownBytes,
-			LabelCount = result.Labels.Count + result.BankLabels.Count,
-			CommentCount = result.Comments.Count,
-			CrossRefCount = result.CrossReferences.Values.Sum(refs => refs.Count),
-			PointerTableCount = pointerTableCount,
-			BlockCount = blockCount,
-			EntryPointCount = result.Blocks.Count(b => b.Type == MemoryRegion.Code)
-		};
-	}
+	public static CoverageReport ComputeCoverage(DisassemblyResult result) =>
+		CoverageAnalyzer.Analyze(result);
 
 	private void WritePeonyManifest(string dir, DisassemblyResult result, byte[] romBytes) {
 		var romInfo = result.RomInfo;
@@ -349,27 +318,9 @@ public sealed class ProjectWriter {
 			File.Copy(_options.PansyPath, Path.Combine(analysisDir, inputPansyName), overwrite: true);
 		}
 
-		// Coverage statistics
-		var coverage = ComputeCoverage(result);
-		var coverageObj = new Dictionary<string, object> {
-			["generated"] = DateTime.UtcNow.ToString("o"),
-			["totalBytes"] = coverage.TotalBytes,
-			["classified"] = new Dictionary<string, object> {
-				["code"] = new { bytes = coverage.CodeBytes, percentage = coverage.TotalBytes > 0 ? Math.Round(100.0 * coverage.CodeBytes / coverage.TotalBytes, 1) : 0 },
-				["data"] = new { bytes = coverage.DataBytes, percentage = coverage.TotalBytes > 0 ? Math.Round(100.0 * coverage.DataBytes / coverage.TotalBytes, 1) : 0 },
-				["graphics"] = new { bytes = coverage.GraphicsBytes, percentage = coverage.TotalBytes > 0 ? Math.Round(100.0 * coverage.GraphicsBytes / coverage.TotalBytes, 1) : 0 },
-				["unknown"] = new { bytes = coverage.UnknownBytes, percentage = coverage.TotalBytes > 0 ? Math.Round(100.0 * coverage.UnknownBytes / coverage.TotalBytes, 1) : 0 }
-			},
-			["analysis"] = new Dictionary<string, object> {
-				["labels"] = coverage.LabelCount,
-				["comments"] = coverage.CommentCount,
-				["crossRefs"] = coverage.CrossRefCount,
-				["pointerTables"] = coverage.PointerTableCount,
-				["blocks"] = coverage.BlockCount
-			}
-		};
+		// Coverage statistics (with per-bank breakdown)
 		File.WriteAllText(Path.Combine(analysisDir, "coverage.json"),
-			JsonSerializer.Serialize(coverageObj, JsonOpts), Encoding.UTF8);
+			CoverageAnalyzer.ToJson(result), Encoding.UTF8);
 
 		// Cross-references as JSON
 		var xrefList = new List<Dictionary<string, object>>();
@@ -385,6 +336,90 @@ public sealed class ProjectWriter {
 		}
 		File.WriteAllText(Path.Combine(analysisDir, "cross-refs.json"),
 			JsonSerializer.Serialize(xrefList, JsonOpts), Encoding.UTF8);
+	}
+
+	private void WriteAssetFiles(string dir, DisassemblyResult result, byte[] romBytes) {
+		var assetsDir = Path.Combine(dir, "assets");
+		Directory.CreateDirectory(assetsDir);
+
+		// Extract graphics if extractor is available
+		if (_graphicsExtractor is not null) {
+			var gfxDir = Path.Combine(assetsDir, "graphics");
+			Directory.CreateDirectory(gfxDir);
+
+			try {
+				var gfxOptions = new GraphicsExtractionOptions {
+					OutputDirectory = gfxDir,
+					ImageFormat = "bmp",
+					TilesPerRow = 16,
+					GenerateMetadata = true
+				};
+				var gfxResult = _graphicsExtractor.ExtractAll(romBytes, gfxOptions);
+
+				// Write extraction summary
+				var summary = new Dictionary<string, object> {
+					["platform"] = _graphicsExtractor.Platform,
+					["tilesExtracted"] = gfxResult.TotalTiles,
+					["tilesets"] = gfxResult.TileSets.Count,
+					["palettes"] = gfxResult.Palettes.Count,
+					["files"] = gfxResult.OutputFiles
+				};
+
+				File.WriteAllText(Path.Combine(gfxDir, "extraction-summary.json"),
+					JsonSerializer.Serialize(summary, JsonOpts), Encoding.UTF8);
+			} catch (Exception) {
+				// Extraction failed — write a placeholder noting the failure
+				File.WriteAllText(Path.Combine(gfxDir, "README.md"),
+					"# Graphics\n\nAutomatic graphics extraction was not successful.\nUse `peony chr` to extract manually.\n",
+					Encoding.UTF8);
+			}
+		}
+
+		// Extract text if extractor is available
+		if (_textExtractor is not null) {
+			var textDir = Path.Combine(assetsDir, "text");
+			Directory.CreateDirectory(textDir);
+
+			try {
+				var defaultTable = TableFile.CreateAsciiTable();
+				var textOptions = new TextExtractionOptions {
+					StartOffset = 0,
+					EndOffset = romBytes.Length,
+					MinLength = 4
+				};
+				var textBlocks = _textExtractor.ExtractAllText(romBytes, defaultTable, textOptions);
+
+				if (textBlocks.Count > 0) {
+					var sb = new StringBuilder();
+					foreach (var block in textBlocks) {
+						sb.AppendLine($"; ${block.Offset:x6}: {block.Text}");
+					}
+					File.WriteAllText(Path.Combine(textDir, "extracted-text.txt"), sb.ToString(), Encoding.UTF8);
+
+					// JSON version
+					var jsonBlocks = textBlocks.Select(b => new Dictionary<string, object> {
+						["offset"] = $"${b.Offset:x6}",
+						["length"] = b.Length,
+						["text"] = b.Text,
+						["label"] = b.Label ?? "",
+						["category"] = b.Category ?? ""
+					}).ToList();
+					File.WriteAllText(Path.Combine(textDir, "extracted-text.json"),
+						JsonSerializer.Serialize(jsonBlocks, JsonOpts), Encoding.UTF8);
+				}
+			} catch (Exception) {
+				File.WriteAllText(Path.Combine(textDir, "README.md"),
+					"# Text\n\nAutomatic text extraction was not successful.\nUse `peony text` with a `.tbl` file to extract manually.\n",
+					Encoding.UTF8);
+			}
+		}
+
+		// Always create assets README
+		if (_graphicsExtractor is null && _textExtractor is null) {
+			File.WriteAllText(Path.Combine(assetsDir, "README.md"),
+				"# Assets\n\nNo extractors were configured for this platform.\nUse `peony chr`, `peony text`, and `peony palette` to extract manually.\n",
+				Encoding.UTF8);
+		}
 	}
 
 	private void WriteDocFiles(string dir, DisassemblyResult result) {

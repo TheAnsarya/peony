@@ -24,16 +24,19 @@ Peony is a multi-system disassembler framework designed to work alongside [Poppy
 | **Game Boy** | Sharp LR35902 | 0 | ✅ Complete |
 | **GBA** | ARM7TDMI | 0 | ✅ Complete |
 
-**Total**: 5 platforms, 171 tests passing
+**Total**: 5 platforms, 960 tests passing
 
 ## ✨ Features
 
 - **Roundtrip Guarantee**: Disassembled code reassembles to identical ROM
 - **Multiple Algorithms**: Linear sweep, recursive descent, speculative, hybrid
 - **Platform-Aware**: Automatic register labeling, kernel detection
+- **Project Output**: Generate complete `.peony` project archives or folders
+- **Asset Extraction**: Extract graphics, text, and palettes automatically
+- **Coverage Analysis**: Per-bank and overall coverage statistics
 - **Integration**: Import from Mesen2 CDL, DiztinGUIsh, FCEUX, Pansy metadata
 - **Nexen Integration**: Import `.nexen-pack.zip` game packages with CDL + Pansy
-- **Poppy Output**: Native .pasm output format
+- **Poppy Output**: Native .pasm output ready to build with Poppy
 
 ## 🚀 Quick Start
 
@@ -59,6 +62,18 @@ peony disasm game.nes --all-banks -o game.pasm
 # Import a Nexen game pack (extracts, scaffolds, disassembles)
 peony import game.nexen-pack.zip --project-dir ./my-project/
 
+# Generate a complete disassembly project folder
+peony project game.nes --name my-game --output ./my-game/
+
+# Generate a .peony archive (zip-based)
+peony project game.nes --name my-game --archive
+
+# Inspect a .peony archive
+peony open my-game.peony --info
+
+# Extract a .peony archive
+peony open my-game.peony --extract ./output/
+
 # Verify roundtrip (disassemble → reassemble → compare)
 peony verify original.nes -r rebuilt.nes
 ```
@@ -70,17 +85,38 @@ src/
 ├── Peony.Core/              # Core framework
 ├── Peony.Cpu.6502/          # 6502/6507 decoder
 ├── Peony.Cpu.65816/         # 65816 decoder
+├── Peony.Cpu.65SC02/        # 65SC02 decoder (Lynx)
 ├── Peony.Cpu.GameBoy/       # Sharp LR35902 decoder
 ├── Peony.Cpu.ARM7TDMI/      # ARM7TDMI decoder (ARM + Thumb)
 ├── Peony.Platform.Atari2600/# Atari 2600 analysis
+├── Peony.Platform.Lynx/     # Atari Lynx analysis
 ├── Peony.Platform.NES/      # NES analysis
 ├── Peony.Platform.SNES/     # SNES analysis
 ├── Peony.Platform.GameBoy/  # Game Boy analysis
 ├── Peony.Platform.GBA/      # Game Boy Advance analysis
 └── Peony.Cli/               # CLI application
 tests/
-└── Peony.Core.Tests/        # 171 tests
+├── Peony.Core.Tests/            # 679 tests
+├── Peony.Platform.GBA.Tests/    # 71 tests
+├── Peony.Platform.Atari2600.Tests/ # 68 tests
+├── Peony.Platform.Lynx.Tests/  # 56 tests
+├── Peony.Platform.SNES.Tests/  # 45 tests
+└── Peony.Platform.GameBoy.Tests/ # 41 tests
 ```
+
+## 📦 .peony Project Format
+
+Peony can generate complete, self-contained disassembly projects as folders or `.peony` archives (ZIP-based).
+
+A project includes:
+- **Source code** — `.pasm` files (monolithic or bank-split) ready for Poppy
+- **Include files** — Platform hardware register definitions, constants, macros
+- **Analysis data** — Pansy metadata, CDL, cross-references, coverage statistics
+- **Extracted assets** — Graphics (BMP), text, palettes (when available)
+- **Build manifest** — `poppy.json` project file for building with Poppy
+- **Documentation** — Auto-generated README with coverage stats
+
+See [Peony Project Format](docs/PEONY-PROJECT-FORMAT.md) for the full specification.
 
 ## 🔧 Building
 
@@ -100,6 +136,8 @@ dotnet pack
 
 ### Integration & Workflow
 - [CLI Reference](docs/CLI-REFERENCE.md) — Complete command reference for all CLI commands
+- [Disassembly Workflow](docs/DISASSEMBLY-WORKFLOW.md) — Step-by-step guide to disassembling ROMs
+- [Peony Project Format](docs/PEONY-PROJECT-FORMAT.md) — `.peony` archive/folder specification
 - [CDL & Pansy Integration](docs/CDL-PANSY-INTEGRATION.md) — How CDL/Pansy metadata improves disassembly
 - [Nexen Game Pack Workflow](docs/NEXEN-PACK-WORKFLOW.md) — Disassemble from `.nexen-pack.zip` files
 - [Improving Disassembly](docs/IMPROVING-DISASSEMBLY.md) — Guide to correcting and enhancing output

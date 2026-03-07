@@ -1524,7 +1524,9 @@ projectCommand.SetHandler((context) => {
 			SymbolPath = symbols?.FullName
 		};
 
-		var writer = new ProjectWriter(options);
+		var writer = new ProjectWriter(options,
+			graphicsExtractor: ResolveGraphicsExtractor(platform),
+			textExtractor: ResolveTextExtractor(platform));
 
 		// Determine output
 		if (archive || (outputPath?.EndsWith(".peony", StringComparison.OrdinalIgnoreCase) ?? false)) {
@@ -1805,4 +1807,24 @@ instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern2
 }
 }
 return instruction;
+}
+
+static IGraphicsExtractor? ResolveGraphicsExtractor(string? platform) {
+	return platform?.ToLowerInvariant() switch {
+		"nes" => new NesChrExtractor(),
+		"snes" or "super nes" or "super nintendo" => new Peony.Platform.SNES.SnesChrExtractor(),
+		"game boy" or "gameboy" or "gb" => new GameBoyChrExtractor(),
+		"gba" or "game boy advance" => new GbaChrExtractor(),
+		_ => null
+	};
+}
+
+static ITextExtractor? ResolveTextExtractor(string? platform) {
+	return platform?.ToLowerInvariant() switch {
+		"nes" => new NesTextExtractor(),
+		"snes" or "super nes" or "super nintendo" => new Peony.Platform.SNES.SnesTextExtractor(),
+		"game boy" or "gameboy" or "gb" => new GameBoyTextExtractor(),
+		"gba" or "game boy advance" => new GbaTextExtractor(),
+		_ => null
+	};
 }
