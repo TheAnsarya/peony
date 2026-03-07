@@ -36,6 +36,8 @@ public enum ClassificationSource : byte {
 	Unknown,
 	/// <summary>CDL flags from emulator — highest confidence.</summary>
 	Cdl,
+	/// <summary>Pansy code/data map flags (IsCode, IsData, IsJumpTarget, etc.).</summary>
+	PansyCodeMap,
 	/// <summary>Pansy cross-reference data.</summary>
 	PansyCrossRef,
 	/// <summary>Pansy symbol type.</summary>
@@ -195,6 +197,7 @@ public sealed class StaticAnalyzer {
 
 		// Priority cascade: each phase only sets bytes that are still Unknown
 		ApplyCdlClassification(result, rom);
+		ApplyPansyCodeDataMapClassification(result, rom);
 		ApplyCrossRefClassification(result);
 		ApplySymbolClassification(result);
 		ApplyMemoryRegionClassification(result);
@@ -232,6 +235,57 @@ public sealed class StaticAnalyzer {
 				if (pansy.IsDrawn(i)) {
 					SetClassification(result, i, ByteClassification.Graphics, ClassificationSource.Cdl);
 				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Phase 1b: Apply Pansy code/data map flags directly.
+	/// Uses IsCode, IsData, IsJumpTarget, IsSubEntryPoint, IsRead, IsIndirect flags.
+	/// This runs after CDL (which has higher authority from live emulation) but before
+	/// cross-reference analysis, providing direct classification from prior analysis.
+	/// </summary>
+	private void ApplyPansyCodeDataMapClassification(ClassificationResult result, ReadOnlySpan<byte> rom) {
+		var pansy = _symbolLoader?.PansyData;
+		if (pansy is null || !pansy.HasCodeDataMap)
+			return;
+
+		for (int i = 0; i < rom.Length; i++) {
+			if (result.Sources[i] != ClassificationSource.Unknown)
+				continue;
+
+			if (pansy.IsCode(i)) {
+				SetClassification(result, i, ByteClassification.Code, ClassificationSource.PansyCodeMap);
+			} else if (pansy.IsData(i)) {
+				SetClassification(result, i, ByteClassification.Data, ClassificationSource.PansyCodeMap);
+			}
+		}
+
+		// Mark jump targets (may overlap with already-classified code bytes)
+		foreach (var offset in pansy.JumpTargets) {
+			if (offset >= 0 && offset < rom.Length && result.Sources[offset] == ClassificationSource.Unknown) {
+				SetClassification(result, offset, ByteClassification.Code, ClassificationSource.PansyCodeMap);
+			}
+		}
+
+		// Mark sub-entry-points
+		foreach (var offset in pansy.SubEntryPoints) {
+			if (offset >= 0 && offset < rom.Length && result.Sources[offset] == ClassificationSource.Unknown) {
+				SetClassification(result, offset, ByteClassification.Code, ClassificationSource.PansyCodeMap);
+			}
+		}
+
+		// Mark read-accessed offsets as data (if not already classified)
+		foreach (var offset in pansy.ReadOffsets) {
+			if (offset >= 0 && offset < rom.Length && result.Sources[offset] == ClassificationSource.Unknown) {
+				SetClassification(result, offset, ByteClassification.Data, ClassificationSource.PansyCodeMap);
+			}
+		}
+
+		// Mark drawn offsets as graphics (if not already set by CDL)
+		foreach (var offset in pansy.DrawnOffsets) {
+			if (offset >= 0 && offset < rom.Length && result.Sources[offset] == ClassificationSource.Unknown) {
+				SetClassification(result, offset, ByteClassification.Graphics, ClassificationSource.PansyCodeMap);
 			}
 		}
 	}
@@ -439,6 +493,7 @@ public sealed class StaticAnalyzer {
 
 			switch (result.Sources[i]) {
 				case ClassificationSource.Cdl: cdl++; break;
+				case ClassificationSource.PansyCodeMap:
 				case ClassificationSource.PansyCrossRef:
 				case ClassificationSource.PansySymbol:
 				case ClassificationSource.PansyRegion:

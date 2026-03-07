@@ -1,4 +1,6 @@
-﻿namespace Peony.Core;
+﻿using Pansy.Core;
+
+namespace Peony.Core;
 
 /// <summary>
 /// Core disassembly engine with multi-bank support and CDL/DIZ integration
@@ -219,6 +221,53 @@ public class DisassemblyEngine {
 			}
 		}
 
+		// Add Pansy jump targets as code entry points
+		if (_symbolLoader?.PansyJumpTargets.Count > 0) {
+			foreach (var offset in _symbolLoader.PansyJumpTargets) {
+				var address = RomOffsetToAddress((uint)offset, fixedBank);
+				if (address.HasValue && IsValidAddress(address.Value)) {
+					if (!_visited.ContainsKey((address.Value, fixedBank))) {
+						_codeQueue.Enqueue((address.Value, fixedBank));
+						if (GetLabel(address.Value, fixedBank) is null) {
+							AddLabel(address.Value, $"jmp_{offset:x4}", fixedBank);
+						}
+					}
+				}
+			}
+		}
+
+		// Add Pansy sub-entry-points as code entry points
+		if (_symbolLoader?.PansySubEntryPoints.Count > 0) {
+			foreach (var offset in _symbolLoader.PansySubEntryPoints) {
+				var address = RomOffsetToAddress((uint)offset, fixedBank);
+				if (address.HasValue && IsValidAddress(address.Value)) {
+					if (!_visited.ContainsKey((address.Value, fixedBank))) {
+						_codeQueue.Enqueue((address.Value, fixedBank));
+						if (GetLabel(address.Value, fixedBank) is null) {
+							AddLabel(address.Value, $"sub_{offset:x4}", fixedBank);
+						}
+					}
+				}
+			}
+		}
+
+		// Import Pansy data type definitions early for data region detection
+		if (_symbolLoader?.PansyDataTypes.Count > 0) {
+			foreach (var dt in _symbolLoader.PansyDataTypes) {
+				if (!_dataDefinitions.ContainsKey(dt.Address)) {
+					var typeName = dt.Type switch {
+						DataElementType.Byte => "byte",
+						DataElementType.Word => "word",
+						DataElementType.Long => "long",
+						DataElementType.Pointer => "word",
+						DataElementType.String => "text",
+						_ => "byte",
+					};
+					_dataDefinitions[dt.Address] = new DataDefinition(typeName, dt.ElementCount, dt.Name);
+				}
+			}
+		}
+
 		// Recursive descent disassembly
 		while (_codeQueue.Count > 0) {
 			var (address, bank) = _codeQueue.Dequeue();
@@ -254,6 +303,22 @@ public class DisassemblyEngine {
 		// Also add blocks to main list
 		foreach (var bankBlocks in result.BankBlocks.Values) {
 			result.Blocks.AddRange(bankBlocks);
+		}
+
+		// Copy Pansy typed data for roundtrip preservation
+		if (_symbolLoader is not null) {
+			foreach (var kvp in _symbolLoader.TypedSymbols) {
+				result.TypedSymbols[kvp.Key] = kvp.Value;
+			}
+			foreach (var kvp in _symbolLoader.TypedComments) {
+				result.TypedComments[kvp.Key] = kvp.Value;
+			}
+			foreach (var bookmark in _symbolLoader.Bookmarks) {
+				result.Bookmarks.Add(bookmark);
+			}
+			foreach (var dt in _symbolLoader.PansyDataTypes) {
+				result.DataTypes.Add(dt);
+			}
 		}
 
 		return result;

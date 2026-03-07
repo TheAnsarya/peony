@@ -178,6 +178,26 @@ public class DisassemblyResult {
 	public Dictionary<uint, DataDefinition> DataRegions { get; } = [];
 
 	/// <summary>
+	/// Typed symbol entries imported from Pansy (preserved through roundtrip).
+	/// </summary>
+	public Dictionary<uint, Pansy.Core.SymbolEntry> TypedSymbols { get; } = [];
+
+	/// <summary>
+	/// Typed comment entries imported from Pansy (preserved through roundtrip).
+	/// </summary>
+	public Dictionary<uint, Pansy.Core.CommentEntry> TypedComments { get; } = [];
+
+	/// <summary>
+	/// Bookmarks imported from Pansy (preserved through roundtrip).
+	/// </summary>
+	public List<Pansy.Core.Bookmark> Bookmarks { get; } = [];
+
+	/// <summary>
+	/// Data type entries imported from Pansy (preserved through roundtrip).
+	/// </summary>
+	public List<Pansy.Core.DataTypeEntry> DataTypes { get; } = [];
+
+	/// <summary>
 	/// Get label for an address, checking bank-specific labels first if bank is provided.
 	/// </summary>
 	public string? GetLabel(uint address, int? bank = null) {

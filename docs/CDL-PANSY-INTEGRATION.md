@@ -299,40 +299,112 @@ For each cross-reference:
 public class SymbolLoader {
     // Load Pansy file
     void LoadPansy(string pansyPath);
+    void LoadPansyData(byte[] data);
 
     // After loading, provides:
     Dictionary<uint, string> Labels;           // Merged with other sources
     Dictionary<uint, string> Comments;         // Address → text
-    Dictionary<uint, DataDefinition> DataDefinitions;  // From CDL map
+    Dictionary<uint, DataDefinition> DataDefinitions;  // From CDL map + Pansy DataTypes
     Dictionary<(uint, int), string> BankLabels;        // Bank-specific
 
-    // CDL-equivalent queries
-    bool IsCode(int offset);    // Code/Data Map CODE flag
-    bool IsData(int offset);    // Code/Data Map DATA flag
+    // Typed Pansy data (preserved for roundtrip export)
+    IReadOnlyDictionary<uint, SymbolEntry> TypedSymbols;    // Name + SymbolType
+    IReadOnlyDictionary<uint, CommentEntry> TypedComments;  // Text + CommentType
+    IReadOnlyList<Bookmark> Bookmarks;                      // Address bookmarks
+    IReadOnlyList<DataTypeEntry> PansyDataTypes;             // Structured data definitions
+
+    // Pansy code/data map entry points
+    IReadOnlySet<int> PansyJumpTargets;       // Jump target offsets from code map
+    IReadOnlySet<int> PansySubEntryPoints;    // Sub-entry offsets from code map
+
+    // CDL-equivalent queries (via PansyLoader)
+    PansyLoader? PansyData;        // Direct access to PansyLoader for queries
+    bool IsCode(int offset);       // Code/Data Map CODE flag
+    bool IsData(int offset);       // Code/Data Map DATA flag
     int? GetBankForAddress(uint address);  // From memory regions
 
-    // Priority: Pansy symbols > user labels > auto-generated
+    // Priority: User > Pansy > CDL > Auto
 }
 ```
+
+#### Enhanced Import Process (ImportPansyData)
+
+When a Pansy file is loaded, `ImportPansyData()` extracts:
+
+1. **Typed symbols** → adds to Labels + preserves SymbolType in TypedSymbols
+2. **Typed comments** → adds to Comments + preserves CommentType in TypedComments
+3. **Jump targets** → PansyJumpTargets (fed into DisassemblyEngine as code entry points)
+4. **Sub-entry points** → PansySubEntryPoints (fed into DisassemblyEngine as code entry points)
+5. **Bookmarks** → stored for roundtrip export; generates labels if address has none
+6. **Data types** → converted to DataDefinitions for disassembly; preserved for roundtrip
+
+### StaticAnalyzer Pansy Code Map (Phase 1b)
+
+The StaticAnalyzer's 8-phase classification pipeline includes a dedicated phase for
+Pansy code/data map data, running between CDL (Phase 1) and cross-refs (Phase 2):
+
+```
+Phase 1:  CDL flags (highest authority — live emulation data)
+Phase 1b: Pansy Code/Data Map (IsCode→Code, IsData→Data, JumpTargets→Code,
+          SubEntryPoints→Code, ReadOffsets→Data, DrawnOffsets→Graphics)
+Phase 2:  Pansy Cross-References (Jsr/Jmp/Branch→Code, Read/Write→Data)
+Phase 3:  Pansy Symbols (Function/InterruptVector→Code, Constant→Data)
+Phase 4:  Pansy Memory Regions
+Phase 5:  ROM Vectors (reset, NMI, IRQ)
+Phase 6:  Instruction Operand Analysis
+Phase 7:  Platform Memory Map
+```
+
+### DisassemblyEngine Pansy Entry Points
+
+The DisassemblyEngine queues Pansy jump targets and sub-entry points as additional
+code entry points for recursive descent disassembly, alongside DIZ/CDL entries:
+
+- **PansyJumpTargets** → queued with auto-generated `jmp_XXXX` labels
+- **PansySubEntryPoints** → queued with auto-generated `sub_XXXX` labels
+- **PansyDataTypes** → imported as DataDefinitions for data region formatting
 
 ### SymbolExporter Pansy Generation
 
 ```csharp
 public class SymbolExporter {
-    void ExportPansy(string path, DisassemblyResult result, byte[] rom);
+    static void ExportPansy(DisassemblyResult result, string outputPath);
 }
 ```
 
-The export process:
-1. Create `PansyWriter` instance with platform ID and ROM CRC32
-2. Set `Compressed = true` (DEFLATE sections)
-3. Populate code/data map from visited addresses and CDL data
-4. Export all labels as symbols (with type inference)
-5. Export all comments with types
-6. Export all cross-references from the engine
-7. Export memory regions from platform analyzer
-8. Set metadata (project name, version, timestamp)
-9. Write to `.pansy` file
+The export process uses **batch APIs** for efficient Pansy file generation:
+
+1. Create `PansyWriter` instance with platform ID, ROM size, and compression enabled
+2. **Symbols** — `writer.AddSymbols()` batch API with roundtrip SymbolType preservation
+   - If TypedSymbols has an entry for the address, use the preserved SymbolType
+   - Otherwise, auto-detect type via `DetectPansySymbolType()` (Function/InterruptVector/Local/Label)
+3. **Comments** — `writer.AddComments()` batch API with roundtrip CommentType preservation
+   - If TypedComments has an entry, use the preserved CommentType
+   - Otherwise, default to `CommentType.Inline`
+4. **Code/Data Map** — Populate from disassembly blocks (Code for code blocks, Data for data blocks)
+5. **Cross-References** — `writer.AddCrossReferences()` batch API (maps Peony CrossRefType to Pansy)
+6. **Memory Regions** — `writer.AddMemoryRegions()` batch API from disassembled blocks
+7. **Bookmarks** — Export preserved bookmarks via `writer.AddBookmark()` for roundtrip
+8. **Data Types** — Export both preserved Pansy DataTypes AND discovered DataRegions via `writer.AddDataType()`
+9. **Metadata** — Set project name, version
+10. Write to `.pansy` file via `writer.Generate()`
+
+#### Roundtrip Preservation
+
+Data flows through three stages with full type preservation:
+
+```
+Pansy File In → SymbolLoader.ImportPansyData() → DisassemblyResult
+                                                    ↓
+                                              [TypedSymbols]
+                                              [TypedComments]
+                                              [Bookmarks]
+                                              [DataTypes]
+                                                    ↓
+DisassemblyResult → SymbolExporter.ExportPansy() → Pansy File Out
+
+SymbolTypes, CommentTypes, Bookmarks, and DataTypes survive the roundtrip.
+```
 
 ---
 
@@ -364,8 +436,12 @@ The export process:
    │  Merges all sources into unified data:    │
    │  - Labels (global + bank-specific)        │
    │  - Comments                               │
-   │  - Data definitions                       │
+   │  - Data definitions (CDL + Pansy types)   │
    │  - Code/data classification               │
+   │  - Typed symbols (with SymbolType)        │
+   │  - Typed comments (with CommentType)      │
+   │  - Jump targets + sub-entry points        │
+   │  - Bookmarks + data types (roundtrip)     │
    │                                           │
    │  Priority: User > Pansy > CDL > Auto      │
    └─────────────────┬────────────────────────┘
@@ -376,7 +452,8 @@ The export process:
             │                   │
             │ Uses SymbolLoader │
             │ for every decode  │
-            │ decision          │
+            │ decision + queues │
+            │ Pansy entry pts   │
             └───────────────────┘
 ```
 
@@ -388,7 +465,11 @@ The export process:
             │                   │
             │ Blocks, Labels,   │
             │ Comments, XRefs,  │
-            │ DataDefs          │
+            │ DataDefs,         │
+            │ TypedSymbols,     │
+            │ TypedComments,    │
+            │ Bookmarks,        │
+            │ DataTypes         │
             └────────┬──────────┘
                      │
                      ▼
@@ -478,16 +559,18 @@ These require manual analysis or additional Pansy annotations.
 
 | Feature | CDL | Pansy |
 |---------|-----|-------|
-| Code/data classification | ✅ | ✅ (includes CDL map) |
-| Sub-entry discovery | ✅ | ✅ |
-| Jump targets | ✅ | ✅ |
-| Symbol names | ❌ | ✅ |
-| Comments | ❌ | ✅ |
-| Memory regions | ❌ | ✅ |
-| Cross-references | ❌ | ✅ |
-| Graphics flags | ✅ | ✅ |
-| Platform verification | ❌ | ✅ (CRC32 check) |
-| Human editable | ❌ | Via Pansy.UI |
+| Code/data classification | Yes | Yes (includes CDL map) |
+| Sub-entry discovery | Yes | Yes |
+| Jump targets | Yes | Yes |
+| Symbol names | No | Yes (with typed SymbolType) |
+| Comments | No | Yes (with typed CommentType) |
+| Memory regions | No | Yes |
+| Cross-references | No | Yes |
+| Graphics flags | Yes | Yes |
+| Bookmarks | No | Yes (roundtrip preserved) |
+| Data types | No | Yes (roundtrip preserved) |
+| Platform verification | No | Yes (CRC32 check) |
+| Human editable | No | Via Pansy.UI |
 | File size | Small (1:1 ROM) | Medium (compressed) |
 
 **Recommendation:** Always export both CDL and Pansy from Nexen. Use Pansy as the primary metadata source — it includes everything CDL has plus much more.

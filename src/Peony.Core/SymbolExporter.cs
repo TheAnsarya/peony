@@ -238,7 +238,8 @@ public static class SymbolExporter {
 	/// Export disassembly result to Pansy binary format (.pansy).
 	/// Uses Pansy.Core.PansyWriter for spec-compliant file generation.
 	/// Includes all available sections: code/data map, symbols, comments,
-	/// memory regions, cross-references, and metadata.
+	/// memory regions, cross-references, bookmarks, data types, and metadata.
+	/// Uses batch APIs for efficient generation.
 	/// </summary>
 	public static void ExportPansy(DisassemblyResult result, string outputPath) {
 		var writer = new PansyWriter {
@@ -249,35 +250,92 @@ public static class SymbolExporter {
 			ProjectVersion = "1.0",
 		};
 
-		// Add symbols from global labels
+		// Add symbols using batch API (preserving original types from Pansy roundtrip)
+		var symbols = new List<(uint Address, string Name, SymbolType Type)>();
 		foreach (var (address, name) in result.Labels) {
-			writer.AddSymbol(address, name, DetectPansySymbolType(address, name, result));
+			var symbolType = result.TypedSymbols.TryGetValue(address, out var typed)
+				? typed.Type
+				: DetectPansySymbolType(address, name, result);
+			symbols.Add((address, name, symbolType));
 		}
-
-		// Add bank-specific labels (encode bank in high byte of address)
 		foreach (var ((address, bank), name) in result.BankLabels) {
 			var addr24 = (uint)((bank << 16) | (int)address);
-			writer.AddSymbol(addr24, name, SymbolType.Label);
+			symbols.Add((addr24, name, SymbolType.Label));
 		}
+		writer.AddSymbols(symbols);
 
-		// Add comments
+		// Add comments using batch API (preserving original types from Pansy roundtrip)
+		var comments = new List<(uint Address, string Text, CommentType Type)>();
 		foreach (var (address, text) in result.Comments) {
-			writer.AddComment(address, text, (byte)CommentType.Inline);
+			var commentType = result.TypedComments.TryGetValue(address, out var typed)
+				? typed.Type
+				: CommentType.Inline;
+			comments.Add((address, text, commentType));
 		}
+		writer.AddComments(comments);
 
 		// Add code/data map from disassembly blocks
 		PopulateCodeDataMap(writer, result);
 
-		// Add cross-references
+		// Add cross-references using batch API
+		var crossRefs = new List<CrossReference>();
 		foreach (var (targetAddress, refs) in result.CrossReferences) {
 			foreach (var xref in refs) {
 				var pansyType = MapCrossRefType(xref.Type);
-				writer.AddCrossReference(new CrossReference(xref.FromAddress, targetAddress, pansyType));
+				crossRefs.Add(new CrossReference(xref.FromAddress, targetAddress, pansyType));
 			}
 		}
+		writer.AddCrossReferences(crossRefs);
 
-		// Add memory regions from disassembly blocks
-		AddMemoryRegions(writer, result);
+		// Add memory regions using batch API
+		var regions = new List<Pansy.Core.MemoryRegion>();
+		foreach (var block in result.Blocks) {
+			var regionType = MapMemoryRegionType(block.Type);
+			if (regionType == 0) continue;
+			regions.Add(new Pansy.Core.MemoryRegion(
+				block.StartAddress,
+				block.EndAddress,
+				regionType,
+				(byte)(block.Bank >= 0 ? block.Bank : 0),
+				$"{block.Type}_{block.StartAddress:x4}"
+			));
+		}
+		writer.AddMemoryRegions(regions);
+
+		// Export bookmarks (roundtrip preservation)
+		foreach (var bookmark in result.Bookmarks) {
+			writer.AddBookmark(bookmark);
+		}
+
+		// Export data types (roundtrip preservation + discovered data regions)
+		foreach (var dt in result.DataTypes) {
+			writer.AddDataType(dt);
+		}
+		// Also export discovered data regions as data types (if not already in DataTypes)
+		var existingDataTypeAddrs = new HashSet<uint>(result.DataTypes.Select(dt => dt.Address));
+		foreach (var (address, def) in result.DataRegions) {
+			if (existingDataTypeAddrs.Contains(address)) continue;
+			var elementType = def.Type switch {
+				"byte" => DataElementType.Byte,
+				"word" => DataElementType.Word,
+				"long" => DataElementType.Long,
+				"text" => DataElementType.String,
+				_ => DataElementType.Byte,
+			};
+			var elementSize = (ushort)(elementType switch {
+				DataElementType.Word => 2,
+				DataElementType.Long => 4,
+				_ => 1,
+			});
+			writer.AddDataType(new DataTypeEntry(
+				address,
+				(uint)(elementSize * def.Count),
+				elementSize,
+				(ushort)def.Count,
+				elementType,
+				def.Name ?? $"data_{address:x4}"
+			));
+		}
 
 		// Generate and write the file
 		var data = writer.Generate();
@@ -414,25 +472,6 @@ public static class SymbolExporter {
 					writer.MarkAsSubroutine((uint)offset);
 				}
 			}
-		}
-	}
-
-	/// <summary>
-	/// Add memory regions derived from disassembly blocks.
-	/// </summary>
-	private static void AddMemoryRegions(PansyWriter writer, DisassemblyResult result) {
-		// Collect contiguous regions from blocks
-		foreach (var block in result.Blocks) {
-			var regionType = MapMemoryRegionType(block.Type);
-			if (regionType == 0) continue; // Skip unknown
-
-			writer.AddMemoryRegion(new Pansy.Core.MemoryRegion(
-				block.StartAddress,
-				block.EndAddress,
-				regionType,
-				(byte)(block.Bank >= 0 ? block.Bank : 0),
-				$"{block.Type}_{block.StartAddress:x4}"
-			));
 		}
 	}
 
