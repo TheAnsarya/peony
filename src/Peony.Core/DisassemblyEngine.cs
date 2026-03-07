@@ -90,14 +90,9 @@ public class DisassemblyEngine {
 			_dataDefinitions.TryAdd(addr, def);
 		}
 
-		// If DIZ data has additional comments per-label, import those too
-		if (symbolLoader.DizData is not null) {
-			foreach (var (addr, dizLabel) in symbolLoader.DizData.Labels) {
-				if (!string.IsNullOrWhiteSpace(dizLabel.Comment) && !_comments.ContainsKey((uint)addr)) {
-					_comments[(uint)addr] = dizLabel.Comment;
-				}
-			}
-		}
+		// DIZ comments are now imported through the Pansy path
+		// (DIZ data is converted to Pansy format on load in SymbolLoader.LoadDiz,
+		//  which imports typed comments via ImportPansyData)
 	}
 
 	/// <summary>
@@ -209,17 +204,8 @@ public class DisassemblyEngine {
 			}
 		}
 
-		// Add DIZ-identified opcode entry points
-		if (_symbolLoader?.DizData is not null) {
-			foreach (var offset in _symbolLoader.DizData.GetOpcodeOffsets()) {
-				var address = RomOffsetToAddress((uint)offset, fixedBank);
-				if (address.HasValue && IsValidAddress(address.Value)) {
-					if (!_visited.ContainsKey((address.Value, fixedBank))) {
-						_codeQueue.Enqueue((address.Value, fixedBank));
-					}
-				}
-			}
-		}
+		// DIZ-identified opcode entry points are now handled via the Pansy path
+		// (DIZ data is converted to Pansy format on load in SymbolLoader.LoadDiz)
 
 		// Add Pansy jump targets as code entry points
 		if (_symbolLoader?.PansyJumpTargets.Count > 0) {

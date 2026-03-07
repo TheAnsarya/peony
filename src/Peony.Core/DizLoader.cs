@@ -401,4 +401,75 @@ public class DizLoader {
 		var coverage = total > 0 ? ((opcodes + operands + dataBytes) * 100.0) / total : 0;
 		return (opcodes, operands, dataBytes, unreached, coverage);
 	}
+
+	/// <summary>
+	/// Converts loaded DIZ data to Pansy format binary using PansyWriter.
+	/// Maps DizDataType to Pansy CDL flags and DizLabel to Pansy symbols/comments.
+	/// </summary>
+	/// <returns>A byte array containing a valid Pansy file with converted data.</returns>
+	public byte[] ConvertToPansyBytes() {
+		var writer = new Pansy.Core.PansyWriter {
+			Platform = Pansy.Core.PansyLoader.PLATFORM_SNES,
+			RomSize = (uint)(_romSize > 0 ? _romSize : (_dataTypes.Count > 0 ? _dataTypes.Keys.Max() + 1 : 0)),
+			ProjectName = _projectName,
+		};
+
+		// Convert DizDataType per-byte flags to Pansy code/data map
+		foreach (var (offset, dataType) in _dataTypes) {
+			var addr = (uint)offset;
+			switch (dataType) {
+				case DizDataType.Opcode:
+					writer.MarkAsCode(addr);
+					writer.MarkAsOpcode(addr);
+					break;
+				case DizDataType.Operand:
+					writer.MarkAsCode(addr);
+					break;
+				case DizDataType.Graphics:
+					writer.MarkAsData(addr);
+					writer.MarkAsDrawn(addr);
+					break;
+				case DizDataType.Pointer16 or DizDataType.Pointer24 or DizDataType.Pointer32:
+					writer.MarkAsData(addr);
+					writer.MarkAsIndirect(addr);
+					break;
+				case DizDataType.Text:
+					writer.MarkAsData(addr);
+					writer.MarkAsRead(addr);
+					break;
+				case DizDataType.Data8 or DizDataType.Data16 or DizDataType.Data24 or DizDataType.Data32
+					or DizDataType.Music:
+					writer.MarkAsData(addr);
+					break;
+				// Unreached and Empty produce no flags
+			}
+		}
+
+		// Mark opcodes that have labels as subroutine entry points
+		foreach (var (address, label) in _labels) {
+			var addr = (uint)address;
+
+			// Add symbol
+			if (!string.IsNullOrWhiteSpace(label.Name)) {
+				writer.AddSymbol(addr, label.Name, Pansy.Core.SymbolType.Label);
+			}
+
+			// Add comment
+			if (!string.IsNullOrWhiteSpace(label.Comment)) {
+				writer.AddComment(addr, label.Comment, Pansy.Core.CommentType.Inline);
+			}
+
+			// If this address is an opcode, mark as subroutine entry
+			if (_dataTypes.TryGetValue(address, out var dt) && dt == DizDataType.Opcode) {
+				writer.MarkAsSubroutine(addr);
+			}
+		}
+
+		// Mark all opcode starts as jump targets (they are potential entry points)
+		foreach (var offset in GetOpcodeOffsets()) {
+			writer.MarkAsJumpTarget((uint)offset);
+		}
+
+		return writer.Generate();
+	}
 }

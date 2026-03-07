@@ -148,6 +148,7 @@ public class SymbolLoader {
 
 	/// <summary>
 	/// Load a DiztinGUIsh (.diz) project file.
+	/// Converts DIZ data to Pansy format on load so all queries use the Pansy path.
 	/// </summary>
 	/// <param name="path">Path to the DIZ file.</param>
 	public void LoadDiz(string path) {
@@ -155,6 +156,12 @@ public class SymbolLoader {
 
 		// Import labels from DIZ file
 		_dizLoader.ExportToSymbolLoader(this);
+
+		// Convert DIZ data to Pansy format and load via the Pansy path
+		// This ensures IsCode/IsData/entry points all use the unified Pansy code/data map
+		var pansyBytes = _dizLoader.ConvertToPansyBytes();
+		_pansyLoader = new PansyLoader(pansyBytes);
+		ImportPansyData();
 	}
 
 	/// <summary>
@@ -264,10 +271,8 @@ public class SymbolLoader {
 			// Unreached - no information, let disassembler decide
 			return null;
 		}
-		if (_dizLoader is not null)
-			return _dizLoader.IsCode(offset);
-		// For Pansy, only return a value if the file has code/data map info
-		// (i.e., has any offsets marked). Otherwise, return null to indicate
+		// For Pansy (including DIZ-converted-to-Pansy), only return a value if
+		// the file has code/data map info. Otherwise, return null to indicate
 		// "no information available" rather than "not code".
 		if (_pansyLoader is not null && _pansyLoader.HasCodeDataMap)
 			return _pansyLoader.IsCode(offset);
@@ -289,9 +294,8 @@ public class SymbolLoader {
 			// Unreached - no information
 			return null;
 		}
-		if (_dizLoader is not null)
-			return _dizLoader.IsData(offset);
-		// For Pansy, only return a value if the file has code/data map info
+		// For Pansy (including DIZ-converted-to-Pansy), only return a value if
+		// the file has code/data map info
 		if (_pansyLoader is not null && _pansyLoader.HasCodeDataMap)
 			return _pansyLoader.IsData(offset);
 		return null;
