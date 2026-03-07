@@ -1,4 +1,4 @@
-# Peony Project Generator — Code Plan
+﻿# Peony Project Generator — Code Plan
 
 > Implementation plan for the `project` CLI command and `.peony` archive format.
 

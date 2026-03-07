@@ -204,6 +204,12 @@ public class DisassemblyResult {
 	public byte[]? OriginalPansyCodeDataMap { get; set; }
 
 	/// <summary>
+	/// CPU state entries imported from Pansy (preserved through roundtrip).
+	/// Per-address M/X flags, data bank, direct page, and CPU mode.
+	/// </summary>
+	public List<Pansy.Core.CpuStateEntry> CpuStates { get; } = [];
+
+	/// <summary>
 	/// Get label for an address, checking bank-specific labels first if bank is provided.
 	/// </summary>
 	public string? GetLabel(uint address, int? bank = null) {

@@ -434,6 +434,80 @@ public class PansyDeepIntegrationTests {
 		Assert.Equal(ClassificationSource.PansyCodeMap, result.Sources[8]);
 	}
 
+	/// <summary>
+	/// Verify CPU state entries are imported from Pansy and roundtrip through disassembly.
+	/// </summary>
+	[Fact]
+	public void PansyCpuState_ImportAndRoundtrip() {
+		// Create a Pansy file with CPU state entries
+		var writer = new PansyWriter {
+			Platform = PansyLoader.PLATFORM_SNES,
+			RomSize = 0x8000,
+		};
+		writer.AddCpuState(new CpuStateEntry(0x8000, 0x03, 0x80, 0x0000, CpuMode.Native65816));
+		writer.AddCpuState(new CpuStateEntry(0x8100, 0x00, 0x7e, 0x1800, CpuMode.Emulation6502));
+		var pansyData = writer.Generate();
+
+		// Load into SymbolLoader
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(pansyData);
+
+		// Verify CPU states were imported
+		Assert.Equal(2, loader.PansyCpuStates.Count);
+		Assert.Equal(0x8000u, loader.PansyCpuStates[0].Address);
+		Assert.Equal(0x03, loader.PansyCpuStates[0].Flags);
+		Assert.Equal(CpuMode.Native65816, loader.PansyCpuStates[0].Mode);
+		Assert.Equal(0x8100u, loader.PansyCpuStates[1].Address);
+		Assert.Equal(CpuMode.Emulation6502, loader.PansyCpuStates[1].Mode);
+
+		// Verify roundtrip through DisassemblyResult → SymbolExporter → PansyLoader
+		var result = CreateTestDisassemblyResult();
+		foreach (var cpu in loader.PansyCpuStates) {
+			result.CpuStates.Add(cpu);
+		}
+		Assert.Equal(2, result.CpuStates.Count);
+
+		// Export to Pansy and re-read
+		var tempFile = Path.GetTempFileName();
+		try {
+			result.RomInfo = new RomInfo("SNES", 0x8000, null, new Dictionary<string, string>());
+			SymbolExporter.ExportPansy(result, tempFile);
+
+			var reloaded = new PansyLoader(File.ReadAllBytes(tempFile));
+			Assert.Equal(2, reloaded.CpuStateEntries.Count);
+			Assert.Equal(0x8000u, reloaded.CpuStateEntries[0].Address);
+			Assert.Equal(0x03, reloaded.CpuStateEntries[0].Flags);
+			Assert.Equal(0x80, reloaded.CpuStateEntries[0].DataBank);
+			Assert.Equal(0x0000, reloaded.CpuStateEntries[0].DirectPage);
+			Assert.Equal(CpuMode.Native65816, reloaded.CpuStateEntries[0].Mode);
+			Assert.Equal(0x8100u, reloaded.CpuStateEntries[1].Address);
+			Assert.Equal(CpuMode.Emulation6502, reloaded.CpuStateEntries[1].Mode);
+		} finally {
+			File.Delete(tempFile);
+		}
+	}
+
+	/// <summary>
+	/// Verify GBA ARM/THUMB CPU state entries roundtrip correctly.
+	/// </summary>
+	[Fact]
+	public void PansyCpuState_ArmThumbRoundtrip() {
+		var writer = new PansyWriter {
+			Platform = PansyLoader.PLATFORM_GBA,
+			RomSize = 0x8000,
+		};
+		writer.AddCpuState(new CpuStateEntry(0x08000000, 0x00, 0x00, 0x0000, CpuMode.ARM));
+		writer.AddCpuState(new CpuStateEntry(0x08001000, 0x00, 0x00, 0x0000, CpuMode.THUMB));
+		var pansyData = writer.Generate();
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(pansyData);
+
+		Assert.Equal(2, loader.PansyCpuStates.Count);
+		Assert.Equal(CpuMode.ARM, loader.PansyCpuStates[0].Mode);
+		Assert.Equal(CpuMode.THUMB, loader.PansyCpuStates[1].Mode);
+	}
+
 	#endregion
 
 	#region Helpers

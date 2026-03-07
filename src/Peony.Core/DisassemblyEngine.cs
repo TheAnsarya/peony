@@ -341,6 +341,10 @@ public class DisassemblyEngine {
 			if (_symbolLoader.PansyData?.CodeDataMapBytes is { } originalMap) {
 				result.OriginalPansyCodeDataMap = originalMap;
 			}
+			// Preserve CPU state entries for roundtrip
+			foreach (var cpuState in _symbolLoader.PansyCpuStates) {
+				result.CpuStates.Add(cpuState);
+			}
 		}
 
 		return result;

@@ -337,6 +337,11 @@ public static class SymbolExporter {
 			));
 		}
 
+		// Export CPU state entries (roundtrip preservation)
+		if (result.CpuStates.Count > 0) {
+			writer.AddCpuStates(result.CpuStates);
+		}
+
 		// Generate and write the file
 		var data = writer.Generate();
 		File.WriteAllBytes(outputPath, data);

@@ -1,4 +1,4 @@
-# 🌺 Peony Project Format (`.peony`) — Design Specification
+﻿# 🌺 Peony Project Format (`.peony`) — Design Specification
 
 > A zip-based container format for comprehensive disassembly projects.
 
