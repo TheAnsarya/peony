@@ -1,4 +1,4 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 /// <summary>
 /// Formats disassembly output in Poppy assembler format with bank annotations
@@ -78,10 +78,73 @@ result.BankBlocks.Values.SelectMany(b => b).ToList();
 	private static void FormatBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1) {
 sb.AppendLine($"; --- Block at ${block.StartAddress:x4}-${block.EndAddress:x4} ---");
 
-foreach (var line in block.Lines) {
-FormatLine(sb, line, result, bank);
+if (block.Type is MemoryRegion.Data or MemoryRegion.Graphics or MemoryRegion.Audio) {
+	FormatDataBlock(sb, block, result, bank);
+} else {
+	foreach (var line in block.Lines) {
+		FormatLine(sb, line, result, bank);
+	}
 }
 sb.AppendLine();
+}
+
+/// <summary>
+/// Format a data block using .db/.dw/.dl directives based on DataDefinition.
+/// </summary>
+private static void FormatDataBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1) {
+	foreach (var line in block.Lines) {
+		// Check if there's a data definition at this address
+		if (result.DataRegions.TryGetValue(line.Address, out var dataDef)) {
+			// Label on its own line
+			if (!string.IsNullOrEmpty(line.Label)) {
+				sb.AppendLine($"{line.Label}:");
+			} else if (!string.IsNullOrEmpty(dataDef.Name)) {
+				sb.AppendLine($"{dataDef.Name}:");
+			}
+
+			var directive = dataDef.Type switch {
+				"word" => ".dw",
+				"long" => ".dl",
+				"text" => ".dt",
+				_ => ".db",
+			};
+			var elementSize = dataDef.Type switch {
+				"word" => 2,
+				"long" => 3,
+				_ => 1,
+			};
+
+			if (dataDef.Type == "text" && line.Bytes.All(b => b >= 0x20 && b < 0x7f)) {
+				// Printable ASCII text
+				var text = System.Text.Encoding.ASCII.GetString(line.Bytes);
+				sb.AppendLine($"\t{directive} \"{text}\"\t\t; {line.Address:x4}");
+			} else if (elementSize > 1 && line.Bytes.Length >= elementSize) {
+				// Multi-byte data (words, longs)
+				var values = new List<string>();
+				for (int i = 0; i + elementSize <= line.Bytes.Length; i += elementSize) {
+					var val = elementSize switch {
+						2 => $"${(line.Bytes[i] | (line.Bytes[i + 1] << 8)):x4}",
+						3 => $"${(line.Bytes[i] | (line.Bytes[i + 1] << 8) | (line.Bytes[i + 2] << 16)):x6}",
+						_ => $"${line.Bytes[i]:x2}",
+					};
+					values.Add(val);
+				}
+				sb.AppendLine($"\t{directive} {string.Join(", ", values)}\t; {line.Address:x4}");
+			} else {
+				// Fall back to byte-by-byte .db
+				var bytes = string.Join(", ", line.Bytes.Select(b => $"${b:x2}"));
+				sb.AppendLine($"\t.db {bytes}\t\t; {line.Address:x4}");
+			}
+		} else {
+			// No data definition — emit raw .db
+			if (!string.IsNullOrEmpty(line.Label)) {
+				sb.AppendLine($"{line.Label}:");
+			}
+			var bytes = string.Join(", ", line.Bytes.Select(b => $"${b:x2}"));
+			var comment = !string.IsNullOrEmpty(line.Comment) ? $" {line.Comment}" : "";
+			sb.AppendLine($"\t.db {bytes}\t\t; {line.Address:x4}{comment}");
+		}
+	}
 }
 
 private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine line, DisassemblyResult result, int bank = -1) {
@@ -89,6 +152,15 @@ private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine li
 	var refs = result.GetReferencesTo(line.Address);
 	if (refs.Count > 0 && !string.IsNullOrEmpty(line.Label)) {
 		sb.AppendLine($"; Referenced by: {FormatCrossRefs(refs)}");
+	}
+
+	// Add block comments above the instruction line
+	if (!string.IsNullOrEmpty(line.Comment) &&
+		result.TypedComments.TryGetValue(line.Address, out var typedComment) &&
+		typedComment.Type == Pansy.Core.CommentType.Block) {
+		foreach (var commentLine in line.Comment.Split('\n')) {
+			sb.AppendLine($"; {commentLine.TrimEnd()}");
+		}
 	}
 
 	// Label on its own line
@@ -105,8 +177,22 @@ private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine li
 	var instruction = $"\t{formatted,-24}";
 	var bytesComment = $"; {line.Address:x4}: {bytes,-12}";
 
+	// Format inline/todo comments (block comments already placed above)
+	var inlineComment = "";
 	if (!string.IsNullOrEmpty(line.Comment)) {
-		sb.AppendLine($"{instruction}{bytesComment} {line.Comment}");
+		if (result.TypedComments.TryGetValue(line.Address, out var tc)) {
+			inlineComment = tc.Type switch {
+				Pansy.Core.CommentType.Block => "", // Already rendered above
+				Pansy.Core.CommentType.Todo => $" TODO: {line.Comment}",
+				_ => $" {line.Comment}",
+			};
+		} else {
+			inlineComment = $" {line.Comment}";
+		}
+	}
+
+	if (!string.IsNullOrEmpty(inlineComment)) {
+		sb.AppendLine($"{instruction}{bytesComment}{inlineComment}");
 	} else {
 		sb.AppendLine($"{instruction}{bytesComment}");
 	}

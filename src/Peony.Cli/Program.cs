@@ -22,6 +22,7 @@ var allBanksOpt = new Option<bool>(["--all-banks", "-b"], "Disassemble all banks
 var symbolsOpt = new Option<FileInfo?>(["--symbols", "-s"], "Symbol file to load (JSON, .nl, .mlb, .sym)");
 var cdlOpt = new Option<FileInfo?>(["--cdl", "-c"], "CDL (Code/Data Log) file for code/data hints");
 var dizOpt = new Option<FileInfo?>(["--diz", "-d"], "DIZ (DiztinGUIsh) project file for labels and data types");
+var pansyOpt = new Option<FileInfo?>(["--pansy", "-y"], "Pansy (.pansy) metadata file for symbols, code maps, cross-refs");
 
 disasmCommand.AddArgument(romArg);
 disasmCommand.AddOption(outputOpt);
@@ -31,8 +32,18 @@ disasmCommand.AddOption(allBanksOpt);
 disasmCommand.AddOption(symbolsOpt);
 disasmCommand.AddOption(cdlOpt);
 disasmCommand.AddOption(dizOpt);
+disasmCommand.AddOption(pansyOpt);
 
-disasmCommand.SetHandler((rom, output, platform, format, allBanks, symbols, cdlFile, dizFile) => {
+disasmCommand.SetHandler((context) => {
+var rom = context.ParseResult.GetValueForArgument(romArg);
+var output = context.ParseResult.GetValueForOption(outputOpt);
+var platform = context.ParseResult.GetValueForOption(platformOpt);
+var format = context.ParseResult.GetValueForOption(formatOpt) ?? "asm";
+var allBanks = context.ParseResult.GetValueForOption(allBanksOpt);
+var symbols = context.ParseResult.GetValueForOption(symbolsOpt);
+var cdlFile = context.ParseResult.GetValueForOption(cdlOpt);
+var dizFile = context.ParseResult.GetValueForOption(dizOpt);
+var pansyFile = context.ParseResult.GetValueForOption(pansyOpt);
 try {
 AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler[/]");
 AnsiConsole.WriteLine();
@@ -92,6 +103,22 @@ IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 			AnsiConsole.MarkupLine($"[grey]DIZ:[/] Loaded DiztinGUIsh project");
 		}
 
+		// Load Pansy if provided
+		if (pansyFile?.Exists == true) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadPansy(pansyFile.FullName);
+			var pansyData = symbolLoader.PansyData!;
+			AnsiConsole.MarkupLine($"[grey]Pansy:[/] {symbolLoader.TypedSymbols.Count} symbols, {symbolLoader.TypedComments.Count} comments");
+			if (pansyData.HasCodeDataMap)
+				AnsiConsole.MarkupLine($"[grey]Pansy CDL:[/] {symbolLoader.PansyJumpTargets.Count} jump targets, {symbolLoader.PansySubEntryPoints.Count} sub-entries");
+			if (pansyData.CrossReferences.Count > 0)
+				AnsiConsole.MarkupLine($"[grey]Pansy XRefs:[/] {pansyData.CrossReferences.Count} cross-references");
+			if (symbolLoader.PansyDataTypes.Count > 0)
+				AnsiConsole.MarkupLine($"[grey]Pansy Data:[/] {symbolLoader.PansyDataTypes.Count} data type entries");
+			if (symbolLoader.Bookmarks.Count > 0)
+				AnsiConsole.MarkupLine($"[grey]Pansy Bookmarks:[/] {symbolLoader.Bookmarks.Count}");
+		}
+
 AnsiConsole.WriteLine();
 
 // Get entry points from platform analyzer
@@ -115,9 +142,20 @@ if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
 			entryPointSet.Add(addr.Value);
 	}
 }
+
+// Add Pansy cross-reference targets as entry points (confirmed code locations)
+if (symbolLoader?.PansyData is { } pansyData2 && pansyData2.CrossReferences.Count > 0) {
+	foreach (var xref in pansyData2.CrossReferences) {
+		if (xref.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch) {
+			var addr = analyzer.OffsetToAddress((int)xref.To);
+			if (addr.HasValue)
+				entryPointSet.Add(addr.Value);
+		}
+	}
+}
 var entryPoints = entryPointSet.ToArray();
 
-AnsiConsole.MarkupLine($"[grey]Entry points:[/] {platformEntryPoints.Length} platform + {(entryPoints.Length - platformEntryPoints.Length)} CDL = {entryPoints.Length} total");
+AnsiConsole.MarkupLine($"[grey]Entry points:[/] {platformEntryPoints.Length} platform + {(entryPoints.Length - platformEntryPoints.Length)} imported = {entryPoints.Length} total");
 
 // Create engine and disassemble
 var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
@@ -182,7 +220,7 @@ catch (Exception ex) {
 AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 Environment.Exit(1);
 }
-}, romArg, outputOpt, platformOpt, formatOpt, allBanksOpt, symbolsOpt, cdlOpt, dizOpt);
+});
 
 rootCommand.AddCommand(disasmCommand);
 
@@ -326,6 +364,7 @@ var exportPlatformOpt = new Option<string?>(["--platform", "-p"], "Platform (aut
 var exportSymbolsOpt = new Option<FileInfo?>(["--symbols", "-s"], "Additional symbol file to merge");
 var exportDizOpt = new Option<FileInfo?>(["--diz", "-d"], "DIZ project file to merge");
 var exportCdlOpt = new Option<FileInfo?>(["--cdl", "-c"], "CDL (Code/Data Log) file for code/data hints");
+var exportPansyOpt = new Option<FileInfo?>(["--pansy", "-y"], "Pansy (.pansy) metadata file to merge");
 
 exportCommand.AddArgument(exportRomArg);
 exportCommand.AddOption(exportOutputOpt);
@@ -334,8 +373,17 @@ exportCommand.AddOption(exportPlatformOpt);
 exportCommand.AddOption(exportSymbolsOpt);
 exportCommand.AddOption(exportDizOpt);
 exportCommand.AddOption(exportCdlOpt);
+exportCommand.AddOption(exportPansyOpt);
 
-exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile, cdlFile) => {
+exportCommand.SetHandler((context) => {
+	var rom = context.ParseResult.GetValueForArgument(exportRomArg);
+	var output = context.ParseResult.GetValueForOption(exportOutputOpt);
+	var format = context.ParseResult.GetValueForOption(exportFormatOpt) ?? "mesen";
+	var platform = context.ParseResult.GetValueForOption(exportPlatformOpt);
+	var symbols = context.ParseResult.GetValueForOption(exportSymbolsOpt);
+	var dizFile = context.ParseResult.GetValueForOption(exportDizOpt);
+	var cdlFile = context.ParseResult.GetValueForOption(exportCdlOpt);
+	var pansyFile = context.ParseResult.GetValueForOption(exportPansyOpt);
 	try {
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Symbol Exporter[/]");
 		AnsiConsole.WriteLine();
@@ -389,6 +437,13 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile, cdlFi
 			AnsiConsole.MarkupLine($"[grey]CDL Entry Points:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0} subroutines detected");
 		}
 
+		// Load Pansy if provided
+		if (pansyFile?.Exists == true) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadPansy(pansyFile.FullName);
+			AnsiConsole.MarkupLine($"[grey]Pansy:[/] {symbolLoader.TypedSymbols.Count} symbols, {symbolLoader.TypedComments.Count} comments");
+		}
+
 		// Get entry points and disassemble
 		var entryPoints = analyzer.GetEntryPoints(romData);
 
@@ -437,7 +492,7 @@ exportCommand.SetHandler((rom, output, format, platform, symbols, dizFile, cdlFi
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
-}, exportRomArg, exportOutputOpt, exportFormatOpt, exportPlatformOpt, exportSymbolsOpt, exportDizOpt, exportCdlOpt);
+});
 
 rootCommand.AddCommand(exportCommand);
 

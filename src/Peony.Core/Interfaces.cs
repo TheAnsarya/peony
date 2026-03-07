@@ -198,6 +198,12 @@ public class DisassemblyResult {
 	public List<Pansy.Core.DataTypeEntry> DataTypes { get; } = [];
 
 	/// <summary>
+	/// Original Pansy code/data map bytes for roundtrip flag preservation
+	/// (DRAWN, READ, INDIRECT flags). Null if no Pansy file was loaded.
+	/// </summary>
+	public byte[]? OriginalPansyCodeDataMap { get; set; }
+
+	/// <summary>
 	/// Get label for an address, checking bank-specific labels first if bank is provided.
 	/// </summary>
 	public string? GetLabel(uint address, int? bank = null) {

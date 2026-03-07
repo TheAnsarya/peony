@@ -473,6 +473,19 @@ public static class SymbolExporter {
 				}
 			}
 		}
+
+		// Merge DRAWN/READ/INDIRECT flags from original Pansy code/data map
+		// These flags come from emulator runtime data and can't be derived statically,
+		// so we preserve them through the roundtrip.
+		if (result.OriginalPansyCodeDataMap is { } originalMap) {
+			for (var i = 0; i < originalMap.Length && i < result.RomInfo.Size; i++) {
+				var flags = originalMap[i];
+				var addr = (uint)i;
+				if ((flags & 0x20) != 0) writer.MarkAsDrawn(addr);   // FLAG_DRAWN
+				if ((flags & 0x40) != 0) writer.MarkAsRead(addr);    // FLAG_READ
+				if ((flags & 0x80) != 0) writer.MarkAsIndirect(addr); // FLAG_INDIRECT
+			}
+		}
 	}
 
 	/// <summary>

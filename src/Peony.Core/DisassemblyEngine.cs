@@ -268,6 +268,24 @@ public class DisassemblyEngine {
 			}
 		}
 
+		// Add Pansy cross-reference targets as entry points (confirmed code locations)
+		if (_symbolLoader?.PansyCrossRefs.Count > 0) {
+			foreach (var xref in _symbolLoader.PansyCrossRefs) {
+				if (xref.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch) {
+					var address = RomOffsetToAddress(xref.To, fixedBank);
+					if (address.HasValue && IsValidAddress(address.Value)) {
+						if (!_visited.ContainsKey((address.Value, fixedBank))) {
+							_codeQueue.Enqueue((address.Value, fixedBank));
+							if (GetLabel(address.Value, fixedBank) is null) {
+								var prefix = xref.Type == Pansy.Core.CrossRefType.Jsr ? "sub" : "loc";
+								AddLabel(address.Value, $"{prefix}_{xref.To:x4}", fixedBank);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		// Recursive descent disassembly
 		while (_codeQueue.Count > 0) {
 			var (address, bank) = _codeQueue.Dequeue();
@@ -319,6 +337,10 @@ public class DisassemblyEngine {
 			foreach (var dt in _symbolLoader.PansyDataTypes) {
 				result.DataTypes.Add(dt);
 			}
+			// Preserve original code/data map for flag roundtrip (DRAWN/READ/INDIRECT)
+			if (_symbolLoader.PansyData?.CodeDataMapBytes is { } originalMap) {
+				result.OriginalPansyCodeDataMap = originalMap;
+			}
 		}
 
 		return result;
@@ -329,11 +351,51 @@ public class DisassemblyEngine {
 	/// A pointer table is consecutive word values that point to known code locations.
 	/// </summary>
 	private void DetectPointerTables(ReadOnlySpan<byte> rom, DisassemblyResult result) {
-		// Only run if we have cross-references to match against
+		var fixedBank = _platformAnalyzer.BankCount - 1;
+		var pansyCoveredAddresses = new HashSet<uint>();
+
+		// Phase 1: Register Pansy Pointer-type DataTypeEntries as known pointer tables.
+		// These are authoritative — no heuristic needed.
+		if (_symbolLoader?.PansyDataTypes is { Count: > 0 } pansyDataTypes) {
+			foreach (var dt in pansyDataTypes) {
+				if (dt.Type != Pansy.Core.DataElementType.Pointer) continue;
+
+				var addr = dt.Address;
+				var count = (int)dt.ElementCount;
+				if (count < 1) continue;
+
+				_dataDefinitions[addr] = new DataDefinition("word", count, dt.Name.Length > 0 ? dt.Name : $"Pointer table ({count} entries)");
+				if (!string.IsNullOrEmpty(dt.Name)) {
+					result.Comments[addr] = $"{dt.Name} — {count} pointer entries (from Pansy)";
+				}
+
+				// Mark all bytes in this table as covered so heuristic scan skips them
+				for (uint i = 0; i < dt.Length; i++) {
+					pansyCoveredAddresses.Add(addr + i);
+				}
+
+				// Queue each pointer target as a code entry point
+				for (int i = 0; i < count && (addr + i * dt.ElementSize + 1) < rom.Length; i++) {
+					var romOffset = (int)(addr + i * dt.ElementSize);
+					if (romOffset + 1 >= rom.Length) break;
+					var lo = rom[romOffset];
+					var hi = rom[romOffset + 1];
+					var pointer = (uint)(lo | (hi << 8));
+
+					if (IsValidAddress(pointer) && !_visited.ContainsKey((pointer, fixedBank))) {
+						_codeQueue.Enqueue((pointer, fixedBank));
+						if (GetLabel(pointer, fixedBank) is null) {
+							AddLabel(pointer, $"sub_{pointer:x4}", fixedBank);
+						}
+					}
+				}
+			}
+		}
+
+		// Phase 2: Heuristic scan — only run if we have cross-references to match against
 		if (_crossRefs.Count == 0) return;
 
 		var knownCodeAddresses = new HashSet<uint>(_visited.Keys.Select(k => k.Address));
-		var fixedBank = _platformAnalyzer.BankCount - 1;
 
 		// Scan through ROM looking for pointer table patterns
 		var headerSize = _platformAnalyzer.RomDataOffset;
@@ -345,6 +407,8 @@ public class DisassemblyEngine {
 			var addr = RomOffsetToAddress((uint)offset, fixedBank);
 			if (!addr.HasValue) continue;
 			if (_visited.ContainsKey((addr.Value, fixedBank))) continue;
+			// Skip addresses already covered by Pansy pointer table data
+			if (pansyCoveredAddresses.Contains(addr.Value)) continue;
 
 			// Try to detect a pointer table starting here
 			var tableInfo = TryDetectPointerTable(rom, offset, knownCodeAddresses, fixedBank);

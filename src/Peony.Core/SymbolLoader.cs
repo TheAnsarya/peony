@@ -17,6 +17,7 @@ public class SymbolLoader {
 	private readonly HashSet<int> _pansySubEntryPoints = [];
 	private readonly List<Bookmark> _bookmarks = [];
 	private readonly List<DataTypeEntry> _pansyDataTypes = [];
+	private readonly List<CrossReference> _pansyCrossRefs = [];
 	private CdlLoader? _cdlLoader;
 	private DizLoader? _dizLoader;
 	private PansyLoader? _pansyLoader;
@@ -55,6 +56,11 @@ public class SymbolLoader {
 	/// Gets data type entries imported from Pansy.
 	/// </summary>
 	public IReadOnlyList<DataTypeEntry> PansyDataTypes => _pansyDataTypes;
+
+	/// <summary>
+	/// Gets cross-references imported from Pansy.
+	/// </summary>
+	public IReadOnlyList<CrossReference> PansyCrossRefs => _pansyCrossRefs;
 
 	/// <summary>
 	/// Gets the loaded CDL data, if any.
@@ -221,6 +227,11 @@ public class SymbolLoader {
 		}
 		foreach (var dt in _pansyLoader.DataTypes) {
 			_pansyDataTypes.Add(dt);
+		}
+
+		// Import cross-references (confirmed code flow relationships)
+		foreach (var xref in _pansyLoader.CrossReferences) {
+			_pansyCrossRefs.Add(xref);
 		}
 	}
 
