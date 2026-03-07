@@ -149,11 +149,28 @@ dotnet pack
 ### Project
 - [Session Logs](~docs/session-logs/)
 
+## 🌷 Integrated Pipeline
+
+Peony is the **disassembly** stage of the **Flower Toolchain** — an integrated pipeline for playing, debugging, disassembling, editing, and rebuilding retro games:
+
+| Stage | Tool | Peony Role |
+|-------|------|------------|
+| 1. Play & Debug | [Nexen](https://github.com/TheAnsarya/Nexen) | — |
+| 2. Disassemble | **Peony** | ROM → `.pasm` source + Pansy metadata |
+| 3. Edit & Document | Editor + [Pansy](https://github.com/TheAnsarya/pansy) UI | — |
+| 4. Build | [Poppy](https://github.com/TheAnsarya/poppy) | — |
+| 5. Verify | [Game Garden](https://github.com/TheAnsarya/game-garden) | Roundtrip byte-identical rebuild |
+
+See the [Integrated Pipeline Master Plan](https://github.com/TheAnsarya/pansy/blob/main/~Plans/integrated-pipeline-master-plan.md) for architecture details.
+
 ## 🤝 Related Projects
 
-- [Poppy](https://github.com/TheAnsarya/poppy) - Multi-system assembler
-- [BPS-Patch](https://github.com/TheAnsarya/bps-patch) - Binary patching
-- [GameInfo](https://github.com/TheAnsarya/GameInfo) - Game documentation
+- **[Nexen](https://github.com/TheAnsarya/Nexen)** - Multi-system emulator & debugger
+- **[🌼 Pansy](https://github.com/TheAnsarya/pansy)** - Universal disassembly metadata format
+- **[🌸 Poppy](https://github.com/TheAnsarya/poppy)** - Multi-system assembler
+- **[🌱 Game Garden](https://github.com/TheAnsarya/game-garden)** - Games disassembly & recompilation
+- **[GameInfo](https://github.com/TheAnsarya/GameInfo)** - ROM hacking toolkit
+- **[BPS-Patch](https://github.com/TheAnsarya/bps-patch)** - Binary patching system
 
 ## 📜 License
 
