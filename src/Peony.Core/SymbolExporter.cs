@@ -242,27 +242,34 @@ public static class SymbolExporter {
 	/// Uses batch APIs for efficient generation.
 	/// </summary>
 	public static void ExportPansy(DisassemblyResult result, string outputPath) {
+		var platformId = GetPansyPlatformId(result.RomInfo);
 		var writer = new PansyWriter {
-			Platform = GetPansyPlatformId(result.RomInfo),
+			Platform = platformId,
 			RomSize = (uint)(result.RomInfo?.Size ?? 0),
 			EnableCompression = true,
 			ProjectName = result.RomInfo?.Platform ?? "",
 			ProjectVersion = "1.0",
 		};
 
-		// Add symbols using batch API (preserving original types from Pansy roundtrip)
-		var symbols = new List<(uint Address, string Name, SymbolType Type)>();
+		// Merge symbols using LabelMergeEngine (user labels > HW registers > auto-labels)
+		var mergeEngine = new LabelMergeEngine();
+
+		// Add disassembly labels as User-sourced (highest priority)
 		foreach (var (address, name) in result.Labels) {
 			var symbolType = result.TypedSymbols.TryGetValue(address, out var typed)
 				? typed.Type
 				: DetectPansySymbolType(address, name, result);
-			symbols.Add((address, name, symbolType));
+			mergeEngine.Add(new MergedLabel(address, name, symbolType, LabelSource.User));
 		}
 		foreach (var ((address, bank), name) in result.BankLabels) {
 			var addr24 = (uint)((bank << 16) | (int)address);
-			symbols.Add((addr24, name, SymbolType.Label));
+			mergeEngine.Add(new MergedLabel(addr24, name, SymbolType.Label, LabelSource.User));
 		}
-		writer.AddSymbols(symbols);
+
+		// Add hardware register names for the platform
+		mergeEngine.AddHardwareRegisters(platformId);
+
+		writer.AddSymbols(mergeEngine.GetMergedSymbols().ToList());
 
 		// Add comments using batch API (preserving original types from Pansy roundtrip)
 		var comments = new List<(uint Address, string Text, CommentType Type)>();
