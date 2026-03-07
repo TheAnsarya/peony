@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<ItemGroup>
 	  <ProjectReference Include="..\..\..\pansy\src\Pansy.Core\Pansy.Core.csproj" />
 	</ItemGroup>

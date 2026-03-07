@@ -1,4 +1,4 @@
-# 🌼🌺 Pansy Deep Integration Plan
+﻿# 🌼🌺 Pansy Deep Integration Plan
 
 > **Epic 8**: Leverage all Pansy v1.0 capabilities for comprehensive disassembly
 

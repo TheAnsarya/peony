@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.IO.Compression;
 using Pansy.Core;
 using Peony.Core;
 using Peony.Platform.Atari2600;
@@ -1390,10 +1391,279 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 
 rootCommand.AddCommand(importCommand);
 
+// ============================================================================
+// Project Commands
+// ============================================================================
+
+// Project command — disassemble ROM into a complete project folder or .peony archive
+var projectCommand = new Command("project", "Generate a complete disassembly project (folder or .peony archive)");
+var projectRomArg = new Argument<FileInfo>("rom", "ROM file to disassemble");
+var projectOutputOpt = new Option<string>(["--output", "-o"], "Output path (directory or .peony file)");
+var projectNameOpt = new Option<string?>(["--name", "-n"], "Project name (default: ROM filename)");
+var projectPlatformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-detected if not specified)");
+var projectArchiveOpt = new Option<bool>(["--archive", "-a"], "Output as .peony zip archive");
+var projectCdlOpt = new Option<FileInfo?>(["--cdl", "-c"], "CDL (Code/Data Log) file for code/data hints");
+var projectPansyOpt = new Option<FileInfo?>(["--pansy", "-y"], "Pansy (.pansy) metadata file");
+var projectSymbolsOpt = new Option<FileInfo?>(["--symbols", "-s"], "Symbol file to load");
+
+projectCommand.AddArgument(projectRomArg);
+projectCommand.AddOption(projectOutputOpt);
+projectCommand.AddOption(projectNameOpt);
+projectCommand.AddOption(projectPlatformOpt);
+projectCommand.AddOption(projectArchiveOpt);
+projectCommand.AddOption(projectCdlOpt);
+projectCommand.AddOption(projectPansyOpt);
+projectCommand.AddOption(projectSymbolsOpt);
+
+projectCommand.SetHandler((context) => {
+	var rom = context.ParseResult.GetValueForArgument(projectRomArg);
+	var outputPath = context.ParseResult.GetValueForOption(projectOutputOpt);
+	var name = context.ParseResult.GetValueForOption(projectNameOpt);
+	var platform = context.ParseResult.GetValueForOption(projectPlatformOpt);
+	var archive = context.ParseResult.GetValueForOption(projectArchiveOpt);
+	var cdlFile = context.ParseResult.GetValueForOption(projectCdlOpt);
+	var pansyFile = context.ParseResult.GetValueForOption(projectPansyOpt);
+	var symbols = context.ParseResult.GetValueForOption(projectSymbolsOpt);
+
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Project Generator[/]");
+		AnsiConsole.WriteLine();
+
+		// Derive project name from ROM if not specified
+		name ??= Path.GetFileNameWithoutExtension(rom.Name).Replace(' ', '-').ToLowerInvariant();
+
+		// Load ROM
+		AnsiConsole.MarkupLine($"[grey]Loading:[/] {Markup.Escape(rom.FullName)}");
+		var romData = RomLoader.Load(rom.FullName);
+		AnsiConsole.MarkupLine($"[grey]Size:[/] {romData.Length} bytes ({romData.Length / 1024}K)");
+
+		// Detect platform
+		platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
+		AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
+
+		// Get platform analyzer
+		IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
+			"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
+			"lynx" or "atari lynx" => new LynxAnalyzer(),
+			"nes" => new NesAnalyzer(),
+			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
+			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
+			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
+			_ => throw new NotSupportedException($"Platform not supported: {platform}")
+		};
+
+		var info = analyzer.Analyze(romData);
+
+		// Load hints
+		SymbolLoader? symbolLoader = null;
+		if (symbols?.Exists == true) {
+			symbolLoader = new SymbolLoader();
+			symbolLoader.Load(symbols.FullName);
+			AnsiConsole.MarkupLine($"[grey]Symbols:[/] {symbolLoader.Labels.Count} labels");
+		}
+		if (cdlFile?.Exists == true) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadCdl(cdlFile.FullName);
+			AnsiConsole.MarkupLine($"[grey]CDL:[/] loaded");
+		}
+		if (pansyFile?.Exists == true) {
+			symbolLoader ??= new SymbolLoader();
+			symbolLoader.LoadPansy(pansyFile.FullName);
+			AnsiConsole.MarkupLine($"[grey]Pansy:[/] {symbolLoader.TypedSymbols.Count} symbols");
+		}
+
+		AnsiConsole.WriteLine();
+
+		// Get entry points
+		var entryPointSet = new HashSet<uint>(analyzer.GetEntryPoints(romData));
+		if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
+			foreach (var offset in cdlData.SubEntryPoints) {
+				var addr = analyzer.OffsetToAddress(offset);
+				if (addr.HasValue)
+					entryPointSet.Add(addr.Value);
+			}
+		}
+		if (symbolLoader?.PansyData is { } pd && pd.CrossReferences.Count > 0) {
+			foreach (var xref in pd.CrossReferences) {
+				if (xref.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch) {
+					var addr = analyzer.OffsetToAddress((int)xref.To);
+					if (addr.HasValue)
+						entryPointSet.Add(addr.Value);
+				}
+			}
+		}
+
+		// Disassemble
+		var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+		if (symbolLoader != null) {
+			engine.SetSymbolLoader(symbolLoader);
+			foreach (var (addr, label) in symbolLoader.Labels)
+				engine.AddLabel(addr, label);
+			foreach (var (addr, comment) in symbolLoader.Comments)
+				engine.AddComment(addr, comment);
+			foreach (var (addr, dataDef) in symbolLoader.DataDefinitions)
+				engine.AddDataRegion(addr, dataDef);
+		}
+
+		AnsiConsole.Status()
+			.Spinner(Spinner.Known.Dots)
+			.Start("Disassembling...", ctx => { });
+
+		var result = engine.Disassemble(romData, entryPointSet.ToArray(), allBanks: true);
+		result.RomInfo = info;
+
+		AnsiConsole.MarkupLine($"[green]Disassembled {result.Blocks.Count} blocks[/]");
+
+		// Generate project
+		var options = new ProjectOptions {
+			ProjectName = name,
+			RomPath = rom.FullName,
+			SplitBanks = result.BankBlocks.Count > 1,
+			CdlPath = cdlFile?.FullName,
+			PansyPath = pansyFile?.FullName,
+			SymbolPath = symbols?.FullName
+		};
+
+		var writer = new ProjectWriter(options);
+
+		// Determine output
+		if (archive || (outputPath?.EndsWith(".peony", StringComparison.OrdinalIgnoreCase) ?? false)) {
+			outputPath ??= Path.Combine(rom.DirectoryName!, $"{name}.peony");
+			AnsiConsole.Status()
+				.Spinner(Spinner.Known.Dots)
+				.Start("Creating archive...", ctx => {
+					writer.WriteProjectArchive(outputPath, result, romData);
+				});
+			AnsiConsole.MarkupLine($"[green]Archive written to:[/] {Markup.Escape(outputPath)}");
+		} else {
+			outputPath ??= Path.Combine(rom.DirectoryName!, name);
+			AnsiConsole.Status()
+				.Spinner(Spinner.Known.Dots)
+				.Start("Creating project folder...", ctx => {
+					writer.WriteProjectFolder(outputPath, result, romData);
+				});
+			AnsiConsole.MarkupLine($"[green]Project created at:[/] {Markup.Escape(outputPath)}");
+		}
+
+		// Show coverage summary
+		var coverage = ProjectWriter.ComputeCoverage(result);
+		AnsiConsole.WriteLine();
+		var statsTable = new Table();
+		statsTable.AddColumn("Metric");
+		statsTable.AddColumn(new TableColumn("Value").RightAligned());
+		statsTable.AddRow("Code", $"{coverage.CodeBytes:N0} bytes");
+		statsTable.AddRow("Data", $"{coverage.DataBytes:N0} bytes");
+		statsTable.AddRow("Unknown", $"{coverage.UnknownBytes:N0} bytes");
+		statsTable.AddRow("Labels", $"{coverage.LabelCount:N0}");
+		statsTable.AddRow("Cross-refs", $"{coverage.CrossRefCount:N0}");
+		AnsiConsole.Write(statsTable);
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+});
+
+rootCommand.AddCommand(projectCommand);
+
+// Open command — inspect or extract a .peony archive
+var openCommand = new Command("open", "Inspect or extract a .peony archive");
+var openFileArg = new Argument<FileInfo>("file", ".peony archive to open");
+var openExtractOpt = new Option<DirectoryInfo?>(["--extract", "-x"], "Extract archive to directory");
+var openInfoOpt = new Option<bool>(["--info", "-i"], "Show project info without extracting");
+
+openCommand.AddArgument(openFileArg);
+openCommand.AddOption(openExtractOpt);
+openCommand.AddOption(openInfoOpt);
+
+openCommand.SetHandler((file, extractDir, infoOnly) => {
+	try {
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Project Inspector[/]");
+		AnsiConsole.WriteLine();
+
+		if (!file.Exists) {
+			AnsiConsole.MarkupLine($"[red]File not found:[/] {Markup.Escape(file.FullName)}");
+			Environment.Exit(1);
+			return;
+		}
+
+		using var archive = System.IO.Compression.ZipFile.OpenRead(file.FullName);
+
+		// Find and parse the manifest
+		var manifestEntry = archive.GetEntry("peony-project.json");
+		if (manifestEntry == null) {
+			AnsiConsole.MarkupLine("[red]Not a valid .peony archive (missing peony-project.json)[/]");
+			Environment.Exit(1);
+			return;
+		}
+
+		using var manifestStream = manifestEntry.Open();
+		using var reader = new StreamReader(manifestStream);
+		var manifestJson = reader.ReadToEnd();
+		var manifest = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(manifestJson);
+
+		// Display info
+		var table = new Table();
+		table.AddColumn("Property");
+		table.AddColumn("Value");
+
+		if (manifest.TryGetProperty("name", out var n))
+			table.AddRow("Name", Markup.Escape(n.GetString() ?? ""));
+		if (manifest.TryGetProperty("displayName", out var dn))
+			table.AddRow("Display Name", Markup.Escape(dn.GetString() ?? ""));
+		if (manifest.TryGetProperty("formatVersion", out var fv))
+			table.AddRow("Format Version", Markup.Escape(fv.GetString() ?? ""));
+
+		if (manifest.TryGetProperty("rom", out var romObj)) {
+			if (romObj.TryGetProperty("platform", out var plat))
+				table.AddRow("Platform", Markup.Escape(plat.GetString() ?? ""));
+			if (romObj.TryGetProperty("size", out var sz))
+				table.AddRow("ROM Size", $"{sz.GetInt32():N0} bytes");
+			if (romObj.TryGetProperty("crc32", out var crc))
+				table.AddRow("CRC32", Markup.Escape(crc.GetString() ?? ""));
+		}
+
+		if (manifest.TryGetProperty("statistics", out var stats)) {
+			if (stats.TryGetProperty("codeBytes", out var cb))
+				table.AddRow("Code", $"{cb.GetInt32():N0} bytes");
+			if (stats.TryGetProperty("dataBytes", out var db))
+				table.AddRow("Data", $"{db.GetInt32():N0} bytes");
+			if (stats.TryGetProperty("unknownBytes", out var ub))
+				table.AddRow("Unknown", $"{ub.GetInt32():N0} bytes");
+			if (stats.TryGetProperty("labelCount", out var lc))
+				table.AddRow("Labels", $"{lc.GetInt32():N0}");
+		}
+
+		AnsiConsole.Write(table);
+		AnsiConsole.WriteLine();
+
+		// List archive contents
+		AnsiConsole.MarkupLine($"[grey]Archive contains {archive.Entries.Count} files:[/]");
+		foreach (var entry in archive.Entries.OrderBy(e => e.FullName)) {
+			var size = entry.Length > 0 ? $" ({entry.Length:N0} bytes)" : "";
+			AnsiConsole.MarkupLine($"  [grey]{Markup.Escape(entry.FullName)}{size}[/]");
+		}
+
+		// Extract if requested
+		if (extractDir != null) {
+			AnsiConsole.WriteLine();
+			extractDir.Create();
+			System.IO.Compression.ZipFile.ExtractToDirectory(file.FullName, extractDir.FullName, overwriteFiles: true);
+			AnsiConsole.MarkupLine($"[green]Extracted to:[/] {Markup.Escape(extractDir.FullName)}");
+		}
+	}
+	catch (Exception ex) {
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+}, openFileArg, openExtractOpt, openInfoOpt);
+
+rootCommand.AddCommand(openCommand);
+
 // Version
 rootCommand.SetHandler(() => {
-	AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.4.0[/]");
-AnsiConsole.MarkupLine("Multi-system ROM disassembler with asset pipeline");
+	AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.5.0[/]");
+AnsiConsole.MarkupLine("Multi-system ROM disassembler with asset pipeline & project generator");
 AnsiConsole.WriteLine();
 AnsiConsole.MarkupLine("Supported platforms:");
 AnsiConsole.MarkupLine("  • Atari 2600 (6502)");
@@ -1402,7 +1672,12 @@ AnsiConsole.MarkupLine("  • SNES (65816)");
 AnsiConsole.MarkupLine("  • Game Boy (SM83)");
 AnsiConsole.MarkupLine("  • GBA (ARM7TDMI)");
 AnsiConsole.WriteLine();
-AnsiConsole.MarkupLine("Asset pipeline commands:");
+AnsiConsole.MarkupLine("Commands:");
+AnsiConsole.MarkupLine("  • disasm  - Disassemble a ROM file");
+AnsiConsole.MarkupLine("  • project - Generate a complete project folder or .peony archive");
+AnsiConsole.MarkupLine("  • open    - Inspect or extract a .peony archive");
+AnsiConsole.MarkupLine("  • export  - Export symbols to various formats");
+AnsiConsole.MarkupLine("  • verify  - Roundtrip verification");
 AnsiConsole.MarkupLine("  • chr     - Extract tile graphics");
 AnsiConsole.MarkupLine("  • text    - Extract text with table files");
 AnsiConsole.MarkupLine("  • palette - Extract color palettes");
