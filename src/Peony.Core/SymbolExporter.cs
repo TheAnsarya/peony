@@ -30,15 +30,29 @@ public static class SymbolExporter {
 	}
 
 	/// <summary>
+	/// Pre-sorted collections to avoid redundant OrderBy calls across export methods.
+	/// </summary>
+	private static (
+		KeyValuePair<uint, string>[] SortedLabels,
+		KeyValuePair<(uint Address, int Bank), string>[] SortedBankLabels,
+		KeyValuePair<uint, string>[] SortedComments
+	) PreSort(DisassemblyResult result) => (
+		[.. result.Labels.OrderBy(x => x.Key)],
+		[.. result.BankLabels.OrderBy(x => x.Key.Bank).ThenBy(x => x.Key.Address)],
+		[.. result.Comments.OrderBy(x => x.Key)]
+	);
+
+	/// <summary>
 	/// Export symbols to Mesen label format (.mlb)
 	/// Format: TYPE:ADDRESS:LABEL or TYPE:STARTADDRESS-ENDADDRESS:LABEL
 	/// Where TYPE is: P=PRG, W=Work RAM, S=Save RAM, R=Register, G=Internal RAM (NES), O=OAM
 	/// </summary>
 	public static string ExportMesen(DisassemblyResult result) {
+		var (sortedLabels, sortedBankLabels, sortedComments) = PreSort(result);
 		var sb = new System.Text.StringBuilder();
 
 		// Export global labels as PRG ROM labels
-		foreach (var kvp in result.Labels.OrderBy(x => x.Key)) {
+		foreach (var kvp in sortedLabels) {
 			var address = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 
@@ -48,7 +62,7 @@ public static class SymbolExporter {
 		}
 
 		// Export bank-specific labels
-		foreach (var kvp in result.BankLabels.OrderBy(x => x.Key.Bank).ThenBy(x => x.Key.Address)) {
+		foreach (var kvp in sortedBankLabels) {
 			var (address, bank) = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 
@@ -59,7 +73,7 @@ public static class SymbolExporter {
 		}
 
 		// Export comments if available
-		foreach (var kvp in result.Comments.OrderBy(x => x.Key)) {
+		foreach (var kvp in sortedComments) {
 			var address = kvp.Key;
 			var comment = EscapeComment(kvp.Value);
 			var type = GetMesenLabelType(address);
@@ -75,6 +89,7 @@ public static class SymbolExporter {
 	/// Format: $ADDRESS#LABEL#COMMENT
 	/// </summary>
 	public static string ExportFCEUX(DisassemblyResult result) {
+		var (_, sortedBankLabels, sortedComments) = PreSort(result);
 		var sb = new System.Text.StringBuilder();
 
 		// Combine labels and comments
@@ -91,7 +106,7 @@ public static class SymbolExporter {
 		}
 
 		// Bank-specific labels with bank suffix
-		foreach (var kvp in result.BankLabels.OrderBy(x => x.Key.Bank).ThenBy(x => x.Key.Address)) {
+		foreach (var kvp in sortedBankLabels) {
 			var (address, bank) = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 			sb.AppendLine($"${address:x4}#{label}_bank{bank}#Bank {bank}");
@@ -106,6 +121,7 @@ public static class SymbolExporter {
 	/// Supports bank:offset notation for multi-bank ROMs
 	/// </summary>
 	public static string ExportNoGlasses(DisassemblyResult result) {
+		var (sortedLabels, sortedBankLabels, _) = PreSort(result);
 		var sb = new System.Text.StringBuilder();
 
 		sb.AppendLine("; No$gba/No$sns Symbol File");
@@ -113,14 +129,14 @@ public static class SymbolExporter {
 		sb.AppendLine();
 
 		// Global labels
-		foreach (var kvp in result.Labels.OrderBy(x => x.Key)) {
+		foreach (var kvp in sortedLabels) {
 			var address = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 			sb.AppendLine($"{address:x8} {label}");
 		}
 
 		// Bank-specific labels (use bank:offset format)
-		foreach (var kvp in result.BankLabels.OrderBy(x => x.Key.Bank).ThenBy(x => x.Key.Address)) {
+		foreach (var kvp in sortedBankLabels) {
 			var (address, bank) = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 			sb.AppendLine($"{bank:x2}:{address:x4} {label}");
@@ -134,6 +150,7 @@ public static class SymbolExporter {
 	/// This is a simplified export that generates a .dbg file compatible with cc65 tools
 	/// </summary>
 	public static string ExportCa65Debug(DisassemblyResult result) {
+		var (sortedLabels, _, _) = PreSort(result);
 		var sb = new System.Text.StringBuilder();
 
 		sb.AppendLine("version\tmajor=2,minor=0");
@@ -159,7 +176,7 @@ public static class SymbolExporter {
 
 		// Labels as symbols
 		int symId = 0;
-		foreach (var kvp in result.Labels.OrderBy(x => x.Key)) {
+		foreach (var kvp in sortedLabels) {
 			var address = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 			sb.AppendLine($"sym\tid={symId},name=\"{label}\",addrsize=absolute,scope=0,def=0,ref=0,val=0x{address:x},seg=0,type=lab");
@@ -174,6 +191,7 @@ public static class SymbolExporter {
 	/// Format: [labels] section with ADDRESS LABEL entries
 	/// </summary>
 	public static string ExportWla(DisassemblyResult result) {
+		var (sortedLabels, sortedBankLabels, _) = PreSort(result);
 		var sb = new System.Text.StringBuilder();
 
 		sb.AppendLine("; WLA-DX Symbol File");
@@ -184,7 +202,7 @@ public static class SymbolExporter {
 
 		// Bank-specific format: bank:address label
 		if (result.BankLabels.Count > 0) {
-			foreach (var kvp in result.BankLabels.OrderBy(x => x.Key.Bank).ThenBy(x => x.Key.Address)) {
+			foreach (var kvp in sortedBankLabels) {
 				var (address, bank) = kvp.Key;
 				var label = SanitizeLabel(kvp.Value);
 				sb.AppendLine($"{bank:x2}:{address:x4} {label}");
@@ -192,7 +210,7 @@ public static class SymbolExporter {
 		}
 
 		// Global labels (bank 0 or unbanked)
-		foreach (var kvp in result.Labels.OrderBy(x => x.Key)) {
+		foreach (var kvp in sortedLabels) {
 			var address = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 			sb.AppendLine($"00:{address:x4} {label}");
@@ -206,6 +224,7 @@ public static class SymbolExporter {
 	/// Also useful for FCEUX cheat format
 	/// </summary>
 	public static string ExportBizHawk(DisassemblyResult result) {
+		var (sortedLabels, _, _) = PreSort(result);
 		var sb = new System.Text.StringBuilder();
 
 		sb.AppendLine("; BizHawk Symbol File");
@@ -213,7 +232,7 @@ public static class SymbolExporter {
 		sb.AppendLine();
 
 		// Export RAM labels (addresses < 0x8000 typically)
-		foreach (var kvp in result.Labels.Where(x => x.Key < 0x8000).OrderBy(x => x.Key)) {
+		foreach (var kvp in sortedLabels.Where(x => x.Key < 0x8000)) {
 			var address = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 			sb.AppendLine($"0x{address:x4}\t{label}");
@@ -223,7 +242,7 @@ public static class SymbolExporter {
 		sb.AppendLine("; ROM Labels");
 
 		// ROM labels
-		foreach (var kvp in result.Labels.Where(x => x.Key >= 0x8000).OrderBy(x => x.Key)) {
+		foreach (var kvp in sortedLabels.Where(x => x.Key >= 0x8000)) {
 			var address = kvp.Key;
 			var label = SanitizeLabel(kvp.Value);
 			sb.AppendLine($"0x{address:x4}\t{label}");
