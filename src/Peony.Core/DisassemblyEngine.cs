@@ -22,7 +22,7 @@ public sealed class DisassemblyEngine {
 	private readonly HashSet<(int TargetBank, uint TargetAddress)> _bankCalls = [];
 
 	// Cross-reference tracking
-	private readonly Dictionary<uint, List<CrossRef>> _crossRefs = [];
+	private readonly Dictionary<uint, HashSet<CrossRef>> _crossRefs = [];
 
 	// Track which labels are user-defined (from DIZ/symbol files)
 	private readonly HashSet<uint> _userDefinedLabels = [];
@@ -45,11 +45,7 @@ public sealed class DisassemblyEngine {
 			_crossRefs[toAddress] = refs;
 		}
 
-		// Avoid duplicates
-		var crossRef = new CrossRef(fromAddress, fromBank, type);
-		if (!refs.Contains(crossRef)) {
-			refs.Add(crossRef);
-		}
+		refs.Add(new CrossRef(fromAddress, fromBank, type));
 	}
 
 	/// <summary>
