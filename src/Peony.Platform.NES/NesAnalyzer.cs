@@ -1,4 +1,4 @@
-﻿namespace Peony.Platform.NES;
+namespace Peony.Platform.NES;
 
 using Peony.Core;
 using Peony.Cpu;
@@ -6,7 +6,7 @@ using Peony.Cpu;
 /// <summary>
 /// NES platform analyzer with PPU/APU/mapper support and multi-bank disassembly
 /// </summary>
-public class NesAnalyzer : IPlatformAnalyzer {
+public sealed class NesAnalyzer : IPlatformAnalyzer {
 public string Platform => "NES";
 public ICpuDecoder CpuDecoder { get; } = new Cpu6502Decoder();
 public int Mapper { get; private set; }

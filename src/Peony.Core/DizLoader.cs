@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Text.Json;
 using System.Xml;
 
@@ -9,7 +9,7 @@ namespace Peony.Core;
 /// DIZ files contain labels, comments, and code/data type information
 /// from the DiztinGUIsh SNES disassembler.
 /// </summary>
-public class DizLoader {
+public sealed class DizLoader {
 	private readonly Dictionary<int, DizLabel> _labels = [];
 	private readonly Dictionary<int, DizDataType> _dataTypes = [];
 	private readonly string _projectName;

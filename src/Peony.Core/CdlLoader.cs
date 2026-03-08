@@ -5,7 +5,7 @@ namespace Peony.Core;
 /// CDL files mark which ROM bytes have been executed as code vs read as data,
 /// improving disassembly accuracy.
 /// </summary>
-public class CdlLoader {
+public sealed class CdlLoader {
 	private readonly byte[] _cdlData;
 	private readonly CdlFormat _format;
 	private readonly HashSet<int> _codeOffsets = [];

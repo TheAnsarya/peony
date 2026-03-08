@@ -5,7 +5,7 @@ using Peony.Core;
 /// <summary>
 /// Game Boy Advance text extractor with common GBA RPG text patterns
 /// </summary>
-public class GbaTextExtractor : ITextExtractor {
+public sealed class GbaTextExtractor : ITextExtractor {
 	/// <summary>
 	/// Extract text from ROM using a table file
 	/// </summary>

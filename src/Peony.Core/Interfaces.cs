@@ -1,4 +1,4 @@
-﻿namespace Peony.Core;
+namespace Peony.Core;
 
 /// <summary>
 /// CPU instruction decoder interface
@@ -157,7 +157,7 @@ Dictionary<string, string> Metadata
 /// <summary>
 /// Disassembly result
 /// </summary>
-public class DisassemblyResult {
+public sealed class DisassemblyResult {
 	public RomInfo RomInfo { get; set; } = null!;
 	public List<DisassembledBlock> Blocks { get; } = [];
 	public Dictionary<uint, string> Labels { get; } = [];

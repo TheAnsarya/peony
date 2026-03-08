@@ -5,7 +5,7 @@ using Peony.Core;
 /// <summary>
 /// SNES-specific text extractor with common RPG text patterns
 /// </summary>
-public class SnesTextExtractor : ITextExtractor {
+public sealed class SnesTextExtractor : ITextExtractor {
 	/// <summary>
 	/// Extract text from ROM using a table file
 	/// </summary>

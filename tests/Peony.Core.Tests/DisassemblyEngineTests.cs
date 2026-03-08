@@ -10,7 +10,7 @@ public class DisassemblyEngineTests {
 	/// <summary>
 	/// Mock CPU decoder for testing
 	/// </summary>
-	private class MockCpuDecoder : ICpuDecoder {
+	private sealed class MockCpuDecoder : ICpuDecoder {
 		public string Architecture => "Test6502";
 
 		public DecodedInstruction Decode(ReadOnlySpan<byte> data, uint address) {
@@ -25,7 +25,7 @@ public class DisassemblyEngineTests {
 	/// <summary>
 	/// Mock platform analyzer for testing
 	/// </summary>
-	private class MockPlatformAnalyzer : IPlatformAnalyzer {
+	private sealed class MockPlatformAnalyzer : IPlatformAnalyzer {
 		public string Platform => "Test";
 		public int BankCount => 1;
 		public int RomDataOffset => 0;
@@ -291,7 +291,7 @@ public class DisassemblyEngineTests {
 	/// <summary>
 	/// Extended mock CPU decoder that supports control flow for cross-reference testing
 	/// </summary>
-	private class ControlFlowMockCpuDecoder : ICpuDecoder {
+	private sealed class ControlFlowMockCpuDecoder : ICpuDecoder {
 		public string Architecture => "Test6502";
 		private readonly Dictionary<byte, (string mnemonic, uint target)> _controlFlow = [];
 
@@ -329,7 +329,7 @@ public class DisassemblyEngineTests {
 	/// <summary>
 	/// Extended mock platform analyzer for cross-reference testing
 	/// </summary>
-	private class CrossRefMockPlatformAnalyzer : IPlatformAnalyzer {
+	private sealed class CrossRefMockPlatformAnalyzer : IPlatformAnalyzer {
 		public string Platform => "NES";
 		public int BankCount => 1;
 		public int RomDataOffset => 0;

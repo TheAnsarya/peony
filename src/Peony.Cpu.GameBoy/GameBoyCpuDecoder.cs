@@ -6,7 +6,7 @@ using Peony.Core;
 /// Game Boy CPU (Sharp LR35902) decoder
 /// Mix of 8080 and Z80 instructions with some differences
 /// </summary>
-public class GameBoyCpuDecoder : ICpuDecoder {
+public sealed class GameBoyCpuDecoder : ICpuDecoder {
 	public string Architecture => "LR35902";
 	public string CpuName => "LR35902 (Game Boy)";
 

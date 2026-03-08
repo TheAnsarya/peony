@@ -5,7 +5,7 @@ using Peony.Core;
 /// <summary>
 /// Game Boy graphics extractor supporting 2bpp tile format
 /// </summary>
-public class GameBoyChrExtractor : IGraphicsExtractor {
+public sealed class GameBoyChrExtractor : IGraphicsExtractor {
 	public string Platform => "GameBoy";
 
 	private const int HeaderOffset = 0x100;

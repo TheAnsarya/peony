@@ -1,4 +1,4 @@
-﻿namespace Peony.Platform.SNES;
+namespace Peony.Platform.SNES;
 
 using Peony.Core;
 using Peony.Cpu;
@@ -6,7 +6,7 @@ using Peony.Cpu;
 /// <summary>
 /// SNES platform analyzer with LoRom/HiRom address mapping support
 /// </summary>
-public class SnesAnalyzer : IPlatformAnalyzer {
+public sealed class SnesAnalyzer : IPlatformAnalyzer {
 	public string Platform => "SNES";
 	public ICpuDecoder CpuDecoder { get; }
 	public int BankCount => _romBanks;

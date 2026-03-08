@@ -1,9 +1,11 @@
 ﻿namespace Peony.Core;
 
+using System.Text.RegularExpressions;
+
 /// <summary>
 /// Formats disassembly output in Poppy assembler format with bank annotations
 /// </summary>
-public class PoppyFormatter : IOutputFormatter {
+public sealed class PoppyFormatter : IOutputFormatter {
 public string Name => "Poppy";
 public string Extension => ".pasm";
 
@@ -13,7 +15,8 @@ File.WriteAllText(outputPath, content);
 }
 
 public string Format(DisassemblyResult result) {
-var sb = new System.Text.StringBuilder();
+var estimatedSize = result.Blocks.Sum(b => b.Lines.Count) * 64 + 1024;
+var sb = new System.Text.StringBuilder(estimatedSize);
 
 // Header
 sb.AppendLine("; Disassembled by Peony");
@@ -132,7 +135,7 @@ private static void FormatDataBlock(System.Text.StringBuilder sb, DisassembledBl
 				sb.AppendLine($"\t{directive} {string.Join(", ", values)}\t; {line.Address:x4}");
 			} else {
 				// Fall back to byte-by-byte .db
-				var bytes = string.Join(", ", line.Bytes.Select(b => $"${b:x2}"));
+				var bytes = FormatBytesComma(line.Bytes);
 				sb.AppendLine($"\t.db {bytes}\t\t; {line.Address:x4}");
 			}
 		} else {
@@ -140,7 +143,7 @@ private static void FormatDataBlock(System.Text.StringBuilder sb, DisassembledBl
 			if (!string.IsNullOrEmpty(line.Label)) {
 				sb.AppendLine($"{line.Label}:");
 			}
-			var bytes = string.Join(", ", line.Bytes.Select(b => $"${b:x2}"));
+			var bytes = FormatBytesComma(line.Bytes);
 			var comment = !string.IsNullOrEmpty(line.Comment) ? $" {line.Comment}" : "";
 			sb.AppendLine($"\t.db {bytes}\t\t; {line.Address:x4}{comment}");
 		}
@@ -169,7 +172,7 @@ private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine li
 	}
 
 	// Build the instruction line
-	var bytes = string.Join(" ", line.Bytes.Select(b => $"{b:x2}"));
+	var bytes = FormatBytesSpaced(line.Bytes);
 
 	// Check if this operand references a known label (with bank awareness)
 	var formatted = FormatWithLabels(line.Content, result, bank);
@@ -243,17 +246,17 @@ private static string FormatWithLabels(string instruction, DisassemblyResult res
 				continue;
 
 			// Match $xxxx (4-digit hex) with word boundary
-			var pattern4 = $@"\${address:x4}(?![0-9a-f])";
-			if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern4, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
-				instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern4, label, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+			var regex4 = GetOrCreateHexPattern4(address);
+			if (regex4.IsMatch(instruction)) {
+				instruction = regex4.Replace(instruction, label);
 				continue;
 			}
 
 			// For addresses < 0x100, also match short form like $xx (but not immediate mode)
 			if (address < 0x100) {
-				var pattern2 = $@"(?<!#)\${address:x2}(?![0-9a-f])";
-				if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern2, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
-					instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern2, label, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+				var regex2 = GetOrCreateHexPattern2(address);
+				if (regex2.IsMatch(instruction)) {
+					instruction = regex2.Replace(instruction, label);
 				}
 			}
 		}
@@ -267,21 +270,76 @@ private static string FormatWithLabels(string instruction, DisassemblyResult res
 			continue;
 
 		// Match $xxxx (4-digit hex) with word boundary
-		var pattern4 = $@"\${kvp.Key:x4}(?![0-9a-f])";
-		if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern4, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
-			instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern4, kvp.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+		var regex4 = GetOrCreateHexPattern4(kvp.Key);
+		if (regex4.IsMatch(instruction)) {
+			instruction = regex4.Replace(instruction, kvp.Value);
 			continue;
 		}
 
 		// For addresses < 0x100, also match short form like $xx (but not immediate mode)
 		if (kvp.Key < 0x100) {
 			// Only match if it's NOT immediate mode (not preceded by #)
-			var pattern2 = $@"(?<!#)\${kvp.Key:x2}(?![0-9a-f])";
-			if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern2, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
-				instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern2, kvp.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+			var regex2 = GetOrCreateHexPattern2(kvp.Key);
+			if (regex2.IsMatch(instruction)) {
+				instruction = regex2.Replace(instruction, kvp.Value);
 			}
 		}
 	}
 	return instruction;
+}
+
+private static readonly Dictionary<uint, Regex> _hexPattern4Cache = [];
+private static readonly Dictionary<uint, Regex> _hexPattern2Cache = [];
+
+private static Regex GetOrCreateHexPattern4(uint address) {
+	if (!_hexPattern4Cache.TryGetValue(address, out var regex)) {
+		regex = new Regex($@"\${address:x4}(?![0-9a-f])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		_hexPattern4Cache[address] = regex;
+	}
+	return regex;
+}
+
+private static Regex GetOrCreateHexPattern2(uint address) {
+	if (!_hexPattern2Cache.TryGetValue(address, out var regex)) {
+		regex = new Regex($@"(?<!#)\${address:x2}(?![0-9a-f])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		_hexPattern2Cache[address] = regex;
+	}
+	return regex;
+}
+
+/// <summary>
+/// Format byte array as space-separated hex (e.g., "a9 00 8d").
+/// Avoids LINQ allocation overhead.
+/// </summary>
+private static string FormatBytesSpaced(byte[] bytes) {
+	if (bytes.Length == 0) return "";
+	// Each byte = 2 hex chars + 1 space, minus the last space
+	return string.Create(bytes.Length * 3 - 1, bytes, static (span, b) => {
+		for (int i = 0; i < b.Length; i++) {
+			if (i > 0) span[i * 3 - 1] = ' ';
+			b[i].TryFormat(span[(i * 3)..], out _, "x2");
+		}
+	});
+}
+
+/// <summary>
+/// Format byte array as comma-separated hex with $ prefix (e.g., "$a9, $00, $8d").
+/// Avoids LINQ allocation overhead.
+/// </summary>
+private static string FormatBytesComma(byte[] bytes) {
+	if (bytes.Length == 0) return "";
+	// Each byte = "$" + 2 hex + ", " (4 chars per byte except last has no ", ")
+	return string.Create(bytes.Length * 5 - 2, bytes, static (span, b) => {
+		int pos = 0;
+		for (int i = 0; i < b.Length; i++) {
+			if (i > 0) {
+				span[pos++] = ',';
+				span[pos++] = ' ';
+			}
+			span[pos++] = '$';
+			b[i].TryFormat(span[pos..], out _, "x2");
+			pos += 2;
+		}
+	});
 }
 }

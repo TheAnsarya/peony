@@ -6,7 +6,7 @@ using Peony.Core;
 /// 65816 CPU instruction decoder for SNES
 /// Handles variable-width registers (8/16-bit A, X, Y)
 /// </summary>
-public class Cpu65816Decoder : ICpuDecoder {
+public sealed class Cpu65816Decoder : ICpuDecoder {
 	public string Architecture => "65816";
 
 	/// <summary>

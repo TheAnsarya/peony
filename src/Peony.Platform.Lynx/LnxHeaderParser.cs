@@ -1,4 +1,4 @@
-﻿namespace Peony.Platform.Lynx;
+namespace Peony.Platform.Lynx;
 
 /// <summary>
 /// Parser for Atari Lynx LNX ROM header format.
@@ -23,7 +23,7 @@
 /// Each page is 256 bytes. Total ROM size = (Bank0Pages + Bank1Pages) * 256.
 /// </para>
 /// </remarks>
-public class LnxHeaderParser {
+public sealed class LnxHeaderParser {
 	/// <summary>
 	/// The LNX header magic bytes "LYNX".
 	/// </summary>

@@ -1,4 +1,4 @@
-﻿using Pansy.Core;
+using Pansy.Core;
 
 namespace Peony.Core;
 
@@ -6,7 +6,7 @@ namespace Peony.Core;
 /// Loads and manages symbols (labels, comments, data definitions) for disassembly
 /// Supports common formats: FCEUX .nl files, Mesen .mlb files, JSON, CDL, DIZ, Pansy
 /// </summary>
-public class SymbolLoader {
+public sealed class SymbolLoader {
 	private readonly Dictionary<uint, string> _labels = [];
 	private readonly Dictionary<uint, string> _comments = [];
 	private readonly Dictionary<uint, DataDefinition> _dataDefinitions = [];

@@ -7,7 +7,7 @@ using System.Text.Json;
 /// NES CHR (Character ROM) graphics extractor
 /// Extracts 2bpp tile data from NES ROMs and converts to images
 /// </summary>
-public class NesChrExtractor : IGraphicsExtractor {
+public sealed class NesChrExtractor : IGraphicsExtractor {
 	public string Platform => "NES";
 
 	private const int HeaderSize = 16;

@@ -5,7 +5,7 @@ using Peony.Core;
 /// <summary>
 /// 6502 CPU instruction decoder with illegal opcode support
 /// </summary>
-public class Cpu6502Decoder : ICpuDecoder {
+public sealed class Cpu6502Decoder : ICpuDecoder {
 public string Architecture => "6502";
 public bool IncludeIllegalOpcodes { get; set; } = true;
 

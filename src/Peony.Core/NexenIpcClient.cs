@@ -1,4 +1,4 @@
-﻿using System.IO.Pipes;
+using System.IO.Pipes;
 
 namespace Peony.Core;
 
@@ -389,18 +389,18 @@ public record NexenRomInfo(byte ConsoleType, uint RomCrc32, uint RomSize, string
 public record NexenLabel(uint Address, byte MemoryType, string Name, string Comment = "");
 
 /// <summary>Exception for Nexen connection failures.</summary>
-public class NexenConnectionException : Exception {
+public sealed class NexenConnectionException : Exception {
 	public NexenConnectionException(string message) : base(message) { }
 	public NexenConnectionException(string message, Exception inner) : base(message, inner) { }
 }
 
 /// <summary>Exception for IPC protocol errors.</summary>
-public class NexenProtocolException : Exception {
+public sealed class NexenProtocolException : Exception {
 	public NexenProtocolException(string message) : base(message) { }
 }
 
 /// <summary>Exception for remote errors reported by the Nexen server.</summary>
-public class NexenRemoteException : Exception {
+public sealed class NexenRemoteException : Exception {
 	public ushort ErrorCode { get; }
 	public NexenRemoteException(ushort errorCode, string message) : base(message) {
 		ErrorCode = errorCode;

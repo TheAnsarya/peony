@@ -1,4 +1,4 @@
-﻿namespace Peony.Cpu;
+namespace Peony.Cpu;
 
 using Peony.Core;
 
@@ -21,7 +21,7 @@ using Peony.Core;
 /// - JMP (abs,X): Indexed Indirect Jump
 /// </para>
 /// </remarks>
-public class Cpu65SC02Decoder : ICpuDecoder {
+public sealed class Cpu65SC02Decoder : ICpuDecoder {
 	/// <summary>
 	/// Gets the architecture name.
 	/// </summary>

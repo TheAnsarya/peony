@@ -1,4 +1,4 @@
-﻿namespace Peony.Platform.GameBoy;
+namespace Peony.Platform.GameBoy;
 
 using Peony.Core;
 using Peony.Cpu.GameBoy;
@@ -6,7 +6,7 @@ using Peony.Cpu.GameBoy;
 /// <summary>
 /// Game Boy platform analyzer with ROM/RAM/hardware register detection
 /// </summary>
-public class GameBoyAnalyzer : IPlatformAnalyzer {
+public sealed class GameBoyAnalyzer : IPlatformAnalyzer {
 	public string Platform => "Game Boy";
 	public ICpuDecoder CpuDecoder { get; } = new GameBoyCpuDecoder();
 	public int BankCount => _romBanks;

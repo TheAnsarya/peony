@@ -6,7 +6,7 @@ using Peony.Core;
 /// GBA graphics extractor supporting 4bpp and 8bpp tile formats,
 /// plus Mode 3/5 direct color bitmaps
 /// </summary>
-public class GbaChrExtractor : IGraphicsExtractor {
+public sealed class GbaChrExtractor : IGraphicsExtractor {
 	public string Platform => "GBA";
 
 	/// <summary>

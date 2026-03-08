@@ -1,11 +1,11 @@
-﻿using Pansy.Core;
+using Pansy.Core;
 
 namespace Peony.Core;
 
 /// <summary>
 /// Core disassembly engine with multi-bank support and CDL/DIZ integration
 /// </summary>
-public class DisassemblyEngine {
+public sealed class DisassemblyEngine {
 	private readonly ICpuDecoder _cpuDecoder;
 	private readonly IPlatformAnalyzer _platformAnalyzer;
 

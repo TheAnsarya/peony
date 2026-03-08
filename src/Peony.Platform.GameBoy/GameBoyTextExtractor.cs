@@ -5,7 +5,7 @@ using Peony.Core;
 /// <summary>
 /// Game Boy text extractor with common RPG text patterns
 /// </summary>
-public class GameBoyTextExtractor : ITextExtractor {
+public sealed class GameBoyTextExtractor : ITextExtractor {
 	/// <summary>
 	/// Extract text from ROM using a table file
 	/// </summary>

@@ -1,11 +1,11 @@
-﻿namespace Peony.Core;
+namespace Peony.Core;
 
 /// <summary>
 /// Analyzes decoded instructions to extract data references from operands.
 /// This is the core intelligence behind Phase 6 of the static analysis pipeline.
 /// Can be used independently of StaticAnalyzer for targeted instruction analysis.
 /// </summary>
-public class InstructionAnalyzer {
+public sealed class InstructionAnalyzer {
 	private readonly ICpuDecoder _decoder;
 	private readonly IPlatformAnalyzer _platform;
 

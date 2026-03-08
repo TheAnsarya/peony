@@ -1,4 +1,4 @@
-﻿namespace Peony.Platform.Atari2600;
+namespace Peony.Platform.Atari2600;
 
 using Peony.Core;
 using Peony.Cpu;
@@ -7,7 +7,7 @@ using Peony.Cpu;
 /// Atari 2600 platform analyzer with TIA/RIOT register detection
 /// and comprehensive bank switching scheme support
 /// </summary>
-public class Atari2600Analyzer : IPlatformAnalyzer {
+public sealed class Atari2600Analyzer : IPlatformAnalyzer {
 public string Platform => "Atari 2600";
 public ICpuDecoder CpuDecoder { get; } = new Cpu6502Decoder();
 public string? DetectedScheme { get; private set; }

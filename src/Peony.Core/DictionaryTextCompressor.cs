@@ -7,7 +7,7 @@ using System.Text;
 /// DTE = Dual Tile Encoding (2 characters per byte)
 /// MTE = Multiple Tile Encoding (2+ characters per byte)
 /// </summary>
-public class DictionaryTextCompressor {
+public sealed class DictionaryTextCompressor {
 	private readonly Dictionary<string, byte> _dictionary = [];
 	private readonly Dictionary<byte, string> _reverseDictionary = [];
 	private byte _nextDictByte = 0x00;

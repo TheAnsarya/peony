@@ -4,7 +4,7 @@ namespace Peony.Core;
 /// Verifies that disassembled code can reassemble to the original ROM.
 /// This is the key guarantee of Peony: ROM → ASM → ROM roundtrip fidelity.
 /// </summary>
-public class RoundtripVerifier {
+public sealed class RoundtripVerifier {
 	/// <summary>
 	/// Verification result with detailed information
 	/// </summary>

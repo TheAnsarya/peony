@@ -1,4 +1,4 @@
-﻿namespace Peony.Platform.GBA;
+namespace Peony.Platform.GBA;
 
 using Peony.Core;
 using Peony.Cpu.ARM7TDMI;
@@ -6,7 +6,7 @@ using Peony.Cpu.ARM7TDMI;
 /// <summary>
 /// Game Boy Advance platform analyzer
 /// </summary>
-public class GbaAnalyzer : IPlatformAnalyzer {
+public sealed class GbaAnalyzer : IPlatformAnalyzer {
 	public string Platform => "Game Boy Advance";
 	public ICpuDecoder CpuDecoder { get; } = new Arm7TdmiDecoder();
 	public int BankCount => 1; // GBA doesn't use traditional banking

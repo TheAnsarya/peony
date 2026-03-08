@@ -6,7 +6,7 @@ using Peony.Core;
 /// ARM7TDMI CPU decoder (Game Boy Advance)
 /// Supports both ARM (32-bit) and Thumb (16-bit) instruction sets
 /// </summary>
-public class Arm7TdmiDecoder : ICpuDecoder {
+public sealed class Arm7TdmiDecoder : ICpuDecoder {
 	public string Architecture => "ARM7TDMI";
 
 	private bool _thumbMode = false;

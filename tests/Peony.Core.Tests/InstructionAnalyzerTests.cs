@@ -239,6 +239,120 @@ public class InstructionAnalyzerTests {
 		Assert.Empty(refs);
 	}
 
+	[Fact]
+	public void FindDataReferences_MultipleInstructions_FindsAll() {
+		// LDA $c000 (3 bytes), STA $c100 (3 bytes), JSR $8100 (3 bytes)
+		var rom = CreateNesRomWithCode(new byte[] {
+			0xad, 0x00, 0xc0, // LDA $c000
+			0x8d, 0x00, 0xc1, // STA $c100
+			0x20, 0x00, 0x81, // JSR $8100
+		});
+
+		var map = new ByteClassification[rom.Length];
+		for (int i = 16; i < 25; i++) {
+			map[i] = ByteClassification.Code;
+		}
+
+		var refs = _analyzer.FindDataReferences(rom, map, 16, 25);
+
+		Assert.Equal(3, refs.Count);
+		Assert.Equal(DataRefType.Read, refs[0].RefType);   // LDA
+		Assert.Equal(DataRefType.Write, refs[1].RefType);  // STA
+		Assert.Equal(DataRefType.Call, refs[2].RefType);    // JSR
+	}
+
+	[Fact]
+	public void FindDataReferences_MixedCodeAndData_OnlyScansCode() {
+		// ROM: LDA $c000 (code), 3 data bytes, STA $c100 (code)
+		var rom = CreateNesRomWithCode(new byte[] {
+			0xad, 0x00, 0xc0, // LDA $c000 (offset 16-18)
+			0xff, 0xff, 0xff, // Data (offset 19-21)
+			0x8d, 0x00, 0xc1, // STA $c100 (offset 22-24)
+		});
+
+		var map = new ByteClassification[rom.Length];
+		// Mark only instruction bytes as Code
+		map[16] = ByteClassification.Code;
+		map[17] = ByteClassification.Code;
+		map[18] = ByteClassification.Code;
+		map[19] = ByteClassification.Data;
+		map[20] = ByteClassification.Data;
+		map[21] = ByteClassification.Data;
+		map[22] = ByteClassification.Code;
+		map[23] = ByteClassification.Code;
+		map[24] = ByteClassification.Code;
+
+		var refs = _analyzer.FindDataReferences(rom, map, 16, 25);
+
+		Assert.Equal(2, refs.Count);
+		Assert.Equal(0xc000u, refs[0].TargetAddress);
+		Assert.Equal(0xc100u, refs[1].TargetAddress);
+	}
+
+	[Fact]
+	public void FindDataReferences_EmptyRange_ReturnsEmpty() {
+		var rom = CreateNesRomWithCode(new byte[] { 0xea }); // NOP
+		var map = new ByteClassification[rom.Length];
+
+		var refs = _analyzer.FindDataReferences(rom, map, 16, 16); // start == end
+
+		Assert.Empty(refs);
+	}
+
+	[Fact]
+	public void FindDataReferences_ImpliedInstructions_NoRefs() {
+		// NOP, RTS, PHA — no data references
+		var rom = CreateNesRomWithCode(new byte[] {
+			0xea, // NOP
+			0x60, // RTS
+			0x48, // PHA
+		});
+
+		var map = new ByteClassification[rom.Length];
+		for (int i = 16; i < 19; i++) {
+			map[i] = ByteClassification.Code;
+		}
+
+		var refs = _analyzer.FindDataReferences(rom, map, 16, 19);
+
+		Assert.Empty(refs);
+	}
+
+	[Fact]
+	public void FindDataReferences_SkipsHardwareRegisters() {
+		// LDA $2002 (PPUSTATUS) — should be filtered as hardware register
+		var rom = CreateNesRomWithCode(new byte[] {
+			0xad, 0x02, 0x20, // LDA $2002
+		});
+
+		var map = new ByteClassification[rom.Length];
+		for (int i = 16; i < 19; i++) {
+			map[i] = ByteClassification.Code;
+		}
+
+		var refs = _analyzer.FindDataReferences(rom, map, 16, 19);
+
+		Assert.Empty(refs);
+	}
+
+	[Fact]
+	public void FindDataReferences_RecordsCorrectOffsetAndAddress() {
+		var rom = CreateNesRomWithCode(new byte[] {
+			0xad, 0x00, 0xc0, // LDA $c000
+		});
+
+		var map = new ByteClassification[rom.Length];
+		for (int i = 16; i < 19; i++) {
+			map[i] = ByteClassification.Code;
+		}
+
+		var refs = _analyzer.FindDataReferences(rom, map, 16, 19);
+
+		Assert.Single(refs);
+		Assert.Equal(16, refs[0].InstructionOffset);
+		Assert.Equal(0xc000u, refs[0].TargetAddress);
+	}
+
 	/// <summary>
 	/// Create a NES ROM with code injected at the start of PRG-ROM.
 	/// </summary>

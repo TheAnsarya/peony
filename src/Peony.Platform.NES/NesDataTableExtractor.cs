@@ -5,7 +5,7 @@ using Peony.Core;
 /// <summary>
 /// NES data table extractor with support for common NES RPG data formats
 /// </summary>
-public class NesDataTableExtractor : IDataTableExtractor {
+public sealed class NesDataTableExtractor : IDataTableExtractor {
 	public string Platform => "NES";
 
 	/// <summary>

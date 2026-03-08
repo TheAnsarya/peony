@@ -73,7 +73,7 @@ public record TextExtractionOptions {
 /// <summary>
 /// Table file (.tbl) for character encoding
 /// </summary>
-public class TableFile {
+public sealed class TableFile {
 	private readonly Dictionary<byte, string> _byteToChar = [];
 	private readonly Dictionary<string, byte> _charToByte = [];
 	private readonly Dictionary<ushort, string> _wordToChar = [];

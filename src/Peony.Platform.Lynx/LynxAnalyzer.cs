@@ -1,4 +1,4 @@
-﻿namespace Peony.Platform.Lynx;
+namespace Peony.Platform.Lynx;
 
 using Peony.Core;
 using Peony.Cpu;
@@ -19,7 +19,7 @@ using Peony.Cpu;
 /// Vectors are at $fff8-$ffff (NMI, RESET, IRQ/BRK).
 /// </para>
 /// </remarks>
-public class LynxAnalyzer : IPlatformAnalyzer {
+public sealed class LynxAnalyzer : IPlatformAnalyzer {
 	/// <summary>
 	/// Gets the platform name.
 	/// </summary>

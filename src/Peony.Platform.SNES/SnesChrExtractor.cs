@@ -5,7 +5,7 @@ using Peony.Core;
 /// <summary>
 /// SNES graphics extractor supporting 2bpp, 4bpp, and 8bpp tile formats
 /// </summary>
-public class SnesChrExtractor : IGraphicsExtractor {
+public sealed class SnesChrExtractor : IGraphicsExtractor {
 	public string Platform => "SNES";
 
 	/// <summary>
