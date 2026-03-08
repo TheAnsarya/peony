@@ -1,4 +1,6 @@
-namespace Peony.Platform.GameBoy;
+﻿namespace Peony.Platform.GameBoy;
+
+using System.Collections.Frozen;
 
 using Peony.Core;
 using Peony.Cpu.GameBoy;
@@ -17,7 +19,7 @@ public sealed class GameBoyAnalyzer : IPlatformAnalyzer {
 	private string? _mbcType;
 
 	// Hardware registers ($ff00-$ff7f)
-	private static readonly Dictionary<uint, string> HardwareRegisters = new() {
+	private static readonly FrozenDictionary<uint, string> HardwareRegisters = new Dictionary<uint, string> {
 		// Joypad
 		[0xff00] = "P1",
 
@@ -72,7 +74,7 @@ public sealed class GameBoyAnalyzer : IPlatformAnalyzer {
 		[0xff6a] = "OCPS",
 		[0xff6b] = "OCPD",
 		[0xff70] = "SVBK",
-	};
+	}.ToFrozenDictionary();
 
 	public RomInfo Analyze(ReadOnlySpan<byte> rom) {
 		if (rom.Length < 0x150)

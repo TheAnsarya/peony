@@ -1,4 +1,6 @@
-namespace Peony.Platform.GBA;
+﻿namespace Peony.Platform.GBA;
+
+using System.Collections.Frozen;
 
 using Peony.Core;
 using Peony.Cpu.ARM7TDMI;
@@ -13,7 +15,7 @@ public sealed class GbaAnalyzer : IPlatformAnalyzer {
 	public int RomDataOffset => 0; // GBA ROMs have no file header
 
 	// Hardware registers
-	private static readonly Dictionary<uint, string> HardwareRegisters = new() {
+	private static readonly FrozenDictionary<uint, string> HardwareRegisters = new Dictionary<uint, string> {
 		// LCD I/O
 		[0x04000000] = "DISPCNT",
 		[0x04000002] = "DISPSTAT",
@@ -90,7 +92,7 @@ public sealed class GbaAnalyzer : IPlatformAnalyzer {
 		[0x04000208] = "IME",
 		[0x04000300] = "POSTFLG",
 		[0x04000301] = "HALTCNT",
-	};
+	}.ToFrozenDictionary();
 
 	public RomInfo Analyze(ReadOnlySpan<byte> rom) {
 		if (rom.Length < 0xc0)

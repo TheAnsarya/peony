@@ -1,4 +1,6 @@
-namespace Peony.Platform.SNES;
+﻿namespace Peony.Platform.SNES;
+
+using System.Collections.Frozen;
 
 using Peony.Core;
 using Peony.Cpu;
@@ -30,7 +32,7 @@ public sealed class SnesAnalyzer : IPlatformAnalyzer {
 	private int _romSize;
 
 	// PPU Registers ($2100-$213F)
-	private static readonly Dictionary<uint, string> PpuRegisters = new() {
+	private static readonly FrozenDictionary<uint, string> PpuRegisters = new Dictionary<uint, string> {
 		[0x2100] = "INIDISP",    [0x2101] = "OBSEL",      [0x2102] = "OAMADDL",   [0x2103] = "OAMADDH",
 		[0x2104] = "OAMDATA",    [0x2105] = "BGMODE",     [0x2106] = "MOSAIC",    [0x2107] = "BG1SC",
 		[0x2108] = "BG2SC",      [0x2109] = "BG3SC",      [0x210a] = "BG4SC",     [0x210b] = "BG12NBA",
@@ -48,20 +50,20 @@ public sealed class SnesAnalyzer : IPlatformAnalyzer {
 		[0x2137] = "SLHV",       [0x2138] = "RDOAM",      [0x2139] = "RDVRAML",   [0x213a] = "RDVRAMH",
 		[0x213b] = "RDCGRAM",    [0x213c] = "OPHCT",      [0x213d] = "OPVCT",     [0x213e] = "STAT77",
 		[0x213f] = "STAT78"
-	};
+	}.ToFrozenDictionary();
 
 	// APU I/O Registers ($2140-$2143)
-	private static readonly Dictionary<uint, string> ApuRegisters = new() {
+	private static readonly FrozenDictionary<uint, string> ApuRegisters = new Dictionary<uint, string> {
 		[0x2140] = "APUIO0",     [0x2141] = "APUIO1",     [0x2142] = "APUIO2",    [0x2143] = "APUIO3"
-	};
+	}.ToFrozenDictionary();
 
 	// WRAM Registers ($2180-$2183)
-	private static readonly Dictionary<uint, string> WramRegisters = new() {
+	private static readonly FrozenDictionary<uint, string> WramRegisters = new Dictionary<uint, string> {
 		[0x2180] = "WMDATA",     [0x2181] = "WMADDL",     [0x2182] = "WMADDM",    [0x2183] = "WMADDH"
-	};
+	}.ToFrozenDictionary();
 
 	// CPU Registers ($4200-$421F)
-	private static readonly Dictionary<uint, string> CpuRegisters = new() {
+	private static readonly FrozenDictionary<uint, string> CpuRegisters = new Dictionary<uint, string> {
 		[0x4200] = "NMITIMEN",   [0x4201] = "WRIO",       [0x4202] = "WRMPYA",    [0x4203] = "WRMPYB",
 		[0x4204] = "WRDIVL",     [0x4205] = "WRDIVH",     [0x4206] = "WRDIVB",    [0x4207] = "HTIMEL",
 		[0x4208] = "HTIMEH",     [0x4209] = "VTIMEL",     [0x420a] = "VTIMEH",    [0x420b] = "MDMAEN",
@@ -70,7 +72,7 @@ public sealed class SnesAnalyzer : IPlatformAnalyzer {
 		[0x4216] = "RDMPYL",     [0x4217] = "RDMPYH",     [0x4218] = "JOY1L",     [0x4219] = "JOY1H",
 		[0x421a] = "JOY2L",      [0x421b] = "JOY2H",      [0x421c] = "JOY3L",     [0x421d] = "JOY3H",
 		[0x421e] = "JOY4L",      [0x421f] = "JOY4H"
-	};
+	}.ToFrozenDictionary();
 
 	public SnesAnalyzer() {
 		CpuDecoder = new Cpu65816Decoder();

@@ -1,4 +1,6 @@
-namespace Peony.Platform.Lynx;
+﻿namespace Peony.Platform.Lynx;
+
+using System.Collections.Frozen;
 
 using Peony.Core;
 using Peony.Cpu;
@@ -47,7 +49,7 @@ public sealed class LynxAnalyzer : IPlatformAnalyzer {
 
 	// Suzy Registers ($fc00-$fcff)
 	// Graphics coprocessor, hardware math, sprites
-	private static readonly Dictionary<uint, string> SuzyRegisters = new() {
+	private static readonly FrozenDictionary<uint, string> SuzyRegisters = new Dictionary<uint, string> {
 		// Temporary addresses
 		[0xfc00] = "TMPADR_L",    [0xfc01] = "TMPADR_H",
 		[0xfc02] = "TILTACUM_L",  [0xfc03] = "TILTACUM_H",
@@ -87,11 +89,11 @@ public sealed class LynxAnalyzer : IPlatformAnalyzer {
 
 		// Collision palette
 		[0xfcb0] = "PENNDX",
-	};
+	}.ToFrozenDictionary();
 
 	// Mikey Registers ($fd00-$fdff)
 	// Audio, timers, UART, display control
-	private static readonly Dictionary<uint, string> MikeyRegisters = new() {
+	private static readonly FrozenDictionary<uint, string> MikeyRegisters = new Dictionary<uint, string> {
 		// Timers
 		[0xfd00] = "TIM0BKUP",    [0xfd01] = "TIM0CTLA",
 		[0xfd02] = "TIM0CNT",     [0xfd03] = "TIM0CTLB",
@@ -165,7 +167,7 @@ public sealed class LynxAnalyzer : IPlatformAnalyzer {
 		[0xfdba] = "BLUEREDA",    [0xfdbb] = "BLUEREDB",
 		[0xfdbc] = "BLUEREDC",    [0xfdbd] = "BLUEREDD",
 		[0xfdbe] = "BLUEREDE",    [0xfdbf] = "BLUEREDF",
-	};
+	}.ToFrozenDictionary();
 
 	/// <summary>
 	/// Analyzes the ROM and detects its configuration.

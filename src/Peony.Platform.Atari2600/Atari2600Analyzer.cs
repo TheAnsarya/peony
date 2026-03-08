@@ -1,4 +1,6 @@
-namespace Peony.Platform.Atari2600;
+﻿namespace Peony.Platform.Atari2600;
+
+using System.Collections.Frozen;
 
 using Peony.Core;
 using Peony.Cpu;
@@ -17,7 +19,7 @@ public int RomDataOffset => 0; // Atari 2600 ROMs have no file header
 private int _romLength;
 
 // TIA Write Registers ($00-$2C)
-private static readonly Dictionary<uint, string> TiaWriteRegisters = new() {
+private static readonly FrozenDictionary<uint, string> TiaWriteRegisters = new Dictionary<uint, string> {
 [0x00] = "VSYNC",   [0x01] = "VBLANK",  [0x02] = "WSYNC",   [0x03] = "RSYNC",
 [0x04] = "NUSIZ0",  [0x05] = "NUSIZ1",  [0x06] = "COLUP0",  [0x07] = "COLUP1",
 [0x08] = "COLUPF",  [0x09] = "COLUBK",  [0x0a] = "CTRLPF",  [0x0b] = "REFP0",
@@ -30,25 +32,25 @@ private static readonly Dictionary<uint, string> TiaWriteRegisters = new() {
 [0x24] = "HMBL",    [0x25] = "VDELP0",  [0x26] = "VDELP1",  [0x27] = "VDELBL",
 [0x28] = "RESMP0",  [0x29] = "RESMP1",  [0x2a] = "HMOVE",   [0x2b] = "HMCLR",
 [0x2c] = "CXCLR"
-};
+}.ToFrozenDictionary();
 
 // TIA Read Registers ($00-$0D, mirrored)
-private static readonly Dictionary<uint, string> TiaReadRegisters = new() {
+private static readonly FrozenDictionary<uint, string> TiaReadRegisters = new Dictionary<uint, string> {
 [0x00] = "CXM0P",   [0x01] = "CXM1P",   [0x02] = "CXP0FB",  [0x03] = "CXP1FB",
 [0x04] = "CXM0FB",  [0x05] = "CXM1FB",  [0x06] = "CXBLPF",  [0x07] = "CXPPMM",
 [0x08] = "INPT0",   [0x09] = "INPT1",   [0x0a] = "INPT2",   [0x0b] = "INPT3",
 [0x0c] = "INPT4",   [0x0d] = "INPT5"
-};
+}.ToFrozenDictionary();
 
 // RIOT Registers ($280-$297)
-private static readonly Dictionary<uint, string> RiotRegisters = new() {
+private static readonly FrozenDictionary<uint, string> RiotRegisters = new Dictionary<uint, string> {
 [0x280] = "SWCHA",   [0x281] = "SWACNT",  [0x282] = "SWCHB",   [0x283] = "SWBCNT",
 [0x284] = "INTIM",   [0x285] = "TIMINT",
 [0x294] = "TIM1T",   [0x295] = "TIM8T",   [0x296] = "TIM64T",  [0x297] = "T1024T"
-};
+}.ToFrozenDictionary();
 
 // Bank switching hotspot addresses
-private static readonly Dictionary<string, uint[]> BankHotspots = new() {
+private static readonly FrozenDictionary<string, uint[]> BankHotspots = new Dictionary<string, uint[]> {
 ["F8"] = new uint[] { 0xfff8, 0xfff9 },
 ["F6"] = new uint[] { 0xfff6, 0xfff7, 0xfff8, 0xfff9 },
 ["F4"] = new uint[] { 0xfff4, 0xfff5, 0xfff6, 0xfff7, 0xfff8, 0xfff9, 0xfffa, 0xfffb },
@@ -60,7 +62,7 @@ private static readonly Dictionary<string, uint[]> BankHotspots = new() {
 ["F0"] = new uint[] { 0xfff0 },
 ["UA"] = new uint[] { 0x0220, 0x0240 },
 ["CV"] = new uint[] { 0x03ff },
-};
+}.ToFrozenDictionary();
 
 public RomInfo Analyze(ReadOnlySpan<byte> rom) {
 _romLength = rom.Length;
