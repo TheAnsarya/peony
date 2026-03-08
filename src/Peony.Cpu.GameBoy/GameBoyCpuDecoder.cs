@@ -1,5 +1,6 @@
-namespace Peony.Cpu.GameBoy;
+﻿namespace Peony.Cpu.GameBoy;
 
+using System.Collections.Frozen;
 using Peony.Core;
 
 /// <summary>
@@ -10,7 +11,7 @@ public sealed class GameBoyCpuDecoder : ICpuDecoder {
 	public string Architecture => "LR35902";
 	public string CpuName => "LR35902 (Game Boy)";
 
-	private static readonly Dictionary<byte, (string mnemonic, AddressingMode mode, int bytes)> Opcodes = new() {
+	private static readonly FrozenDictionary<byte, (string mnemonic, AddressingMode mode, int bytes)> Opcodes = new Dictionary<byte, (string mnemonic, AddressingMode mode, int bytes)>() {
 		// 8-bit loads
 		[0x06] = ("ld", AddressingMode.Immediate, 2),    // ld b, n
 		[0x0e] = ("ld", AddressingMode.Immediate, 2),    // ld c, n
@@ -104,10 +105,10 @@ public sealed class GameBoyCpuDecoder : ICpuDecoder {
 		[0xf2] = ("ld", AddressingMode.Indirect, 1),     // ld a, ($ff00+c)
 		[0xea] = ("ld", AddressingMode.Absolute, 3),     // ld (nn), a
 		[0xfa] = ("ld", AddressingMode.Absolute, 3),     // ld a, (nn)
-	};
+	}.ToFrozenDictionary();
 
 	// CB-prefixed opcodes (bit operations)
-	private static readonly Dictionary<byte, (string mnemonic, AddressingMode mode)> CbOpcodes = new() {
+	private static readonly FrozenDictionary<byte, (string mnemonic, AddressingMode mode)> CbOpcodes = new Dictionary<byte, (string mnemonic, AddressingMode mode)>() {
 		// Bit test
 		[0x40] = ("bit", AddressingMode.Implied),  // bit 0, b
 		[0x47] = ("bit", AddressingMode.Implied),  // bit 0, a
@@ -153,7 +154,7 @@ public sealed class GameBoyCpuDecoder : ICpuDecoder {
 		[0x80] = ("res", AddressingMode.Implied),  // res 0, b
 		[0x87] = ("res", AddressingMode.Implied),  // res 0, a
 		[0x8e] = ("res", AddressingMode.Indirect), // res 1, (hl)
-	};
+	}.ToFrozenDictionary();
 
 	public DecodedInstruction Decode(ReadOnlySpan<byte> data, uint address) {
 		if (data.IsEmpty)
