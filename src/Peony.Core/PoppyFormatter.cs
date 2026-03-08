@@ -59,8 +59,8 @@ FormatBlock(sb, block, result, bank);
 }
 } else {
 // Single bank output (original behavior)
-var allBlocks = result.Blocks.Count > 0 ? result.Blocks :
-result.BankBlocks.Values.SelectMany(b => b).ToList();
+			IEnumerable<DisassembledBlock> allBlocks = result.Blocks.Count > 0 ? result.Blocks :
+				result.BankBlocks.Values.SelectMany(b => b);
 
 			// For single-bank systems, determine which bank to pass for label formatting
 			var bank = -1; // Default for global labels

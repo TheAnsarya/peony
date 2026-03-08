@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text.Json;
 using System.Xml;
 
@@ -354,14 +354,14 @@ public sealed class DizLoader {
 									 kv.Value != DizDataType.Opcode &&
 									 kv.Value != DizDataType.Operand);
 
-		var sorted = filtered.OrderBy(kv => kv.Key).ToList();
-		if (sorted.Count == 0) return regions;
+		var sorted = filtered.OrderBy(kv => kv.Key).ToArray();
+		if (sorted.Length == 0) return regions;
 
 		int start = sorted[0].Key;
 		int end = sorted[0].Key;
 		var currentType = sorted[0].Value;
 
-		for (int i = 1; i < sorted.Count; i++) {
+		for (int i = 1; i < sorted.Length; i++) {
 			if (sorted[i].Key == end + 1 && sorted[i].Value == currentType) {
 				end = sorted[i].Key;
 			} else {
@@ -393,9 +393,14 @@ public sealed class DizLoader {
 	/// </summary>
 	/// <returns>Statistics about marked bytes.</returns>
 	public (int Opcodes, int Operands, int DataBytes, int Unreached, double CoveragePercent) GetCoverageStats() {
-		var opcodes = _dataTypes.Count(kv => kv.Value == DizDataType.Opcode);
-		var operands = _dataTypes.Count(kv => kv.Value == DizDataType.Operand);
-		var dataBytes = _dataTypes.Count(kv => kv.Value >= DizDataType.Data8 && kv.Value <= DizDataType.Text);
+		int opcodes = 0, operands = 0, dataBytes = 0;
+		foreach (var kv in _dataTypes) {
+			switch (kv.Value) {
+				case DizDataType.Opcode: opcodes++; break;
+				case DizDataType.Operand: operands++; break;
+				case >= DizDataType.Data8 and <= DizDataType.Text: dataBytes++; break;
+			}
+		}
 		var total = _romSize > 0 ? _romSize : _dataTypes.Count;
 		var unreached = total - opcodes - operands - dataBytes;
 		var coverage = total > 0 ? ((opcodes + operands + dataBytes) * 100.0) / total : 0;

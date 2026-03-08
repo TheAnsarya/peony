@@ -288,7 +288,7 @@ public static class SymbolExporter {
 		// Add hardware register names for the platform
 		mergeEngine.AddHardwareRegisters(platformId);
 
-		writer.AddSymbols(mergeEngine.GetMergedSymbols().ToList());
+		writer.AddSymbols(mergeEngine.GetMergedSymbols());
 
 		// Add comments using batch API (preserving original types from Pansy roundtrip)
 		var comments = new List<(uint Address, string Text, CommentType Type)>();

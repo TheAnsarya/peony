@@ -1,4 +1,4 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 /// <summary>
 /// Loads CDL (Code/Data Log) files from emulators like FCEUX and Mesen.
@@ -230,11 +230,11 @@ public sealed class CdlLoader {
 		var regions = new List<(int Start, int End)>();
 		if (offsets.Count == 0) return regions;
 
-		var sorted = offsets.OrderBy(x => x).ToList();
+		var sorted = offsets.OrderBy(x => x).ToArray();
 		int start = sorted[0];
 		int end = sorted[0];
 
-		for (int i = 1; i < sorted.Count; i++) {
+		for (int i = 1; i < sorted.Length; i++) {
 			if (sorted[i] == end + 1) {
 				end = sorted[i];
 			} else {
