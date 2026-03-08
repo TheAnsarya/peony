@@ -143,11 +143,22 @@ dotnet pack
 - [Improving Disassembly](docs/IMPROVING-DISASSEMBLY.md) — Guide to correcting and enhancing output
 
 ### Platform-Specific
+
 - [Atari 2600 Asset Extraction](docs/Atari-2600-Asset-Extraction.md)
 - [Platform Comparison](docs/Platform-Comparison.md)
+- [Example Output](docs/Example-Output.md)
+- [Lynx Memory Mapper Design](docs/lynx-memory-mapper-design.md)
+- [Lynx Platform](docs/lynx-platform.md)
 
 ### Project
+
+- [Release Notes v1.0.0](RELEASE-NOTES-1.0.0.md)
 - [Session Logs](~docs/session-logs/)
+- [Chat Logs](~docs/chat-logs/)
+
+### Development Planning
+
+- [Development Plans](~Plans/) — Technical plans, roadmaps, and research documents
 
 ## 🌷 Integrated Pipeline
 
