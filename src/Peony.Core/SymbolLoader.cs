@@ -140,9 +140,7 @@ public sealed class SymbolLoader {
 		// Generate labels for subroutine entry points
 		foreach (var offset in _cdlLoader.SubEntryPoints) {
 			var address = (uint)offset;  // May need address translation
-			if (!_labels.ContainsKey(address)) {
-				_labels[address] = $"sub_{offset:x4}";
-			}
+			_labels.TryAdd(address, $"sub_{offset:x4}");
 		}
 	}
 
@@ -221,9 +219,7 @@ public sealed class SymbolLoader {
 		foreach (var bookmark in _pansyLoader.Bookmarks) {
 			_bookmarks.Add(bookmark);
 			// Generate labels at bookmarked addresses
-			if (!_labels.ContainsKey(bookmark.Address)) {
-				_labels[bookmark.Address] = bookmark.Name;
-			}
+			_labels.TryAdd(bookmark.Address, bookmark.Name);
 		}
 
 		// Import data types as DataDefinitions

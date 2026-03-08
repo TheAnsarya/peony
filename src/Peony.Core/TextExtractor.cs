@@ -124,17 +124,13 @@ public sealed class TableFile {
 				// Single byte entry
 				if (byte.TryParse(hexPart, System.Globalization.NumberStyles.HexNumber, null, out byte b)) {
 					table._byteToChar[b] = charPart;
-					if (!table._charToByte.ContainsKey(charPart)) {
-						table._charToByte[charPart] = b;
-					}
+					table._charToByte.TryAdd(charPart, b);
 				}
 			} else if (hexPart.Length == 4) {
 				// Two-byte entry
 				if (ushort.TryParse(hexPart, System.Globalization.NumberStyles.HexNumber, null, out ushort w)) {
 					table._wordToChar[w] = charPart;
-					if (!table._charToWord.ContainsKey(charPart)) {
-						table._charToWord[charPart] = w;
-					}
+					table._charToWord.TryAdd(charPart, w);
 				}
 			}
 		}
