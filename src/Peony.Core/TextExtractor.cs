@@ -1,4 +1,4 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 using System.Text;
 using System.Text.Json;
