@@ -1,4 +1,4 @@
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using BenchmarkDotNet.Attributes;
 using Peony.Cpu.GameBoy;
 

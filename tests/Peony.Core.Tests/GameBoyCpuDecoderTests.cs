@@ -1,4 +1,4 @@
-using Peony.Core;
+﻿using Peony.Core;
 using Peony.Cpu.GameBoy;
 using Xunit;
 
