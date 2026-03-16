@@ -53,7 +53,11 @@ if (ext is ".nes") return "nes";
 if (ext is ".sfc" or ".smc") return "snes";
 if (ext is ".gb" or ".gbc") return "gb";
 if (ext is ".gba") return "gba";
-
+if (ext is ".sms") return "sms";
+if (ext is ".gg") return "sms"; // Game Gear uses SMS analyzer
+if (ext is ".pce") return "pce";
+if (ext is ".ws" or ".wsc") return "ws";
+if (ext is ".md" or ".gen" or ".smd") return "genesis";
 // LNX header detection (Atari Lynx)
 if (rom.Length >= 64 && rom[0] == 'L' && rom[1] == 'Y' && rom[2] == 'N' && rom[3] == 'X')
 return "lynx";
@@ -72,7 +76,29 @@ return "nes";
 if (rom.Length >= 0xb0 && rom[0xb2] == 0x96)
 return "gba";
 
-// Default to unknown
-return "unknown";
+	// SMS detection (TMR SEGA header)
+	if (rom.Length >= 0x8000 && HasTmrSega(rom, 0x7ff0))
+		return "sms";
+	if (rom.Length >= 0x4000 && HasTmrSega(rom, 0x3ff0))
+		return "sms";
+	if (rom.Length >= 0x2000 && HasTmrSega(rom, 0x1ff0))
+		return "sms";
+
+	// Genesis detection ("SEGA" at $100)
+	if (rom.Length >= 0x105 &&
+		((rom[0x100] == 'S' && rom[0x101] == 'E' && rom[0x102] == 'G' && rom[0x103] == 'A') ||
+		 (rom[0x100] == ' ' && rom[0x101] == 'S' && rom[0x102] == 'E' && rom[0x103] == 'G')))
+		return "genesis";
+
+	// Default to unknown
+	return "unknown";
+}
+
+private static bool HasTmrSega(ReadOnlySpan<byte> rom, int offset) {
+	if (offset + 8 > rom.Length) return false;
+	// "TMR SEGA"
+	return rom[offset] == 'T' && rom[offset + 1] == 'M' && rom[offset + 2] == 'R' &&
+		rom[offset + 3] == ' ' && rom[offset + 4] == 'S' && rom[offset + 5] == 'E' &&
+		rom[offset + 6] == 'G' && rom[offset + 7] == 'A';
 }
 }

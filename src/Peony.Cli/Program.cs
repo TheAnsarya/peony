@@ -7,6 +7,10 @@ using Peony.Platform.Lynx;
 using Peony.Platform.NES;
 using Peony.Platform.GameBoy;
 using Peony.Platform.GBA;
+using Peony.Platform.SMS;
+using Peony.Platform.PCE;
+using Peony.Platform.WonderSwan;
+using Peony.Platform.Genesis;
 using Spectre.Console;
 
 // 🌺 Peony Disassembler CLI
@@ -66,6 +70,10 @@ IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 "snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
 			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
 			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
+			"sms" or "master system" or "sega master system" or "game gear" or "gg" => new SmsAnalyzer(),
+			"pce" or "pc engine" or "turbografx" or "turbografx-16" or "tg16" => new PceAnalyzer(),
+			"ws" or "wonderswan" or "wonder swan" or "wsc" => new WonderSwanAnalyzer(),
+			"genesis" or "mega drive" or "megadrive" or "sega genesis" or "md" => new GenesisAnalyzer(),
 			_ => throw new NotSupportedException($"Platform not supported: {platform}")
 		};
 
@@ -130,6 +138,10 @@ uint[] platformEntryPoints = analyzer switch {
 	Peony.Platform.SNES.SnesAnalyzer snes => snes.GetEntryPoints(romData),
 	GameBoyAnalyzer gb => gb.GetEntryPoints(romData),
 	GbaAnalyzer gba => gba.GetEntryPoints(romData),
+	SmsAnalyzer sms => sms.GetEntryPoints(romData),
+	PceAnalyzer pce => pce.GetEntryPoints(romData),
+	WonderSwanAnalyzer ws => ws.GetEntryPoints(romData),
+	GenesisAnalyzer gen => gen.GetEntryPoints(romData),
 	_ => [0x8000]
 };
 
@@ -259,6 +271,10 @@ IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 "atari2600" or "atari 2600" => new Atari2600Analyzer(),
 "lynx" or "atari lynx" => new LynxAnalyzer(),
 "nes" => new NesAnalyzer(),
+"sms" or "master system" or "game gear" => new SmsAnalyzer(),
+"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
+"ws" or "wonderswan" => new WonderSwanAnalyzer(),
+"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
 _ => throw new NotSupportedException($"Unknown platform: {platform}")
 };
 
@@ -267,6 +283,10 @@ var entryPoints = analyzer switch {
 Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
 LynxAnalyzer lynx => lynx.GetEntryPoints(romData),
 NesAnalyzer nes => nes.GetEntryPoints(romData),
+SmsAnalyzer sms => sms.GetEntryPoints(romData),
+PceAnalyzer pce => pce.GetEntryPoints(romData),
+WonderSwanAnalyzer ws => ws.GetEntryPoints(romData),
+GenesisAnalyzer gen => gen.GetEntryPoints(romData),
 _ => [0x8000]
 };
 
@@ -409,6 +429,11 @@ exportCommand.SetHandler((context) => {
 			"nes" => new NesAnalyzer(),
 			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
 			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
+			"gba" or "game boy advance" or "advance" => new GbaAnalyzer(),
+			"sms" or "master system" or "game gear" => new SmsAnalyzer(),
+			"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
+			"ws" or "wonderswan" => new WonderSwanAnalyzer(),
+			"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
 			_ => throw new NotSupportedException($"Platform not supported: {platform}")
 		};
 
@@ -540,6 +565,10 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 				"lynx" or "atari lynx" => new LynxAnalyzer(),
 				"nes" => new NesAnalyzer(),
 				"snes" or "super nintendo" => new Peony.Platform.SNES.SnesAnalyzer(),
+				"sms" or "master system" or "game gear" => new SmsAnalyzer(),
+				"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
+				"ws" or "wonderswan" => new WonderSwanAnalyzer(),
+				"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
 				_ => throw new NotSupportedException($"Platform not supported: {platform}")
 			};
 
@@ -567,6 +596,10 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 				"lynx" or "atari lynx" => new LynxAnalyzer(),
 				"nes" => new NesAnalyzer(),
 				"snes" or "super nintendo" => new Peony.Platform.SNES.SnesAnalyzer(),
+				"sms" or "master system" or "game gear" => new SmsAnalyzer(),
+				"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
+				"ws" or "wonderswan" => new WonderSwanAnalyzer(),
+				"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
 				_ => throw new NotSupportedException($"Platform not supported: {platform}")
 			};
 

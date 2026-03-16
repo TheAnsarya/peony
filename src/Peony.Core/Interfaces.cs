@@ -1,4 +1,4 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 /// <summary>
 /// CPU instruction decoder interface
@@ -108,6 +108,7 @@ public enum AddressingMode {
 	ZeroPageX,
 	ZeroPageY,
 	ZeroPageIndirect,       // 65C02: (zp)
+	ZeroPageRelative,       // 65C02/HuC6280: BBR/BBS zp,rel
 	Absolute,
 	AbsoluteX,
 	AbsoluteY,
