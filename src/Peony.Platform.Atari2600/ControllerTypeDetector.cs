@@ -1,4 +1,4 @@
-namespace Peony.Platform.Atari2600;
+﻿namespace Peony.Platform.Atari2600;
 
 /// <summary>
 /// Atari 2600 controller types detected from I/O access patterns.

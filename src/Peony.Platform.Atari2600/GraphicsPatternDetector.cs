@@ -1,4 +1,4 @@
-namespace Peony.Platform.Atari2600;
+﻿namespace Peony.Platform.Atari2600;
 
 /// <summary>
 /// Type of detected graphics pattern in an Atari 2600 ROM.

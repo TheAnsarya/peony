@@ -1,4 +1,4 @@
-using Xunit;
+﻿using Xunit;
 
 namespace Peony.Platform.Atari2600.Tests;
 

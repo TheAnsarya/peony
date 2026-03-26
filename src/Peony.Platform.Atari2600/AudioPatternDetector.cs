@@ -1,4 +1,4 @@
-namespace Peony.Platform.Atari2600;
+﻿namespace Peony.Platform.Atari2600;
 
 /// <summary>
 /// Types of audio patterns detected in Atari 2600 ROMs.
