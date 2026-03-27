@@ -28,6 +28,8 @@
 		<ProjectReference Include="..\..\src\Peony.Platform.NES\Peony.Platform.NES.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Cpu.F8\Peony.Cpu.F8.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.ChannelF\Peony.Platform.ChannelF.csproj" />
 	</ItemGroup>
 
 </Project>

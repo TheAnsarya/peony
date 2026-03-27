@@ -410,6 +410,7 @@ public static class SymbolExporter {
 			"vic-20" or "vic20" => PansyLoader.PLATFORM_VIC20,
 			"plus/4" or "plus4" => PansyLoader.PLATFORM_PLUS4,
 			"c128" or "commodore 128" => PansyLoader.PLATFORM_C128,
+			"channel f" or "channelf" or "fairchild" => PansyLoader.PLATFORM_CHANNEL_F,
 			_ => PansyLoader.PLATFORM_CUSTOM
 		};
 	}

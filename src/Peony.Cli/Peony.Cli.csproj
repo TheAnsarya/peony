@@ -30,6 +30,8 @@
     <ProjectReference Include="..\Peony.Platform.PCE\Peony.Platform.PCE.csproj" />
     <ProjectReference Include="..\Peony.Platform.WonderSwan\Peony.Platform.WonderSwan.csproj" />
     <ProjectReference Include="..\Peony.Platform.Genesis\Peony.Platform.Genesis.csproj" />
+    <ProjectReference Include="..\Peony.Cpu.F8\Peony.Cpu.F8.csproj" />
+    <ProjectReference Include="..\Peony.Platform.ChannelF\Peony.Platform.ChannelF.csproj" />
   </ItemGroup>
 
 </Project>

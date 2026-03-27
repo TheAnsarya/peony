@@ -11,6 +11,7 @@ using Peony.Platform.SMS;
 using Peony.Platform.PCE;
 using Peony.Platform.WonderSwan;
 using Peony.Platform.Genesis;
+using Peony.Platform.ChannelF;
 using Spectre.Console;
 
 // 🌺 Peony Disassembler CLI
@@ -74,6 +75,7 @@ IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 			"pce" or "pc engine" or "turbografx" or "turbografx-16" or "tg16" => new PceAnalyzer(),
 			"ws" or "wonderswan" or "wonder swan" or "wsc" => new WonderSwanAnalyzer(),
 			"genesis" or "mega drive" or "megadrive" or "sega genesis" or "md" => new GenesisAnalyzer(),
+			"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
 			_ => throw new NotSupportedException($"Platform not supported: {platform}")
 		};
 
@@ -275,6 +277,7 @@ IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
 "pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
 "ws" or "wonderswan" => new WonderSwanAnalyzer(),
 "genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
+"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
 _ => throw new NotSupportedException($"Unknown platform: {platform}")
 };
 
@@ -434,6 +437,7 @@ exportCommand.SetHandler((context) => {
 			"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
 			"ws" or "wonderswan" => new WonderSwanAnalyzer(),
 			"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
+			"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
 			_ => throw new NotSupportedException($"Platform not supported: {platform}")
 		};
 
@@ -569,6 +573,7 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 				"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
 				"ws" or "wonderswan" => new WonderSwanAnalyzer(),
 				"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
+				"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
 				_ => throw new NotSupportedException($"Platform not supported: {platform}")
 			};
 
@@ -600,6 +605,7 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 				"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
 				"ws" or "wonderswan" => new WonderSwanAnalyzer(),
 				"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
+				"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
 				_ => throw new NotSupportedException($"Platform not supported: {platform}")
 			};
 
@@ -1205,6 +1211,7 @@ pansyCommand.SetHandler((file, verbose) => {
 			PansyLoader.PLATFORM_GBA => "Game Boy Advance",
 			PansyLoader.PLATFORM_GENESIS => "Sega Genesis",
 			PansyLoader.PLATFORM_ATARI_2600 => "Atari 2600",
+			PansyLoader.PLATFORM_CHANNEL_F => "Channel F",
 			PansyLoader.PLATFORM_CUSTOM => "Custom",
 			_ => $"Unknown ({platformId:x2})"
 		};

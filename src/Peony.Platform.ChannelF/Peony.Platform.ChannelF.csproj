@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+<ItemGroup>
+<ProjectReference Include="..\Peony.Core\Peony.Core.csproj" />
+<ProjectReference Include="..\Peony.Cpu.F8\Peony.Cpu.F8.csproj" />
+</ItemGroup>
+</Project>
