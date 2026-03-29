@@ -25,6 +25,7 @@ var outputOpt = new Option<FileInfo?>(["--output", "-o"], "Output file (default:
 var platformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-detected if not specified)");
 var formatOpt = new Option<string>(["--format", "-f"], () => "asm", "Output format: asm, poppy");
 var allBanksOpt = new Option<bool>(["--all-banks", "-b"], "Disassemble all banks for banked ROMs (MMC1, etc.)");
+var staticAnalysisOpt = new Option<bool>(["--static-analysis"], "Enable quarantined static analysis classification (off by default)");
 var symbolsOpt = new Option<FileInfo?>(["--symbols", "-s"], "Symbol file to load (JSON, .nl, .mlb, .sym)");
 var cdlOpt = new Option<FileInfo?>(["--cdl", "-c"], "CDL (Code/Data Log) file for code/data hints");
 var dizOpt = new Option<FileInfo?>(["--diz", "-d"], "DIZ (DiztinGUIsh) project file for labels and data types");
@@ -35,6 +36,7 @@ disasmCommand.AddOption(outputOpt);
 disasmCommand.AddOption(platformOpt);
 disasmCommand.AddOption(formatOpt);
 disasmCommand.AddOption(allBanksOpt);
+disasmCommand.AddOption(staticAnalysisOpt);
 disasmCommand.AddOption(symbolsOpt);
 disasmCommand.AddOption(cdlOpt);
 disasmCommand.AddOption(dizOpt);
@@ -46,6 +48,7 @@ var output = context.ParseResult.GetValueForOption(outputOpt);
 var platform = context.ParseResult.GetValueForOption(platformOpt);
 var format = context.ParseResult.GetValueForOption(formatOpt) ?? "asm";
 var allBanks = context.ParseResult.GetValueForOption(allBanksOpt);
+var useStaticAnalysis = context.ParseResult.GetValueForOption(staticAnalysisOpt);
 var symbols = context.ParseResult.GetValueForOption(symbolsOpt);
 var cdlFile = context.ParseResult.GetValueForOption(cdlOpt);
 var dizFile = context.ParseResult.GetValueForOption(dizOpt);
@@ -147,33 +150,99 @@ uint[] platformEntryPoints = analyzer switch {
 	_ => [0x8000]
 };
 
-// Combine with CDL subroutine entry points if available
-var entryPointSet = new HashSet<uint>(platformEntryPoints);
-if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
-	// Convert ROM file offsets to CPU addresses using the analyzer's mapper
-	foreach (var offset in cdlData.SubEntryPoints) {
-		var addr = analyzer.OffsetToAddress(offset);
-		if (addr.HasValue)
-			entryPointSet.Add(addr.Value);
+var orderedPlatformEntryPoints = platformEntryPoints
+	.Distinct()
+	.OrderBy(x => x)
+	.ToArray();
+
+var entryPoints = new List<uint>();
+var entryPointSet = new HashSet<uint>();
+
+void AddEntryPoint(uint address) {
+	if (entryPointSet.Add(address)) {
+		entryPoints.Add(address);
 	}
 }
 
-// Add Pansy cross-reference targets as entry points (confirmed code locations)
-if (symbolLoader?.PansyData is { } pansyData2 && pansyData2.CrossReferences.Count > 0) {
-	foreach (var xref in pansyData2.CrossReferences) {
-		if (xref.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch) {
-			var addr = analyzer.OffsetToAddress((int)xref.To);
-			if (addr.HasValue)
-				entryPointSet.Add(addr.Value);
+if (orderedPlatformEntryPoints.Length > 0) {
+	// Deterministic primary start: first command/entrypoint from platform mapping.
+	AddEntryPoint(orderedPlatformEntryPoints[0]);
+}
+
+var pansyImported = 0;
+if (symbolLoader?.PansySubEntryPoints.Count > 0) {
+	foreach (var offset in symbolLoader.PansySubEntryPoints.OrderBy(x => x)) {
+		var addr = analyzer.OffsetToAddress(offset);
+		if (addr.HasValue) {
+			var before = entryPoints.Count;
+			AddEntryPoint(addr.Value);
+			if (entryPoints.Count > before) {
+				pansyImported++;
+			}
 		}
 	}
 }
-var entryPoints = entryPointSet.ToArray();
 
-AnsiConsole.MarkupLine($"[grey]Entry points:[/] {platformEntryPoints.Length} platform + {(entryPoints.Length - platformEntryPoints.Length)} imported = {entryPoints.Length} total");
+if (symbolLoader?.PansyJumpTargets.Count > 0) {
+	foreach (var offset in symbolLoader.PansyJumpTargets.OrderBy(x => x)) {
+		var addr = analyzer.OffsetToAddress(offset);
+		if (addr.HasValue) {
+			var before = entryPoints.Count;
+			AddEntryPoint(addr.Value);
+			if (entryPoints.Count > before) {
+				pansyImported++;
+			}
+		}
+	}
+}
+
+if (symbolLoader?.PansyData is { } pansyData2 && pansyData2.CrossReferences.Count > 0) {
+	var pansyTargets = pansyData2.CrossReferences
+		.Where(x => x.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch)
+		.Select(x => x.To)
+		.Distinct()
+		.OrderBy(x => x);
+
+	foreach (var target in pansyTargets) {
+		var addr = analyzer.OffsetToAddress((int)target);
+		if (addr.HasValue) {
+			var before = entryPoints.Count;
+			AddEntryPoint(addr.Value);
+			if (entryPoints.Count > before) {
+				pansyImported++;
+			}
+		}
+	}
+}
+
+var cdlImported = 0;
+if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
+	foreach (var offset in cdlData.SubEntryPoints.OrderBy(x => x)) {
+		var addr = analyzer.OffsetToAddress(offset);
+		if (addr.HasValue) {
+			var before = entryPoints.Count;
+			AddEntryPoint(addr.Value);
+			if (entryPoints.Count > before) {
+				cdlImported++;
+			}
+		}
+	}
+}
+
+foreach (var extraPlatformEntry in orderedPlatformEntryPoints.Skip(1)) {
+	AddEntryPoint(extraPlatformEntry);
+}
+
+if (entryPoints.Count == 0) {
+	AddEntryPoint(0x8000);
+}
+
+AnsiConsole.MarkupLine($"[grey]Entry points:[/] primary {entryPoints[0]:x4}, platform {orderedPlatformEntryPoints.Length}, pansy {pansyImported}, cdl {cdlImported}, total {entryPoints.Count}");
+AnsiConsole.MarkupLine($"[grey]Static analysis:[/] {(useStaticAnalysis ? "enabled (opt-in)" : "quarantined/off")}");
 
 // Create engine and disassemble
 var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+engine.SetStaticAnalysisEnabled(useStaticAnalysis);
 
 // Set symbol loader for CDL/DIZ hints
 if (symbolLoader != null) {
@@ -196,7 +265,7 @@ AnsiConsole.MarkupLine($"[grey]Data regions:[/] {symbolLoader.DataDefinitions.Co
 }
 }
 
-var result = engine.Disassemble(romData, entryPoints, allBanks);
+var result = engine.Disassemble(romData, entryPoints.ToArray(), allBanks);
 result.RomInfo = info;
 
 AnsiConsole.WriteLine();

@@ -30,10 +30,20 @@ public sealed class DisassemblyEngine {
 
 	private SymbolLoader? _symbolLoader;
 	private ClassificationResult? _classification;
+	private bool _staticAnalysisEnabled;
 
 	public DisassemblyEngine(ICpuDecoder cpuDecoder, IPlatformAnalyzer platformAnalyzer) {
 		_cpuDecoder = cpuDecoder;
 		_platformAnalyzer = platformAnalyzer;
+		_staticAnalysisEnabled = false;
+	}
+
+	/// <summary>
+	/// Enables or disables static byte classification analysis.
+	/// Disabled by default so normal disassembly stays deterministic and hint-driven.
+	/// </summary>
+	public void SetStaticAnalysisEnabled(bool enabled) {
+		_staticAnalysisEnabled = enabled;
 	}
 
 	/// <summary>
@@ -156,9 +166,14 @@ public sealed class DisassemblyEngine {
 	public DisassemblyResult Disassemble(ReadOnlySpan<byte> rom, uint[] entryPoints, bool allBanks = false) {
 		var romInfo = _platformAnalyzer.Analyze(rom);
 		var result = new DisassemblyResult { RomInfo = romInfo };
-		// Run static analysis classification before recursive descent
-		var staticAnalyzer = new StaticAnalyzer(_platformAnalyzer, _symbolLoader);
-		_classification = staticAnalyzer.Classify(rom);
+		_classification = null;
+
+		// Static analysis is intentionally quarantined behind an explicit opt-in.
+		if (_staticAnalysisEnabled) {
+			var staticAnalyzer = new StaticAnalyzer(_platformAnalyzer, _symbolLoader);
+			_classification = staticAnalyzer.Classify(rom);
+		}
+
 		// Initialize bank blocks dictionary
 		for (int i = 0; i < _platformAnalyzer.BankCount; i++) {
 			result.BankBlocks[i] = [];
@@ -185,23 +200,8 @@ public sealed class DisassemblyEngine {
 			}
 		}
 
-		// Add CDL-identified code entry points (subroutine starts)
-		if (_symbolLoader?.CdlData is not null) {
-			foreach (var offset in _symbolLoader.CdlData.SubEntryPoints) {
-				var address = RomOffsetToAddress((uint)offset, fixedBank);
-				if (address.HasValue && IsValidAddress(address.Value)) {
-					if (!_visited.ContainsKey((address.Value, fixedBank))) {
-						_codeQueue.Enqueue((address.Value, fixedBank));
-						if (GetLabel(address.Value, fixedBank) is null) {
-							AddLabel(address.Value, $"sub_{offset:x4}", fixedBank);
-						}
-					}
-				}
-			}
-		}
-
-		// DIZ-identified opcode entry points are now handled via the Pansy path
-		// (DIZ data is converted to Pansy format on load in SymbolLoader.LoadDiz)
+		// DIZ-identified opcode entry points are handled through the Pansy path.
+		// Prioritize Pansy guidance before other optional hint sources.
 
 		// Add Pansy jump targets as code entry points
 		if (_symbolLoader?.PansyJumpTargets.Count > 0) {
@@ -212,6 +212,21 @@ public sealed class DisassemblyEngine {
 						_codeQueue.Enqueue((address.Value, fixedBank));
 						if (GetLabel(address.Value, fixedBank) is null) {
 							AddLabel(address.Value, $"jmp_{offset:x4}", fixedBank);
+						}
+					}
+				}
+			}
+		}
+
+		// Add CDL-identified code entry points (subroutine starts)
+		if (_symbolLoader?.CdlData is not null) {
+			foreach (var offset in _symbolLoader.CdlData.SubEntryPoints) {
+				var address = RomOffsetToAddress((uint)offset, fixedBank);
+				if (address.HasValue && IsValidAddress(address.Value)) {
+					if (!_visited.ContainsKey((address.Value, fixedBank))) {
+						_codeQueue.Enqueue((address.Value, fixedBank));
+						if (GetLabel(address.Value, fixedBank) is null) {
+							AddLabel(address.Value, $"sub_{offset:x4}", fixedBank);
 						}
 					}
 				}
