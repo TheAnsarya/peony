@@ -1,4 +1,4 @@
-## Build results
+﻿## Build results
 bin/
 obj/
 build/
@@ -16,6 +16,9 @@ packages/
 ## Test results
 TestResults/
 coverage/
+
+## Benchmark artifacts
+BenchmarkDotNet.Artifacts/
 
 ## OS files
 .DS_Store
