@@ -1,0 +1,380 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 7 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1/" /p:OutDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" /p:OutputPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" /p:PublishDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\publish/" in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1
+// command took 2.57 sec and exited with 0
+// start dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1/" /p:OutDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" /p:OutputPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" /p:PublishDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\publish/" --output "C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1
+// command took 29.65 sec and exited with 0
+// ***** Done, took 00:00:32 (32.34 sec)   *****
+// Found 7 benchmarks:
+//   CollectionPatternBenchmarks.MultipleLinqCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.SinglePassCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.OrderBy_ToList: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.OrderBy_ToArray: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.MultipleLinqCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 1220 1232 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.MultipleLinqCount(WorkMultiplier: 32)" --job Dry --benchmarkId 0 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 56660200.00 ns, 56.6602 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 56660200.00 ns, 56.6602 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 18864 has exited with code 0.
+
+Mean = 56.660 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 56.660 ms, Q1 = 56.660 ms, Median = 56.660 ms, Q3 = 56.660 ms, Max = 56.660 ms
+IQR = 0.000 ms, LowerFence = 56.660 ms, UpperFence = 56.660 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 6 (85.7%) benchmark(s) to run. Estimated finish 2026-03-29 13:11 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.SinglePassCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 1876 1784 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.SinglePassCount(WorkMultiplier: 32)" --job Dry --benchmarkId 1 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 61603100.00 ns, 61.6031 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 61603100.00 ns, 61.6031 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 30848 has exited with code 0.
+
+Mean = 61.603 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 61.603 ms, Q1 = 61.603 ms, Median = 61.603 ms, Q3 = 61.603 ms, Max = 61.603 ms
+IQR = 0.000 ms, LowerFence = 61.603 ms, UpperFence = 61.603 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 5 (71.4%) benchmark(s) to run. Estimated finish 2026-03-29 13:11 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 1220 1768 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB(WorkMultiplier: 32)" --job Dry --benchmarkId 2 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 131759300.00 ns, 131.7593 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 131759300.00 ns, 131.7593 ms/op
+// GC:  35 0 0 225662208 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 25740 has exited with code 0.
+
+Mean = 131.759 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 131.759 ms, Q1 = 131.759 ms, Median = 131.759 ms, Q3 = 131.759 ms, Max = 131.759 ms
+IQR = 0.000 ms, LowerFence = 131.759 ms, UpperFence = 131.759 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 4 (57.1%) benchmark(s) to run. Estimated finish 2026-03-29 13:11 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.OrderBy_ToList: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 2088 2092 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.OrderBy_ToList(WorkMultiplier: 32)" --job Dry --benchmarkId 3 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 146182400.00 ns, 146.1824 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 146182400.00 ns, 146.1824 ms/op
+// GC:  1 0 0 7052064 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 18768 has exited with code 0.
+
+Mean = 146.182 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 146.182 ms, Q1 = 146.182 ms, Median = 146.182 ms, Q3 = 146.182 ms, Max = 146.182 ms
+IQR = 0.000 ms, LowerFence = 146.182 ms, UpperFence = 146.182 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 3 (42.9%) benchmark(s) to run. Estimated finish 2026-03-29 13:11 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.OrderBy_ToArray: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 1220 1768 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.OrderBy_ToArray(WorkMultiplier: 32)" --job Dry --benchmarkId 4 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 152389700.00 ns, 152.3897 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 152389700.00 ns, 152.3897 ms/op
+// GC:  1 0 0 7051008 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 9688 has exited with code 0.
+
+Mean = 152.390 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 152.390 ms, Q1 = 152.390 ms, Median = 152.390 ms, Q3 = 152.390 ms, Max = 152.390 ms
+IQR = 0.000 ms, LowerFence = 152.390 ms, UpperFence = 152.390 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 2 (28.6%) benchmark(s) to run. Estimated finish 2026-03-29 13:11 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 1600 2096 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes(WorkMultiplier: 32)" --job Dry --benchmarkId 5 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 112336300.00 ns, 112.3363 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 112336300.00 ns, 112.3363 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 19372 has exited with code 0.
+
+Mean = 112.336 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 112.336 ms, Q1 = 112.336 ms, Median = 112.336 ms, Q3 = 112.336 ms, Max = 112.336 ms
+IQR = 0.000 ms, LowerFence = 112.336 ms, UpperFence = 112.336 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 1 (14.3%) benchmark(s) to run. Estimated finish 2026-03-29 13:11 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 2544 2104 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes(WorkMultiplier: 32)" --job Dry --benchmarkId 6 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 105449200.00 ns, 105.4492 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 105449200.00 ns, 105.4492 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 25432 has exited with code 0.
+
+Mean = 105.449 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 105.449 ms, Q1 = 105.449 ms, Median = 105.449 ms, Q3 = 105.449 ms, Max = 105.449 ms
+IQR = 0.000 ms, LowerFence = 105.449 ms, UpperFence = 105.449 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2026-03-29 13:11 (0h 0m from now) **
+Successfully reverted power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report.html
+
+// * Detailed results *
+CollectionPatternBenchmarks.MultipleLinqCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 56.660 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 56.660 ms, Q1 = 56.660 ms, Median = 56.660 ms, Q3 = 56.660 ms, Max = 56.660 ms
+IQR = 0.000 ms, LowerFence = 56.660 ms, UpperFence = 56.660 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[56.660 ms ; 56.660 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.SinglePassCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 61.603 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 61.603 ms, Q1 = 61.603 ms, Median = 61.603 ms, Q3 = 61.603 ms, Max = 61.603 ms
+IQR = 0.000 ms, LowerFence = 61.603 ms, UpperFence = 61.603 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[61.603 ms ; 61.603 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 131.759 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 131.759 ms, Q1 = 131.759 ms, Median = 131.759 ms, Q3 = 131.759 ms, Max = 131.759 ms
+IQR = 0.000 ms, LowerFence = 131.759 ms, UpperFence = 131.759 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[131.759 ms ; 131.759 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.OrderBy_ToList: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 146.182 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 146.182 ms, Q1 = 146.182 ms, Median = 146.182 ms, Q3 = 146.182 ms, Max = 146.182 ms
+IQR = 0.000 ms, LowerFence = 146.182 ms, UpperFence = 146.182 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[146.182 ms ; 146.182 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.OrderBy_ToArray: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 152.390 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 152.390 ms, Q1 = 152.390 ms, Median = 152.390 ms, Q3 = 152.390 ms, Max = 152.390 ms
+IQR = 0.000 ms, LowerFence = 152.390 ms, UpperFence = 152.390 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[152.390 ms ; 152.390 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 112.336 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 112.336 ms, Q1 = 112.336 ms, Median = 112.336 ms, Q3 = 112.336 ms, Max = 112.336 ms
+IQR = 0.000 ms, LowerFence = 112.336 ms, UpperFence = 112.336 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[112.336 ms ; 112.336 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 105.449 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 105.449 ms, Q1 = 105.449 ms, Median = 105.449 ms, Q3 = 105.449 ms, Max = 105.449 ms
+IQR = 0.000 ms, LowerFence = 105.449 ms, UpperFence = 105.449 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[105.449 ms ; 105.449 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6466/22H2/2022Update)
+Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
+.NET SDK 10.0.200
+  [Host] : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+  Dry    : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+
+Job=Dry  IterationCount=1  LaunchCount=1  
+RunStrategy=ColdStart  UnrollFactor=1  WarmupCount=1  
+
+| Method                               | WorkMultiplier | Mean      | Error | Ratio | Gen0       | Allocated   | Alloc Ratio |
+|------------------------------------- |--------------- |----------:|------:|------:|-----------:|------------:|------------:|
+| MultipleLinqCount                    | 32             |  56.66 ms |    NA |  0.50 |          - |           - |          NA |
+| SinglePassCount                      | 32             |  61.60 ms |    NA |  0.55 |          - |           - |          NA |
+| GameBoyCpuDecoder_Decode32KB         | 32             | 131.76 ms |    NA |  1.17 | 35000.0000 | 225662208 B |          NA |
+| OrderBy_ToList                       | 32             | 146.18 ms |    NA |  1.30 |  1000.0000 |   7052064 B |          NA |
+| OrderBy_ToArray                      | 32             | 152.39 ms |    NA |  1.36 |  1000.0000 |   7051008 B |          NA |
+| Dictionary_TryGetValue_Opcodes       | 32             | 112.34 ms |    NA |  1.00 |          - |           - |          NA |
+| FrozenDictionary_TryGetValue_Opcodes | 32             | 105.45 ms |    NA |  0.94 |          - |           - |          NA |
+
+// * Warnings *
+MinIterationTime
+  CollectionPatternBenchmarks.MultipleLinqCount: Dry -> The minimum observed iteration time is 56.66ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  CollectionPatternBenchmarks.SinglePassCount: Dry   -> The minimum observed iteration time is 61.603ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+
+// * Legends *
+  WorkMultiplier : Value of the 'WorkMultiplier' parameter
+  Mean           : Arithmetic mean of all measurements
+  Error          : Half of 99.9% confidence interval
+  Ratio          : Mean of the ratio distribution ([Current]/[Baseline])
+  Gen0           : GC Generation 0 collects per 1000 operations
+  Allocated      : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio    : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 ms           : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:03 (3.04 sec), executed benchmarks: 7
+
+Global total time: 00:00:35 (35.9 sec), executed benchmarks: 7
+// * Artifacts cleanup *
+Artifacts cleanup is finished

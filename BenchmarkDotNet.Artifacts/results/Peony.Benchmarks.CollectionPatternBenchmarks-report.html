@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Peony.Benchmarks.CollectionPatternBenchmarks-20260309-103021</title>
+<title>Peony.Benchmarks.CollectionPatternBenchmarks-20260329-131325</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -15,24 +15,24 @@
 <pre><code>
 BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6466/22H2/2022Update)
 Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
-.NET SDK 10.0.200-preview.0.26103.119
-  [Host] : .NET 10.0.3 (10.0.3, 10.0.326.7603), X64 RyuJIT x86-64-v3
-  Dry    : .NET 10.0.3 (10.0.3, 10.0.326.7603), X64 RyuJIT x86-64-v3
+.NET SDK 10.0.200
+  [Host] : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+  Dry    : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
 </code></pre>
 <pre><code>Job=Dry  IterationCount=1  LaunchCount=1  
 RunStrategy=ColdStart  UnrollFactor=1  WarmupCount=1  
 </code></pre>
 
 <table>
-<thead><tr><th>Method                        </th><th>Mean </th><th>Error</th><th>Ratio</th><th>Allocated</th><th>Alloc Ratio</th>
+<thead><tr><th>Method                        </th><th>WorkMultiplier</th><th>Mean</th><th>Error</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>MultipleLinqCount</td><td>2,329.9 &mu;s</td><td>NA</td><td>0.78</td><td>-</td><td>NA</td>
-</tr><tr><td>SinglePassCount</td><td>392.0 &mu;s</td><td>NA</td><td>0.13</td><td>-</td><td>NA</td>
-</tr><tr><td>GameBoyCpuDecoder_Decode32KB</td><td>14,865.5 &mu;s</td><td>NA</td><td>4.99</td><td>2351184 B</td><td>NA</td>
-</tr><tr><td>OrderBy_ToList</td><td>11,313.4 &mu;s</td><td>NA</td><td>3.80</td><td>220376 B</td><td>NA</td>
-</tr><tr><td>OrderBy_ToArray</td><td>8,315.5 &mu;s</td><td>NA</td><td>2.79</td><td>220344 B</td><td>NA</td>
-</tr><tr><td>Dictionary_TryGetValue_Opcodes</td><td>2,977.3 &mu;s</td><td>NA</td><td>1.00</td><td>-</td><td>NA</td>
-</tr><tr><td>FrozenDictionary_TryGetValue_Opcodes</td><td>1,908.5 &mu;s</td><td>NA</td><td>0.64</td><td>-</td><td>NA</td>
+</thead><tbody><tr><td>MultipleLinqCount</td><td>32</td><td>106.12 ms</td><td>NA</td><td>0.96</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>SinglePassCount</td><td>32</td><td>69.36 ms</td><td>NA</td><td>0.63</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>GameBoyCpuDecoder_Decode32KB</td><td>32</td><td>105.54 ms</td><td>NA</td><td>0.96</td><td>35000.0000</td><td>225662208 B</td><td>NA</td>
+</tr><tr><td>OrderBy_ToList</td><td>32</td><td>172.49 ms</td><td>NA</td><td>1.56</td><td>1000.0000</td><td>7052064 B</td><td>NA</td>
+</tr><tr><td>OrderBy_ToArray</td><td>32</td><td>203.53 ms</td><td>NA</td><td>1.85</td><td>1000.0000</td><td>7051008 B</td><td>NA</td>
+</tr><tr><td>Dictionary_TryGetValue_Opcodes</td><td>32</td><td>110.22 ms</td><td>NA</td><td>1.00</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>FrozenDictionary_TryGetValue_Opcodes</td><td>32</td><td>107.45 ms</td><td>NA</td><td>0.97</td><td>-</td><td>-</td><td>NA</td>
 </tr></tbody></table>
 </body>
 </html>

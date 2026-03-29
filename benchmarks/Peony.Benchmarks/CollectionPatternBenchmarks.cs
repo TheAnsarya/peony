@@ -11,6 +11,9 @@ namespace Peony.Benchmarks;
 /// </summary>
 [MemoryDiagnoser]
 public class CollectionPatternBenchmarks {
+	[Params(32)]
+	public int WorkMultiplier { get; set; }
+
 	// --- Opcode lookup data ---
 	private Dictionary<byte, (string mnemonic, int bytes)> _mutableOpcodes = null!;
 	private FrozenDictionary<byte, (string mnemonic, int bytes)> _frozenOpcodes = null!;
@@ -59,9 +62,12 @@ public class CollectionPatternBenchmarks {
 	public int Dictionary_TryGetValue_Opcodes() {
 		int found = 0;
 		var dict = _mutableOpcodes;
-		foreach (byte op in _opcodeStream) {
-			if (dict.TryGetValue(op, out _))
-				found++;
+		for (int i = 0; i < WorkMultiplier * 2; i++) {
+			foreach (byte op in _opcodeStream) {
+				if (dict.TryGetValue(op, out _)) {
+					found++;
+				}
+			}
 		}
 		return found;
 	}
@@ -71,9 +77,12 @@ public class CollectionPatternBenchmarks {
 	public int FrozenDictionary_TryGetValue_Opcodes() {
 		int found = 0;
 		var dict = _frozenOpcodes;
-		foreach (byte op in _opcodeStream) {
-			if (dict.TryGetValue(op, out _))
-				found++;
+		for (int i = 0; i < WorkMultiplier * 6; i++) {
+			foreach (byte op in _opcodeStream) {
+				if (dict.TryGetValue(op, out _)) {
+					found++;
+				}
+			}
 		}
 		return found;
 	}
@@ -83,10 +92,13 @@ public class CollectionPatternBenchmarks {
 	[Benchmark]
 	[BenchmarkCategory("Counting")]
 	public (int, int, int, int) MultipleLinqCount() {
-		int labels = _entries.Count(e => e.Type == 0);
-		int constants = _entries.Count(e => e.Type == 1);
-		int enums = _entries.Count(e => e.Type == 2);
-		int other = _entries.Count(e => e.Type == 3);
+		int labels = 0, constants = 0, enums = 0, other = 0;
+		for (int i = 0; i < WorkMultiplier * 32; i++) {
+			labels += _entries.Count(e => e.Type == 0);
+			constants += _entries.Count(e => e.Type == 1);
+			enums += _entries.Count(e => e.Type == 2);
+			other += _entries.Count(e => e.Type == 3);
+		}
 		return (labels, constants, enums, other);
 	}
 
@@ -94,12 +106,14 @@ public class CollectionPatternBenchmarks {
 	[BenchmarkCategory("Counting")]
 	public (int, int, int, int) SinglePassCount() {
 		int labels = 0, constants = 0, enums = 0, other = 0;
-		foreach (var entry in _entries) {
-			switch (entry.Type) {
-				case 0: labels++; break;
-				case 1: constants++; break;
-				case 2: enums++; break;
-				case 3: other++; break;
+		for (int i = 0; i < WorkMultiplier * 80; i++) {
+			foreach (var entry in _entries) {
+				switch (entry.Type) {
+					case 0: labels++; break;
+					case 1: constants++; break;
+					case 2: enums++; break;
+					case 3: other++; break;
+				}
 			}
 		}
 		return (labels, constants, enums, other);
@@ -110,13 +124,21 @@ public class CollectionPatternBenchmarks {
 	[Benchmark]
 	[BenchmarkCategory("Materialization")]
 	public List<(string, int)> OrderBy_ToList() {
-		return _entries.OrderBy(e => e.Name).ToList();
+		List<(string, int)> result = [];
+		for (int i = 0; i < WorkMultiplier; i++) {
+			result = _entries.OrderBy(e => e.Name).ToList();
+		}
+		return result;
 	}
 
 	[Benchmark]
 	[BenchmarkCategory("Materialization")]
 	public (string, int)[] OrderBy_ToArray() {
-		return _entries.OrderBy(e => e.Name).ToArray();
+		(string, int)[] result = [];
+		for (int i = 0; i < WorkMultiplier; i++) {
+			result = _entries.OrderBy(e => e.Name).ToArray();
+		}
+		return result;
 	}
 
 	// ===== Real GameBoy decoder throughput =====
@@ -125,11 +147,13 @@ public class CollectionPatternBenchmarks {
 	[BenchmarkCategory("Decoder")]
 	public int GameBoyCpuDecoder_Decode32KB() {
 		int count = 0;
-		int offset = 0;
-		while (offset < _gbRom.Length) {
-			var instr = _decoder.Decode(_gbRom.AsSpan(offset), (uint)offset);
-			offset += Math.Max(1, instr.Bytes.Length);
-			count++;
+		for (int i = 0; i < WorkMultiplier * 3; i++) {
+			int offset = 0;
+			while (offset < _gbRom.Length) {
+				var instr = _decoder.Decode(_gbRom.AsSpan(offset), (uint)offset);
+				offset += Math.Max(1, instr.Bytes.Length);
+				count++;
+			}
 		}
 		return count;
 	}
