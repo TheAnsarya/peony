@@ -3,6 +3,9 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<IsPackable>false</IsPackable>
+		<!-- Keep benchmark console output focused on timing data; CI analyzers remain enabled for normal solution builds. -->
+		<RunAnalyzers>false</RunAnalyzers>
+		<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 	</PropertyGroup>
 
 	<ItemGroup>

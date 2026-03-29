@@ -1,0 +1,11 @@
+Available Benchmarks:
+  #0 CollectionPatternBenchmarks
+  #1 CpuDecoderBenchmarks
+  #2 DisassemblyPipelineBenchmarks
+  #3 SymbolExportBenchmarks
+
+
+You should select the target benchmark(s). Please, print a number of a benchmark (e.g. `0`) or a contained benchmark caption (e.g. `CollectionPatternBenchmarks`).
+If you want to select few, please separate them with space ` ` (e.g. `1 2 3`).
+You can also provide the class name in console arguments by using --filter. (e.g. `--filter *CollectionPatternBenchmarks*`).
+Enter the asterisk `*` to select all.

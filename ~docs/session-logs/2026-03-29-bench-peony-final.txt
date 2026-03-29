@@ -1,0 +1,502 @@
+C:\Users\me\source\repos\peony\src\Peony.Core\Interfaces.cs(250,2): warning CA1720: Identifier 'Pointer' contains type name (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(13,29): warning CA1805: Member '_nextDictByte' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DataTableExtractor.cs(108,2): warning CA1720: Identifier 'Pointer' contains type name (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DataTableExtractor.cs(111,2): warning CA1720: Identifier 'String' contains type name (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\StaticAnalyzer.cs(20,2): warning CA1720: Identifier 'Pointer' contains type name (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(122,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.SaveToDte()' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(695,6): warning CA1305: The behavior of 'StringBuilder.Append(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.ExtractText(ReadOnlySpan<byte>, int, int, TableFile, [TextExtractionOptions])' with a call to 'StringBuilder.Append(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(699,5): warning CA1305: The behavior of 'StringBuilder.Append(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.ExtractText(ReadOnlySpan<byte>, int, int, TableFile, [TextExtractionOptions])' with a call to 'StringBuilder.Append(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(185,6): warning CA1305: The behavior of 'StringBuilder.Append(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.Decompress(ReadOnlySpan<byte>, TableFile, [byte?])' with a call to 'StringBuilder.Append(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(825,17): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(115,41): warning CA1507: Use nameof in place of string literal 'ProjectName' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(117,37): warning CA1507: Use nameof in place of string literal 'RomSize' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(122,27): warning CA1507: Use nameof in place of string literal 'Labels' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(138,27): warning CA1507: Use nameof in place of string literal 'DataTypes' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(201,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.CreateMergedTable(TableFile)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(206,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.CreateMergedTable(TableFile)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(210,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.CreateMergedTable(TableFile)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(853,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.SaveAsScript(List<TextBlock>, string)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(857,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.SaveAsScript(List<TextBlock>, string)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(859,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.SaveAsScript(List<TextBlock>, string)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(884,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.GenerateAsciiTblTemplate()' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(238,8): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Core.DizLoader.CountRomBytes(string)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(259,8): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Core.DizLoader.ParseCompressedRomBytes(Peony.Core.DizLoader, string)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DataTableExtractor.cs(262,47): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\NexenPackLoader.cs(72,21): warning CA1305: The behavior of 'uint.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'NexenPackResult.VerifyRomCrc32()' with a call to 'uint.ToString(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DataTableExtractor.cs(295,47): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(82,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(61,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportMesen(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(72,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportMesen(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(81,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportMesen(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(23,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(25,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(29,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(32,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(47,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(52,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(174,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(179,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(180,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(181,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(182,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(183,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(194,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(198,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(17,15): warning CA1822: Member 'Format' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(105,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportFCEUX(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(112,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportFCEUX(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\HardwareIncludeGenerator.cs(496,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'HardwareIncludeGenerator.GenerateGeneric(string)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(135,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportNoGlasses(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(142,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportNoGlasses(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(103,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(105,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(170,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportCa65Debug(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(123,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(182,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportCa65Debug(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(135,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(139,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(144,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(148,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(208,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportWla(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(216,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportWla(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(157,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(165,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(171,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(198,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(200,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(238,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportBizHawk(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(248,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportBizHawk(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(264,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteSplitBankSource(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(265,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteSplitBankSource(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(267,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteSplitBankSource(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(277,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteSplitBankSource(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(320,4): warning CA1305: The behavior of 'byte.TryFormat(Span<char>, out int, [ReadOnlySpan<char>], [IFormatProvider])' could vary based on the current user's locale settings. Provide a value for the 'IFormatProvider' argument. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(340,4): warning CA1305: The behavior of 'byte.TryFormat(Span<char>, out int, [ReadOnlySpan<char>], [IFormatProvider])' could vary based on the current user's locale settings. Provide a value for the 'IFormatProvider' argument. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(487,15): warning CA1305: The behavior of 'double.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.Pct(int, int)' with a call to 'double.ToString(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(521,10): warning CA1305: The behavior of 'uint.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.ComputeCrc32Hex(byte[])' with a call to 'uint.ToString(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(433,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(439,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(440,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(441,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(443,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(447,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(439,26): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Core.SymbolExporter.DetectPansySymbolType(uint, string, Peony.Core.DisassemblyResult)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(448,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(449,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(450,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(451,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(395,7): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteAssetFiles(string, DisassemblyResult, byte[])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DisassemblyEngine.cs(54,23): warning CA1822: Member 'GetCrossRefType' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(283,15): warning CA1822: Member 'WriteMonolithicSource' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(288,15): warning CA1822: Member 'WriteIncludeFiles' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(12,26): warning CA1805: Member '_thumbMode' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(303,22): warning CA1866: Use 'string.StartsWith(char)' instead of 'string.StartsWith(string)' when you have a string with a single char (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1866) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(303,10): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Cpu.ARM7TDMI.Arm7TdmiDecoder.IsControlFlow(Peony.Core.DecodedInstruction)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(305,25): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Cpu.ARM7TDMI.Arm7TdmiDecoder.IsControlFlow(Peony.Core.DecodedInstruction)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(27,29): warning CA1822: Member 'DecodeArm' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(119,29): warning CA1822: Member 'DecodeThumb' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.GameBoy\GameBoyCpuDecoder.cs(12,16): warning CA1822: Member 'CpuName' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Cpu.GameBoy\Peony.Cpu.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.65816\Cpu65816Decoder.cs(28,42): warning CA1805: Member 'EmulationMode' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Cpu.65816\Peony.Cpu.65816.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesTextExtractor.cs(26,25): warning CA1822: Member 'ExtractFromPointerTable' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesAnalyzer.cs(64,14): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'NesAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesAnalyzer.cs(68,13): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'NesAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesTextExtractor.cs(242,25): warning CA1822: Member 'ExtractFixedLengthStrings' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesChrExtractor.cs(226,49): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesChrExtractor.cs(111,22): warning CA1822: Member 'ExtractChrBank' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesAnalyzer.cs(251,14): warning CA1822: Member 'GetBankFunctionAddress' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.Lynx\LynxAnalyzer.cs(189,26): warning CA1305: The behavior of 'ushort.ToString()' could vary based on the current user's locale settings. Replace this call in 'LynxAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'ushort.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.Lynx\Peony.Platform.Lynx.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\GbaTextExtractor.cs(66,25): warning CA1822: Member 'ExtractFromPointerTable16' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\GbaTextExtractor.cs(26,25): warning CA1822: Member 'ExtractFromPointerTable32' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\GbaChrExtractor.cs(268,66): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.Atari2600\Atari2600Analyzer.cs(77,13): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'Atari2600Analyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.Atari2600\Peony.Platform.Atari2600.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.Atari2600\Atari2600Analyzer.cs(78,16): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'Atari2600Analyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.Atari2600\Peony.Platform.Atari2600.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyAnalyzer.cs(18,24): warning CA1805: Member '_ramBanks' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyChrExtractor.cs(262,15): warning CA1711: Rename type name SpriteAttribute so that it does not end in 'Attribute' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1711) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyAnalyzer.cs(103,20): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'GameBoyAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyAnalyzer.cs(104,20): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'GameBoyAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyTextExtractor.cs(26,25): warning CA1822: Member 'ExtractFromPointerTable' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyTextExtractor.cs(48,25): warning CA1822: Member 'ExtractFromBankedPointers' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesAnalyzer.cs(29,52): warning CA1805: Member 'HasCopierHeader' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesAnalyzer.cs(114,17): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'SnesAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesTextExtractor.cs(26,25): warning CA1822: Member 'ExtractFromPointerTable' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesTextExtractor.cs(48,25): warning CA1822: Member 'ExtractFromLongPointerTable' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesChrExtractor.cs(317,66): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 7 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1/" /p:OutDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" /p:OutputPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" /p:PublishDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\publish/" in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1
+// command took 2.65 sec and exited with 0
+// start dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1/" /p:OutDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" /p:OutputPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" /p:PublishDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\publish/" --output "C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0/" in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1
+// command took 29.5 sec and exited with 0
+// ***** Done, took 00:00:32 (32.32 sec)   *****
+// Found 7 benchmarks:
+//   CollectionPatternBenchmarks.MultipleLinqCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.SinglePassCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.OrderBy_ToList: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.OrderBy_ToArray: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.MultipleLinqCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 3580 3576 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.MultipleLinqCount(WorkMultiplier: 32)" --job Dry --benchmarkId 0 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 113059900.00 ns, 113.0599 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 113059900.00 ns, 113.0599 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 10628 has exited with code 0.
+
+Mean = 113.060 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 113.060 ms, Q1 = 113.060 ms, Median = 113.060 ms, Q3 = 113.060 ms, Max = 113.060 ms
+IQR = 0.000 ms, LowerFence = 113.060 ms, UpperFence = 113.060 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 6 (85.7%) benchmark(s) to run. Estimated finish 2026-03-29 14:25 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.SinglePassCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 672 916 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.SinglePassCount(WorkMultiplier: 32)" --job Dry --benchmarkId 1 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 91152500.00 ns, 91.1525 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 91152500.00 ns, 91.1525 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 30032 has exited with code 0.
+
+Mean = 91.153 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 91.153 ms, Q1 = 91.153 ms, Median = 91.153 ms, Q3 = 91.153 ms, Max = 91.153 ms
+IQR = 0.000 ms, LowerFence = 91.153 ms, UpperFence = 91.153 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 5 (71.4%) benchmark(s) to run. Estimated finish 2026-03-29 14:25 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 3580 3596 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB(WorkMultiplier: 32)" --job Dry --benchmarkId 2 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 109745500.00 ns, 109.7455 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 109745500.00 ns, 109.7455 ms/op
+// GC:  35 0 0 225662208 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 24708 has exited with code 0.
+
+Mean = 109.746 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 109.746 ms, Q1 = 109.746 ms, Median = 109.746 ms, Q3 = 109.746 ms, Max = 109.746 ms
+IQR = 0.000 ms, LowerFence = 109.746 ms, UpperFence = 109.746 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 4 (57.1%) benchmark(s) to run. Estimated finish 2026-03-29 14:25 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.OrderBy_ToList: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 2460 2480 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.OrderBy_ToList(WorkMultiplier: 32)" --job Dry --benchmarkId 3 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 166531700.00 ns, 166.5317 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 166531700.00 ns, 166.5317 ms/op
+// GC:  1 0 0 7052064 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 32436 has exited with code 0.
+
+Mean = 166.532 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 166.532 ms, Q1 = 166.532 ms, Median = 166.532 ms, Q3 = 166.532 ms, Max = 166.532 ms
+IQR = 0.000 ms, LowerFence = 166.532 ms, UpperFence = 166.532 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 3 (42.9%) benchmark(s) to run. Estimated finish 2026-03-29 14:25 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.OrderBy_ToArray: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 3520 2496 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.OrderBy_ToArray(WorkMultiplier: 32)" --job Dry --benchmarkId 4 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 163373300.00 ns, 163.3733 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 163373300.00 ns, 163.3733 ms/op
+// GC:  1 0 0 7051008 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 23376 has exited with code 0.
+
+Mean = 163.373 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 163.373 ms, Q1 = 163.373 ms, Median = 163.373 ms, Q3 = 163.373 ms, Max = 163.373 ms
+IQR = 0.000 ms, LowerFence = 163.373 ms, UpperFence = 163.373 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 2 (28.6%) benchmark(s) to run. Estimated finish 2026-03-29 14:25 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 3520 2496 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes(WorkMultiplier: 32)" --job Dry --benchmarkId 5 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 114187000.00 ns, 114.1870 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 114187000.00 ns, 114.1870 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 22328 has exited with code 0.
+
+Mean = 114.187 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 114.187 ms, Q1 = 114.187 ms, Median = 114.187 ms, Q3 = 114.187 ms, Max = 114.187 ms
+IQR = 0.000 ms, LowerFence = 114.187 ms, UpperFence = 114.187 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 1 (14.3%) benchmark(s) to run. Estimated finish 2026-03-29 14:25 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Dry-1.dll --anonymousPipes 2480 3624 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes(WorkMultiplier: 32)" --job Dry --benchmarkId 6 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Dry-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 107088500.00 ns, 107.0885 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 107088500.00 ns, 107.0885 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 31568 has exited with code 0.
+
+Mean = 107.088 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 107.088 ms, Q1 = 107.088 ms, Median = 107.088 ms, Q3 = 107.088 ms, Max = 107.088 ms
+IQR = 0.000 ms, LowerFence = 107.088 ms, UpperFence = 107.088 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2026-03-29 14:25 (0h 0m from now) **
+Successfully reverted power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report.html
+
+// * Detailed results *
+CollectionPatternBenchmarks.MultipleLinqCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 113.060 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 113.060 ms, Q1 = 113.060 ms, Median = 113.060 ms, Q3 = 113.060 ms, Max = 113.060 ms
+IQR = 0.000 ms, LowerFence = 113.060 ms, UpperFence = 113.060 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[113.060 ms ; 113.060 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.SinglePassCount: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 91.153 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 91.153 ms, Q1 = 91.153 ms, Median = 91.153 ms, Q3 = 91.153 ms, Max = 91.153 ms
+IQR = 0.000 ms, LowerFence = 91.153 ms, UpperFence = 91.153 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[91.152 ms ; 91.153 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 109.746 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 109.746 ms, Q1 = 109.746 ms, Median = 109.746 ms, Q3 = 109.746 ms, Max = 109.746 ms
+IQR = 0.000 ms, LowerFence = 109.746 ms, UpperFence = 109.746 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[109.745 ms ; 109.746 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.OrderBy_ToList: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 166.532 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 166.532 ms, Q1 = 166.532 ms, Median = 166.532 ms, Q3 = 166.532 ms, Max = 166.532 ms
+IQR = 0.000 ms, LowerFence = 166.532 ms, UpperFence = 166.532 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[166.532 ms ; 166.532 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.OrderBy_ToArray: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 163.373 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 163.373 ms, Q1 = 163.373 ms, Median = 163.373 ms, Q3 = 163.373 ms, Max = 163.373 ms
+IQR = 0.000 ms, LowerFence = 163.373 ms, UpperFence = 163.373 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[163.373 ms ; 163.373 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 114.187 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 114.187 ms, Q1 = 114.187 ms, Median = 114.187 ms, Q3 = 114.187 ms, Max = 114.187 ms
+IQR = 0.000 ms, LowerFence = 114.187 ms, UpperFence = 114.187 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[114.187 ms ; 114.187 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Dry(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 107.088 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 107.088 ms, Q1 = 107.088 ms, Median = 107.088 ms, Q3 = 107.088 ms, Max = 107.088 ms
+IQR = 0.000 ms, LowerFence = 107.088 ms, UpperFence = 107.088 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[107.088 ms ; 107.089 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6466/22H2/2022Update)
+Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
+.NET SDK 10.0.200
+  [Host] : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+  Dry    : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+
+Job=Dry  IterationCount=1  LaunchCount=1  
+RunStrategy=ColdStart  UnrollFactor=1  WarmupCount=1  
+
+| Method                               | WorkMultiplier | Mean      | Error | Ratio | Gen0       | Allocated   | Alloc Ratio |
+|------------------------------------- |--------------- |----------:|------:|------:|-----------:|------------:|------------:|
+| MultipleLinqCount                    | 32             | 113.06 ms |    NA |  0.99 |          - |           - |          NA |
+| SinglePassCount                      | 32             |  91.15 ms |    NA |  0.80 |          - |           - |          NA |
+| GameBoyCpuDecoder_Decode32KB         | 32             | 109.75 ms |    NA |  0.96 | 35000.0000 | 225662208 B |          NA |
+| OrderBy_ToList                       | 32             | 166.53 ms |    NA |  1.46 |  1000.0000 |   7052064 B |          NA |
+| OrderBy_ToArray                      | 32             | 163.37 ms |    NA |  1.43 |  1000.0000 |   7051008 B |          NA |
+| Dictionary_TryGetValue_Opcodes       | 32             | 114.19 ms |    NA |  1.00 |          - |           - |          NA |
+| FrozenDictionary_TryGetValue_Opcodes | 32             | 107.09 ms |    NA |  0.94 |          - |           - |          NA |
+
+// * Warnings *
+MinIterationTime
+  CollectionPatternBenchmarks.SinglePassCount: Dry -> The minimum observed iteration time is 91.153ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+
+// * Legends *
+  WorkMultiplier : Value of the 'WorkMultiplier' parameter
+  Mean           : Arithmetic mean of all measurements
+  Error          : Half of 99.9% confidence interval
+  Ratio          : Mean of the ratio distribution ([Current]/[Baseline])
+  Gen0           : GC Generation 0 collects per 1000 operations
+  Allocated      : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio    : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 ms           : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:03 (3.42 sec), executed benchmarks: 7
+
+Global total time: 00:00:36 (36.22 sec), executed benchmarks: 7
+// * Artifacts cleanup *
+Artifacts cleanup is finished

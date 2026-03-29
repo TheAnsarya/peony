@@ -106,7 +106,7 @@ public class CollectionPatternBenchmarks {
 	[BenchmarkCategory("Counting")]
 	public (int, int, int, int) SinglePassCount() {
 		int labels = 0, constants = 0, enums = 0, other = 0;
-		for (int i = 0; i < WorkMultiplier * 80; i++) {
+		for (int i = 0; i < WorkMultiplier * 320; i++) {
 			foreach (var entry in _entries) {
 				switch (entry.Type) {
 					case 0: labels++; break;

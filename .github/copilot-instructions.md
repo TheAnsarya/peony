@@ -183,6 +183,15 @@ DoSomething();
 ### Roundtrip Guarantee
 **CRITICAL**: All disassembled code MUST reassemble to identical ROMs using Poppy.
 
+### ⚠️ MANDATORY: Quarantine Static Analysis By Default
+
+Static analysis/classification logic must be treated as optional and quarantined.
+
+- Default disassembly flow should start from deterministic platform entry points and recurse from there.
+- Prioritize authoritative hints from `.pansy` and `.cdl` when available.
+- Do **NOT** run static/probabilistic analysis by default in normal disassembly workflows.
+- Keep static analysis code in the repository, but require explicit opt-in when it is needed for investigation.
+
 ## Pansy Integration
 
 Peony both consumes and produces Pansy metadata files (`.pansy`):

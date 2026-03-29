@@ -1,0 +1,1153 @@
+C:\Users\me\source\repos\peony\src\Peony.Core\Interfaces.cs(250,2): warning CA1720: Identifier 'Pointer' contains type name (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(13,29): warning CA1805: Member '_nextDictByte' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DataTableExtractor.cs(108,2): warning CA1720: Identifier 'Pointer' contains type name (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DataTableExtractor.cs(111,2): warning CA1720: Identifier 'String' contains type name (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\StaticAnalyzer.cs(20,2): warning CA1720: Identifier 'Pointer' contains type name (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1720) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(695,6): warning CA1305: The behavior of 'StringBuilder.Append(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.ExtractText(ReadOnlySpan<byte>, int, int, TableFile, [TextExtractionOptions])' with a call to 'StringBuilder.Append(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(699,5): warning CA1305: The behavior of 'StringBuilder.Append(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.ExtractText(ReadOnlySpan<byte>, int, int, TableFile, [TextExtractionOptions])' with a call to 'StringBuilder.Append(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(122,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.SaveToDte()' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(185,6): warning CA1305: The behavior of 'StringBuilder.Append(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.Decompress(ReadOnlySpan<byte>, TableFile, [byte?])' with a call to 'StringBuilder.Append(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(115,41): warning CA1507: Use nameof in place of string literal 'ProjectName' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(117,37): warning CA1507: Use nameof in place of string literal 'RomSize' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(122,27): warning CA1507: Use nameof in place of string literal 'Labels' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(138,27): warning CA1507: Use nameof in place of string literal 'DataTypes' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1507) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DataTableExtractor.cs(262,47): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(825,17): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DataTableExtractor.cs(295,47): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(238,8): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Core.DizLoader.CountRomBytes(string)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(853,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.SaveAsScript(List<TextBlock>, string)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(857,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.SaveAsScript(List<TextBlock>, string)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(859,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.SaveAsScript(List<TextBlock>, string)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\TextExtractor.cs(884,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'TextExtraction.GenerateAsciiTblTemplate()' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(201,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.CreateMergedTable(TableFile)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(206,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.CreateMergedTable(TableFile)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DictionaryTextCompressor.cs(210,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'DictionaryTextCompressor.CreateMergedTable(TableFile)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\NexenPackLoader.cs(72,21): warning CA1305: The behavior of 'uint.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'NexenPackResult.VerifyRomCrc32()' with a call to 'uint.ToString(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DizLoader.cs(259,8): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Core.DizLoader.ParseCompressedRomBytes(Peony.Core.DizLoader, string)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(174,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(179,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(180,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(181,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(182,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(183,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(194,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\RoundtripVerifier.cs(198,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'RoundtripVerifier.GenerateReport(RoundtripVerifier.VerificationResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(23,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(25,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(29,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(32,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(47,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(52,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.Format(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(82,1): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(17,15): warning CA1822: Member 'Format' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(264,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteSplitBankSource(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\HardwareIncludeGenerator.cs(496,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'HardwareIncludeGenerator.GenerateGeneric(string)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(135,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportNoGlasses(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(142,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportNoGlasses(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(170,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportCa65Debug(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(182,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportCa65Debug(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(265,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteSplitBankSource(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(267,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteSplitBankSource(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(277,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteSplitBankSource(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(208,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportWla(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(216,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportWla(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(238,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportBizHawk(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(248,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportBizHawk(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\DisassemblyEngine.cs(54,23): warning CA1822: Member 'GetCrossRefType' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(487,15): warning CA1305: The behavior of 'double.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.Pct(int, int)' with a call to 'double.ToString(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(395,7): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteAssetFiles(string, DisassemblyResult, byte[])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(433,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(439,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(440,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(441,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(443,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(447,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(448,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(449,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(450,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(451,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.WriteDocFiles(string, DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(521,10): warning CA1305: The behavior of 'uint.ToString(string)' could vary based on the current user's locale settings. Replace this call in 'ProjectWriter.ComputeCrc32Hex(byte[])' with a call to 'uint.ToString(string, IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(61,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportMesen(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(72,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportMesen(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(81,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportMesen(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(103,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(105,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(123,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(135,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(139,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(144,5): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(148,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatDataBlock(StringBuilder, DisassembledBlock, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(157,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(165,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(171,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(198,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(200,3): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'PoppyFormatter.FormatLine(StringBuilder, DisassembledLine, DisassemblyResult, [int])' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(105,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportFCEUX(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(112,4): warning CA1305: The behavior of 'StringBuilder.AppendLine(ref StringBuilder.AppendInterpolatedStringHandler)' could vary based on the current user's locale settings. Replace this call in 'SymbolExporter.ExportFCEUX(DisassemblyResult)' with a call to 'StringBuilder.AppendLine(IFormatProvider, ref StringBuilder.AppendInterpolatedStringHandler)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(320,4): warning CA1305: The behavior of 'byte.TryFormat(Span<char>, out int, [ReadOnlySpan<char>], [IFormatProvider])' could vary based on the current user's locale settings. Provide a value for the 'IFormatProvider' argument. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\PoppyFormatter.cs(340,4): warning CA1305: The behavior of 'byte.TryFormat(Span<char>, out int, [ReadOnlySpan<char>], [IFormatProvider])' could vary based on the current user's locale settings. Provide a value for the 'IFormatProvider' argument. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\SymbolExporter.cs(439,26): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Core.SymbolExporter.DetectPansySymbolType(uint, string, Peony.Core.DisassemblyResult)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(283,15): warning CA1822: Member 'WriteMonolithicSource' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Core\ProjectWriter.cs(288,15): warning CA1822: Member 'WriteIncludeFiles' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Core\Peony.Core.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.GameBoy\GameBoyCpuDecoder.cs(12,16): warning CA1822: Member 'CpuName' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Cpu.GameBoy\Peony.Cpu.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(12,26): warning CA1805: Member '_thumbMode' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(303,22): warning CA1866: Use 'string.StartsWith(char)' instead of 'string.StartsWith(string)' when you have a string with a single char (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1866) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(303,10): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Cpu.ARM7TDMI.Arm7TdmiDecoder.IsControlFlow(Peony.Core.DecodedInstruction)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(305,25): warning CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings. Replace this call in 'Peony.Cpu.ARM7TDMI.Arm7TdmiDecoder.IsControlFlow(Peony.Core.DecodedInstruction)' with a call to 'string.StartsWith(string, System.StringComparison)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1310) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(27,29): warning CA1822: Member 'DecodeArm' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Arm7TdmiDecoder.cs(119,29): warning CA1822: Member 'DecodeThumb' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Cpu.ARM7TDMI\Peony.Cpu.ARM7TDMI.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Cpu.65816\Cpu65816Decoder.cs(28,42): warning CA1805: Member 'EmulationMode' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Cpu.65816\Peony.Cpu.65816.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyAnalyzer.cs(18,24): warning CA1805: Member '_ramBanks' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyChrExtractor.cs(262,15): warning CA1711: Rename type name SpriteAttribute so that it does not end in 'Attribute' (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1711) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyTextExtractor.cs(26,25): warning CA1822: Member 'ExtractFromPointerTable' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyAnalyzer.cs(103,20): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'GameBoyAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyAnalyzer.cs(104,20): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'GameBoyAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\GameBoyTextExtractor.cs(48,25): warning CA1822: Member 'ExtractFromBankedPointers' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.GameBoy\Peony.Platform.GameBoy.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesAnalyzer.cs(29,52): warning CA1805: Member 'HasCopierHeader' is explicitly initialized to its default value (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1805) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesTextExtractor.cs(26,25): warning CA1822: Member 'ExtractFromPointerTable' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesTextExtractor.cs(48,25): warning CA1822: Member 'ExtractFromLongPointerTable' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesAnalyzer.cs(114,17): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'SnesAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\SnesChrExtractor.cs(317,66): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Platform.SNES\Peony.Platform.SNES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesTextExtractor.cs(26,25): warning CA1822: Member 'ExtractFromPointerTable' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesTextExtractor.cs(242,25): warning CA1822: Member 'ExtractFixedLengthStrings' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesAnalyzer.cs(64,14): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'NesAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesAnalyzer.cs(68,13): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'NesAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesChrExtractor.cs(226,49): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesChrExtractor.cs(111,22): warning CA1822: Member 'ExtractChrBank' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.NES\NesAnalyzer.cs(251,14): warning CA1822: Member 'GetBankFunctionAddress' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.NES\Peony.Platform.NES.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.Atari2600\Atari2600Analyzer.cs(77,13): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'Atari2600Analyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.Atari2600\Peony.Platform.Atari2600.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.Atari2600\Atari2600Analyzer.cs(78,16): warning CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings. Replace this call in 'Atari2600Analyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'int.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.Atari2600\Peony.Platform.Atari2600.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\GbaTextExtractor.cs(66,25): warning CA1822: Member 'ExtractFromPointerTable16' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\GbaTextExtractor.cs(26,25): warning CA1822: Member 'ExtractFromPointerTable32' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\GbaChrExtractor.cs(268,66): warning CA1869: Avoid creating a new 'JsonSerializerOptions' instance for every serialization operation. Cache and reuse instances instead. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869) [C:\Users\me\source\repos\peony\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj]
+C:\Users\me\source\repos\peony\src\Peony.Platform.Lynx\LynxAnalyzer.cs(189,26): warning CA1305: The behavior of 'ushort.ToString()' could vary based on the current user's locale settings. Replace this call in 'LynxAnalyzer.Analyze(ReadOnlySpan<byte>)' with a call to 'ushort.ToString(IFormatProvider)'. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1305) [C:\Users\me\source\repos\peony\src\Peony.Platform.Lynx\Peony.Platform.Lynx.csproj]
+Available Benchmarks:
+  #0 CollectionPatternBenchmarks
+  #1 CpuDecoderBenchmarks
+  #2 DisassemblyPipelineBenchmarks
+  #3 SymbolExportBenchmarks
+
+
+You should select the target benchmark(s). Please, print a number of a benchmark (e.g. `0`) or a contained benchmark caption (e.g. `CollectionPatternBenchmarks`).
+If you want to select few, please separate them with space ` ` (e.g. `1 2 3`).
+You can also provide the class name in console arguments by using --filter. (e.g. `--filter *CollectionPatternBenchmarks*`).
+Enter the asterisk `*` to select all.
+
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 18 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1/" /p:OutDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0/" /p:OutputPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0/" /p:PublishDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\publish/" in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1
+// command took 2.82 sec and exited with 0
+// start dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1/" /p:OutDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0/" /p:OutputPath="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0/" /p:PublishDir="C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\publish/" --output "C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0/" in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1
+// command took 27.23 sec and exited with 0
+// ***** Done, took 00:00:30 (30.15 sec)   *****
+// Found 7 benchmarks:
+//   CollectionPatternBenchmarks.MultipleLinqCount: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.SinglePassCount: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.OrderBy_ToList: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.OrderBy_ToArray: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+//   CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.MultipleLinqCount: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1632 1636 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.MultipleLinqCount(WorkMultiplier: 32)" --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 0 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 113550900.00 ns, 113.5509 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 113550900.00 ns, 113.5509 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 12700 has exited with code 0.
+
+Mean = 113.551 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 113.551 ms, Q1 = 113.551 ms, Median = 113.551 ms, Q3 = 113.551 ms, Max = 113.551 ms
+IQR = 0.000 ms, LowerFence = 113.551 ms, UpperFence = 113.551 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 17 (94.4%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.SinglePassCount: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1596 1600 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.SinglePassCount(WorkMultiplier: 32)" --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 1 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 58872000.00 ns, 58.8720 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 58872000.00 ns, 58.8720 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 28156 has exited with code 0.
+
+Mean = 58.872 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 58.872 ms, Q1 = 58.872 ms, Median = 58.872 ms, Q3 = 58.872 ms, Max = 58.872 ms
+IQR = 0.000 ms, LowerFence = 58.872 ms, UpperFence = 58.872 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 16 (88.9%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1456 1524 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB(WorkMultiplier: 32)" --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 2 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 105822700.00 ns, 105.8227 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 105822700.00 ns, 105.8227 ms/op
+// GC:  35 0 0 225662208 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 17160 has exited with code 0.
+
+Mean = 105.823 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 105.823 ms, Q1 = 105.823 ms, Median = 105.823 ms, Q3 = 105.823 ms, Max = 105.823 ms
+IQR = 0.000 ms, LowerFence = 105.823 ms, UpperFence = 105.823 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 15 (83.3%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.OrderBy_ToList: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1532 1712 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.OrderBy_ToList(WorkMultiplier: 32)" --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 3 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 128395100.00 ns, 128.3951 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 128395100.00 ns, 128.3951 ms/op
+// GC:  1 0 0 7052064 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 31868 has exited with code 0.
+
+Mean = 128.395 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 128.395 ms, Q1 = 128.395 ms, Median = 128.395 ms, Q3 = 128.395 ms, Max = 128.395 ms
+IQR = 0.000 ms, LowerFence = 128.395 ms, UpperFence = 128.395 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 14 (77.8%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.OrderBy_ToArray: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1596 660 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.OrderBy_ToArray(WorkMultiplier: 32)" --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 4 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 156327000.00 ns, 156.3270 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 156327000.00 ns, 156.3270 ms/op
+// GC:  1 0 0 7051008 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 12144 has exited with code 0.
+
+Mean = 156.327 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 156.327 ms, Q1 = 156.327 ms, Median = 156.327 ms, Q3 = 156.327 ms, Max = 156.327 ms
+IQR = 0.000 ms, LowerFence = 156.327 ms, UpperFence = 156.327 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 13 (72.2%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1704 1708 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes(WorkMultiplier: 32)" --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 5 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 114595000.00 ns, 114.5950 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 114595000.00 ns, 114.5950 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 4544 has exited with code 0.
+
+Mean = 114.595 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 114.595 ms, Q1 = 114.595 ms, Median = 114.595 ms, Q3 = 114.595 ms, Max = 114.595 ms
+IQR = 0.000 ms, LowerFence = 114.595 ms, UpperFence = 114.595 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 12 (66.7%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1704 1708 --benchmarkName "Peony.Benchmarks.CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes(WorkMultiplier: 32)" --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 6 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 110851700.00 ns, 110.8517 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 110851700.00 ns, 110.8517 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 6996 has exited with code 0.
+
+Mean = 110.852 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 110.852 ms, Q1 = 110.852 ms, Median = 110.852 ms, Q3 = 110.852 ms, Max = 110.852 ms
+IQR = 0.000 ms, LowerFence = 110.852 ms, UpperFence = 110.852 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 11 (61.1%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Successfully reverted power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CollectionPatternBenchmarks-report.html
+
+// * Detailed results *
+CollectionPatternBenchmarks.MultipleLinqCount: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 113.551 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 113.551 ms, Q1 = 113.551 ms, Median = 113.551 ms, Q3 = 113.551 ms, Max = 113.551 ms
+IQR = 0.000 ms, LowerFence = 113.551 ms, UpperFence = 113.551 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[113.551 ms ; 113.551 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.SinglePassCount: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 58.872 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 58.872 ms, Q1 = 58.872 ms, Median = 58.872 ms, Q3 = 58.872 ms, Max = 58.872 ms
+IQR = 0.000 ms, LowerFence = 58.872 ms, UpperFence = 58.872 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[58.872 ms ; 58.872 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.GameBoyCpuDecoder_Decode32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 105.823 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 105.823 ms, Q1 = 105.823 ms, Median = 105.823 ms, Q3 = 105.823 ms, Max = 105.823 ms
+IQR = 0.000 ms, LowerFence = 105.823 ms, UpperFence = 105.823 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[105.823 ms ; 105.823 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.OrderBy_ToList: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 128.395 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 128.395 ms, Q1 = 128.395 ms, Median = 128.395 ms, Q3 = 128.395 ms, Max = 128.395 ms
+IQR = 0.000 ms, LowerFence = 128.395 ms, UpperFence = 128.395 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[128.395 ms ; 128.395 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.OrderBy_ToArray: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 156.327 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 156.327 ms, Q1 = 156.327 ms, Median = 156.327 ms, Q3 = 156.327 ms, Max = 156.327 ms
+IQR = 0.000 ms, LowerFence = 156.327 ms, UpperFence = 156.327 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[156.327 ms ; 156.327 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.Dictionary_TryGetValue_Opcodes: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 114.595 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 114.595 ms, Q1 = 114.595 ms, Median = 114.595 ms, Q3 = 114.595 ms, Max = 114.595 ms
+IQR = 0.000 ms, LowerFence = 114.595 ms, UpperFence = 114.595 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[114.595 ms ; 114.595 ms) | @
+---------------------------------------------------
+
+CollectionPatternBenchmarks.FrozenDictionary_TryGetValue_Opcodes: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1) [WorkMultiplier=32]
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 110.852 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 110.852 ms, Q1 = 110.852 ms, Median = 110.852 ms, Q3 = 110.852 ms, Max = 110.852 ms
+IQR = 0.000 ms, LowerFence = 110.852 ms, UpperFence = 110.852 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[110.852 ms ; 110.852 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6466/22H2/2022Update)
+Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
+.NET SDK 10.0.200
+  [Host]     : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+  Job-JQCRAR : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+
+IterationCount=1  LaunchCount=1  RunStrategy=ColdStart  
+UnrollFactor=1  WarmupCount=1  
+
+| Method                               | WorkMultiplier | Mean      | Error | Ratio | Gen0       | Allocated   | Alloc Ratio |
+|------------------------------------- |--------------- |----------:|------:|------:|-----------:|------------:|------------:|
+| MultipleLinqCount                    | 32             | 113.55 ms |    NA |  0.99 |          - |           - |          NA |
+| SinglePassCount                      | 32             |  58.87 ms |    NA |  0.51 |          - |           - |          NA |
+| GameBoyCpuDecoder_Decode32KB         | 32             | 105.82 ms |    NA |  0.92 | 35000.0000 | 225662208 B |          NA |
+| OrderBy_ToList                       | 32             | 128.40 ms |    NA |  1.12 |  1000.0000 |   7052064 B |          NA |
+| OrderBy_ToArray                      | 32             | 156.33 ms |    NA |  1.36 |  1000.0000 |   7051008 B |          NA |
+| Dictionary_TryGetValue_Opcodes       | 32             | 114.59 ms |    NA |  1.00 |          - |           - |          NA |
+| FrozenDictionary_TryGetValue_Opcodes | 32             | 110.85 ms |    NA |  0.97 |          - |           - |          NA |
+
+// * Warnings *
+MinIterationTime
+  CollectionPatternBenchmarks.SinglePassCount: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1 -> The minimum observed iteration time is 58.872ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+
+// * Legends *
+  WorkMultiplier : Value of the 'WorkMultiplier' parameter
+  Mean           : Arithmetic mean of all measurements
+  Error          : Half of 99.9% confidence interval
+  Ratio          : Mean of the ratio distribution ([Current]/[Baseline])
+  Gen0           : GC Generation 0 collects per 1000 operations
+  Allocated      : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio    : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 ms           : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:03 (3.16 sec), executed benchmarks: 7
+
+// Found 4 benchmarks:
+//   CpuDecoderBenchmarks.Decode6502_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   CpuDecoderBenchmarks.Decode65816_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   CpuDecoderBenchmarks.DecodeGameBoy_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   CpuDecoderBenchmarks.DecodeARM7_64KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CpuDecoderBenchmarks.Decode6502_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 2044 2060 --benchmarkName Peony.Benchmarks.CpuDecoderBenchmarks.Decode6502_32KB --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 7 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 7580000.00 ns, 7.5800 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 7580000.00 ns, 7.5800 ms/op
+// GC:  0 0 0 3917416 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 29468 has exited with code 0.
+
+Mean = 7.580 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 7.580 ms, Q1 = 7.580 ms, Median = 7.580 ms, Q3 = 7.580 ms, Max = 7.580 ms
+IQR = 0.000 ms, LowerFence = 7.580 ms, UpperFence = 7.580 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 10 (55.6%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CpuDecoderBenchmarks.Decode65816_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1312 2208 --benchmarkName Peony.Benchmarks.CpuDecoderBenchmarks.Decode65816_32KB --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 8 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 8074100.00 ns, 8.0741 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 8074100.00 ns, 8.0741 ms/op
+// GC:  0 0 0 3515296 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 24256 has exited with code 0.
+
+Mean = 8.074 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 8.074 ms, Q1 = 8.074 ms, Median = 8.074 ms, Q3 = 8.074 ms, Max = 8.074 ms
+IQR = 0.000 ms, LowerFence = 8.074 ms, UpperFence = 8.074 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 9 (50.0%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CpuDecoderBenchmarks.DecodeGameBoy_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 2140 1312 --benchmarkName Peony.Benchmarks.CpuDecoderBenchmarks.DecodeGameBoy_32KB --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 9 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 28788200.00 ns, 28.7882 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 28788200.00 ns, 28.7882 ms/op
+// GC:  0 0 0 2797352 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 4896 has exited with code 0.
+
+Mean = 28.788 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 28.788 ms, Q1 = 28.788 ms, Median = 28.788 ms, Q3 = 28.788 ms, Max = 28.788 ms
+IQR = 0.000 ms, LowerFence = 28.788 ms, UpperFence = 28.788 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 8 (44.4%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: CpuDecoderBenchmarks.DecodeARM7_64KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1836 1600 --benchmarkName Peony.Benchmarks.CpuDecoderBenchmarks.DecodeARM7_64KB --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 10 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 5688400.00 ns, 5.6884 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 5688400.00 ns, 5.6884 ms/op
+// GC:  0 0 0 2631792 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 6708 has exited with code 0.
+
+Mean = 5.688 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.688 ms, Q1 = 5.688 ms, Median = 5.688 ms, Q3 = 5.688 ms, Max = 5.688 ms
+IQR = 0.000 ms, LowerFence = 5.688 ms, UpperFence = 5.688 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 7 (38.9%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Successfully reverted power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CpuDecoderBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CpuDecoderBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.CpuDecoderBenchmarks-report.html
+
+// * Detailed results *
+CpuDecoderBenchmarks.Decode6502_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 7.580 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 7.580 ms, Q1 = 7.580 ms, Median = 7.580 ms, Q3 = 7.580 ms, Max = 7.580 ms
+IQR = 0.000 ms, LowerFence = 7.580 ms, UpperFence = 7.580 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[7.580 ms ; 7.580 ms) | @
+---------------------------------------------------
+
+CpuDecoderBenchmarks.Decode65816_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 8.074 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 8.074 ms, Q1 = 8.074 ms, Median = 8.074 ms, Q3 = 8.074 ms, Max = 8.074 ms
+IQR = 0.000 ms, LowerFence = 8.074 ms, UpperFence = 8.074 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[8.074 ms ; 8.074 ms) | @
+---------------------------------------------------
+
+CpuDecoderBenchmarks.DecodeGameBoy_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 28.788 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 28.788 ms, Q1 = 28.788 ms, Median = 28.788 ms, Q3 = 28.788 ms, Max = 28.788 ms
+IQR = 0.000 ms, LowerFence = 28.788 ms, UpperFence = 28.788 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[28.788 ms ; 28.788 ms) | @
+---------------------------------------------------
+
+CpuDecoderBenchmarks.DecodeARM7_64KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 5.688 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 5.688 ms, Q1 = 5.688 ms, Median = 5.688 ms, Q3 = 5.688 ms, Max = 5.688 ms
+IQR = 0.000 ms, LowerFence = 5.688 ms, UpperFence = 5.688 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[5.688 ms ; 5.688 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6466/22H2/2022Update)
+Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
+.NET SDK 10.0.200
+  [Host]     : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+  Job-JQCRAR : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+
+IterationCount=1  LaunchCount=1  RunStrategy=ColdStart  
+UnrollFactor=1  WarmupCount=1  
+
+| Method             | Mean      | Error | Ratio | Allocated | Alloc Ratio |
+|------------------- |----------:|------:|------:|----------:|------------:|
+| Decode6502_32KB    |  7.580 ms |    NA |  1.00 |   3.74 MB |        1.00 |
+| Decode65816_32KB   |  8.074 ms |    NA |  1.07 |   3.35 MB |        0.90 |
+| DecodeGameBoy_32KB | 28.788 ms |    NA |  3.80 |   2.67 MB |        0.71 |
+| DecodeARM7_64KB    |  5.688 ms |    NA |  0.75 |   2.51 MB |        0.67 |
+
+// * Warnings *
+MinIterationTime
+  CpuDecoderBenchmarks.Decode6502_32KB: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1    -> The minimum observed iteration time is 7.58ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  CpuDecoderBenchmarks.Decode65816_32KB: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1   -> The minimum observed iteration time is 8.074ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  CpuDecoderBenchmarks.DecodeGameBoy_32KB: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1 -> The minimum observed iteration time is 28.788ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  CpuDecoderBenchmarks.DecodeARM7_64KB: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1    -> The minimum observed iteration time is 5.688ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+
+// * Legends *
+  Mean        : Arithmetic mean of all measurements
+  Error       : Half of 99.9% confidence interval
+  Ratio       : Mean of the ratio distribution ([Current]/[Baseline])
+  Allocated   : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 ms        : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:00 (0.98 sec), executed benchmarks: 4
+
+// Found 4 benchmarks:
+//   DisassemblyPipelineBenchmarks.DisassembleNES_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   DisassemblyPipelineBenchmarks.AnalyzeNES: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   DisassemblyPipelineBenchmarks.GetNESEntryPoints: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   DisassemblyPipelineBenchmarks.RegisterLookup_10K: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: DisassemblyPipelineBenchmarks.DisassembleNES_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1840 2480 --benchmarkName Peony.Benchmarks.DisassemblyPipelineBenchmarks.DisassembleNES_32KB --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 11 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 56658500.00 ns, 56.6585 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 56658500.00 ns, 56.6585 ms/op
+// GC:  0 0 0 491536 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 7000 has exited with code 0.
+
+Mean = 56.658 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 56.658 ms, Q1 = 56.658 ms, Median = 56.658 ms, Q3 = 56.658 ms, Max = 56.658 ms
+IQR = 0.000 ms, LowerFence = 56.658 ms, UpperFence = 56.658 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 6 (33.3%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: DisassemblyPipelineBenchmarks.AnalyzeNES: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1528 1604 --benchmarkName Peony.Benchmarks.DisassemblyPipelineBenchmarks.AnalyzeNES --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 12 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 976200.00 ns, 976.2000 us/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 976200.00 ns, 976.2000 us/op
+// GC:  0 0 0 544 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 5060 has exited with code 0.
+
+Mean = 976.200 us, StdErr = 0.000 us (0.00%), N = 1, StdDev = 0.000 us
+Min = 976.200 us, Q1 = 976.200 us, Median = 976.200 us, Q3 = 976.200 us, Max = 976.200 us
+IQR = 0.000 us, LowerFence = 976.200 us, UpperFence = 976.200 us
+ConfidenceInterval = [NaN us; NaN us] (CI 99.9%), Margin = NaN us (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 5 (27.8%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: DisassemblyPipelineBenchmarks.GetNESEntryPoints: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 2228 2224 --benchmarkName Peony.Benchmarks.DisassemblyPipelineBenchmarks.GetNESEntryPoints --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 13 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 1741800.00 ns, 1.7418 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 1741800.00 ns, 1.7418 ms/op
+// GC:  0 0 0 200 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 6232 has exited with code 0.
+
+Mean = 1.742 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 1.742 ms, Q1 = 1.742 ms, Median = 1.742 ms, Q3 = 1.742 ms, Max = 1.742 ms
+IQR = 0.000 ms, LowerFence = 1.742 ms, UpperFence = 1.742 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 4 (22.2%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: DisassemblyPipelineBenchmarks.RegisterLookup_10K: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 1484 2148 --benchmarkName Peony.Benchmarks.DisassemblyPipelineBenchmarks.RegisterLookup_10K --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 14 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 11933900.00 ns, 11.9339 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 11933900.00 ns, 11.9339 ms/op
+// GC:  0 0 0 0 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 7960 has exited with code 0.
+
+Mean = 11.934 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.934 ms, Q1 = 11.934 ms, Median = 11.934 ms, Q3 = 11.934 ms, Max = 11.934 ms
+IQR = 0.000 ms, LowerFence = 11.934 ms, UpperFence = 11.934 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 3 (16.7%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Successfully reverted power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.DisassemblyPipelineBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.DisassemblyPipelineBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.DisassemblyPipelineBenchmarks-report.html
+
+// * Detailed results *
+DisassemblyPipelineBenchmarks.DisassembleNES_32KB: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 56.658 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 56.658 ms, Q1 = 56.658 ms, Median = 56.658 ms, Q3 = 56.658 ms, Max = 56.658 ms
+IQR = 0.000 ms, LowerFence = 56.658 ms, UpperFence = 56.658 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[56.658 ms ; 56.659 ms) | @
+---------------------------------------------------
+
+DisassemblyPipelineBenchmarks.AnalyzeNES: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 976.200 us, StdErr = 0.000 us (0.00%), N = 1, StdDev = 0.000 us
+Min = 976.200 us, Q1 = 976.200 us, Median = 976.200 us, Q3 = 976.200 us, Max = 976.200 us
+IQR = 0.000 us, LowerFence = 976.200 us, UpperFence = 976.200 us
+ConfidenceInterval = [NaN us; NaN us] (CI 99.9%), Margin = NaN us (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[976.199 us ; 976.201 us) | @
+---------------------------------------------------
+
+DisassemblyPipelineBenchmarks.GetNESEntryPoints: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 1.742 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 1.742 ms, Q1 = 1.742 ms, Median = 1.742 ms, Q3 = 1.742 ms, Max = 1.742 ms
+IQR = 0.000 ms, LowerFence = 1.742 ms, UpperFence = 1.742 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[1.742 ms ; 1.742 ms) | @
+---------------------------------------------------
+
+DisassemblyPipelineBenchmarks.RegisterLookup_10K: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 11.934 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 11.934 ms, Q1 = 11.934 ms, Median = 11.934 ms, Q3 = 11.934 ms, Max = 11.934 ms
+IQR = 0.000 ms, LowerFence = 11.934 ms, UpperFence = 11.934 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[11.934 ms ; 11.934 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6466/22H2/2022Update)
+Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
+.NET SDK 10.0.200
+  [Host]     : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+  Job-JQCRAR : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+
+IterationCount=1  LaunchCount=1  RunStrategy=ColdStart  
+UnrollFactor=1  WarmupCount=1  
+
+| Method              | Mean        | Error | Allocated |
+|-------------------- |------------:|------:|----------:|
+| DisassembleNES_32KB | 56,658.5 us |    NA |  491536 B |
+| AnalyzeNES          |    976.2 us |    NA |     544 B |
+| GetNESEntryPoints   |  1,741.8 us |    NA |     200 B |
+| RegisterLookup_10K  | 11,933.9 us |    NA |         - |
+
+// * Warnings *
+MinIterationTime
+  DisassemblyPipelineBenchmarks.DisassembleNES_32KB: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1 -> The minimum observed iteration time is 56.659ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  DisassemblyPipelineBenchmarks.AnalyzeNES: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1          -> The minimum observed iteration time is 976.2us which is very small. It's recommended to increase it to at least 100ms using more operations.
+  DisassemblyPipelineBenchmarks.GetNESEntryPoints: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1   -> The minimum observed iteration time is 1.742ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  DisassemblyPipelineBenchmarks.RegisterLookup_10K: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1  -> The minimum observed iteration time is 11.934ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+
+// * Legends *
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 us      : 1 Microsecond (0.000001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:00 (0.91 sec), executed benchmarks: 4
+
+// Found 3 benchmarks:
+//   SymbolExportBenchmarks.ExportPansyFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   SymbolExportBenchmarks.ImportPansyFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+//   SymbolExportBenchmarks.ExportMesenFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: SymbolExportBenchmarks.ExportPansyFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 2228 2144 --benchmarkName Peony.Benchmarks.SymbolExportBenchmarks.ExportPansyFormat --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 15 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 1474300.00 ns, 1.4743 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 1474300.00 ns, 1.4743 ms/op
+// GC:  0 0 0 637504 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 29688 has exited with code 0.
+
+Mean = 1.474 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 1.474 ms, Q1 = 1.474 ms, Median = 1.474 ms, Q3 = 1.474 ms, Max = 1.474 ms
+IQR = 0.000 ms, LowerFence = 1.474 ms, UpperFence = 1.474 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 2 (11.1%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: SymbolExportBenchmarks.ImportPansyFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 2716 1508 --benchmarkName Peony.Benchmarks.SymbolExportBenchmarks.ImportPansyFormat --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 16 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 13416100.00 ns, 13.4161 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 13416100.00 ns, 13.4161 ms/op
+// GC:  0 0 0 561752 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 18872 has exited with code 0.
+
+Mean = 13.416 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 13.416 ms, Q1 = 13.416 ms, Median = 13.416 ms, Q3 = 13.416 ms, Max = 13.416 ms
+IQR = 0.000 ms, LowerFence = 13.416 ms, UpperFence = 13.416 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 1 (5.6%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: SymbolExportBenchmarks.ExportMesenFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet Peony.Benchmarks-Job-JQCRAR-1.dll --anonymousPipes 2468 1680 --benchmarkName Peony.Benchmarks.SymbolExportBenchmarks.ExportMesenFormat --job "IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1" --benchmarkId 17 in C:\Users\me\source\repos\peony\benchmarks\Peony.Benchmarks\bin\Release\net10.0\Peony.Benchmarks-Job-JQCRAR-1\bin\Release\net10.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 4004700.00 ns, 4.0047 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 4004700.00 ns, 4.0047 ms/op
+// GC:  0 0 0 403208 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 9612 has exited with code 0.
+
+Mean = 4.005 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.005 ms, Q1 = 4.005 ms, Median = 4.005 ms, Q3 = 4.005 ms, Max = 4.005 ms
+IQR = 0.000 ms, LowerFence = 4.005 ms, UpperFence = 4.005 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2026-03-29 14:54 (0h 0m from now) **
+Successfully reverted power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.SymbolExportBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.SymbolExportBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\Peony.Benchmarks.SymbolExportBenchmarks-report.html
+
+// * Detailed results *
+SymbolExportBenchmarks.ExportPansyFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 1.474 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 1.474 ms, Q1 = 1.474 ms, Median = 1.474 ms, Q3 = 1.474 ms, Max = 1.474 ms
+IQR = 0.000 ms, LowerFence = 1.474 ms, UpperFence = 1.474 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[1.474 ms ; 1.474 ms) | @
+---------------------------------------------------
+
+SymbolExportBenchmarks.ImportPansyFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 13.416 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 13.416 ms, Q1 = 13.416 ms, Median = 13.416 ms, Q3 = 13.416 ms, Max = 13.416 ms
+IQR = 0.000 ms, LowerFence = 13.416 ms, UpperFence = 13.416 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[13.416 ms ; 13.416 ms) | @
+---------------------------------------------------
+
+SymbolExportBenchmarks.ExportMesenFormat: Job-JQCRAR(IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1)
+Runtime = .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 4.005 ms, StdErr = 0.000 ms (0.00%), N = 1, StdDev = 0.000 ms
+Min = 4.005 ms, Q1 = 4.005 ms, Median = 4.005 ms, Q3 = 4.005 ms, Max = 4.005 ms
+IQR = 0.000 ms, LowerFence = 4.005 ms, UpperFence = 4.005 ms
+ConfidenceInterval = [NaN ms; NaN ms] (CI 99.9%), Margin = NaN ms (NaN% of Mean)
+Skewness = NaN, Kurtosis = NaN, MValue = 2
+-------------------- Histogram --------------------
+[4.005 ms ; 4.005 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 10 (10.0.19045.6466/22H2/2022Update)
+Intel Core i7-8700K CPU 3.70GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
+.NET SDK 10.0.200
+  [Host]     : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+  Job-JQCRAR : .NET 10.0.4 (10.0.4, 10.0.426.12010), X64 RyuJIT x86-64-v3
+
+IterationCount=1  LaunchCount=1  RunStrategy=ColdStart  
+UnrollFactor=1  WarmupCount=1  
+
+| Method            | Mean      | Error | Allocated |
+|------------------ |----------:|------:|----------:|
+| ExportPansyFormat |  1.474 ms |    NA | 622.56 KB |
+| ImportPansyFormat | 13.416 ms |    NA | 548.59 KB |
+| ExportMesenFormat |  4.005 ms |    NA | 393.76 KB |
+
+// * Warnings *
+MinIterationTime
+  SymbolExportBenchmarks.ExportPansyFormat: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1 -> The minimum observed iteration time is 1.474ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  SymbolExportBenchmarks.ImportPansyFormat: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1 -> The minimum observed iteration time is 13.416ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+  SymbolExportBenchmarks.ExportMesenFormat: IterationCount=1, LaunchCount=1, RunStrategy=ColdStart, UnrollFactor=1, WarmupCount=1 -> The minimum observed iteration time is 4.005ms which is very small. It's recommended to increase it to at least 100ms using more operations.
+
+// * Legends *
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 ms      : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:00 (0.68 sec), executed benchmarks: 3
+
+Global total time: 00:00:36 (36.46 sec), executed benchmarks: 18
+// * Artifacts cleanup *
+Artifacts cleanup is finished
