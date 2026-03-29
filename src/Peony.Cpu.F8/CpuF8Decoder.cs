@@ -1,4 +1,4 @@
-namespace Peony.Cpu;
+﻿namespace Peony.Cpu;
 
 using Peony.Core;
 
