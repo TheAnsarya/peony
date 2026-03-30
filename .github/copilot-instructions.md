@@ -94,6 +94,7 @@ gh issue comment $issueNum --repo TheAnsarya/peony --body "Prompt for work:
 ### Indentation
 - **TABS for indentation** — enforced by `.editorconfig`
 - **Tab width: 4 spaces** — ALWAYS use 4-space-equivalent tabs
+- **Applies to all file types** — C#, JSON, YAML, Markdown, scripts, and config files
 - NEVER use spaces for indentation — only tabs
 - Inside code blocks in markdown, use spaces for alignment of ASCII art/diagrams
 
