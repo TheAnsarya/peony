@@ -1372,6 +1372,11 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
 			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
 			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
+			"sms" or "master system" or "sega master system" or "game gear" or "gg" => new SmsAnalyzer(),
+			"pce" or "pc engine" or "turbografx" or "turbografx-16" or "tg16" => new PceAnalyzer(),
+			"ws" or "wonderswan" or "wonder swan" or "wsc" => new WonderSwanAnalyzer(),
+			"genesis" or "mega drive" or "megadrive" or "sega genesis" or "md" => new GenesisAnalyzer(),
+			"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
 			_ => throw new NotSupportedException($"Platform not supported: {platform}")
 		};
 
@@ -1558,6 +1563,11 @@ projectCommand.SetHandler((context) => {
 			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
 			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
 			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
+			"sms" or "master system" or "sega master system" or "game gear" or "gg" => new SmsAnalyzer(),
+			"pce" or "pc engine" or "turbografx" or "turbografx-16" or "tg16" => new PceAnalyzer(),
+			"ws" or "wonderswan" or "wonder swan" or "wsc" => new WonderSwanAnalyzer(),
+			"genesis" or "mega drive" or "megadrive" or "sega genesis" or "md" => new GenesisAnalyzer(),
+			"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
 			_ => throw new NotSupportedException($"Platform not supported: {platform}")
 		};
 
