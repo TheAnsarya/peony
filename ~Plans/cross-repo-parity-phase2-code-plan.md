@@ -1,4 +1,4 @@
-# Cross-Repo Platform Parity — Phase 2 Code Plan
+﻿# Cross-Repo Platform Parity — Phase 2 Code Plan
 
 ## Issues Addressed
 

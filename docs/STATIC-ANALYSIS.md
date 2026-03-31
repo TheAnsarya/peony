@@ -1,4 +1,4 @@
-# Static Analysis — Quarantine Documentation
+﻿# Static Analysis — Quarantine Documentation
 
 ## Overview
 

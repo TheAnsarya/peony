@@ -1,16 +1,168 @@
+# EditorConfig for Peony
+# https://editorconfig.org
 root = true
 
+#### Core EditorConfig Options ####
+
+# Global defaults - TABS EVERYWHERE
 [*]
+charset = utf-8-bom
+end_of_line = crlf
 indent_style = tab
 indent_size = 4
-end_of_line = crlf
-charset = utf-8-bom
+tab_width = 4
+insert_final_newline = true
 trim_trailing_whitespace = true
+max_line_length = 120
+
+# Assembly files - 8-space tabs for alignment
+[*.{asm,pasm,s,inc}]
+indent_style = tab
+indent_size = 8
+tab_width = 8
+
+# JSON files
+[*.{json,jsonc}]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# YAML files - use spaces per YAML convention
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown files - allow trailing whitespace for line breaks
+[*.{md,mdx}]
+trim_trailing_whitespace = false
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# PowerShell scripts
+[*.ps1]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# Shell scripts
+[*.sh]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+end_of_line = lf
+
+# Batch files
+[*.bat]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# Makefile must use tabs
+[Makefile]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+[makefile]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# XML/HTML
+[*.{xml,html,htm}]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# Config files
+[*.{cfg,ini,conf}]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# Text files
+[*.txt]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+# SVG files
+[*.svg]
 insert_final_newline = true
 
-[*.cs]
-csharp_style_namespace_declarations = file_scoped:suggestion
-csharp_new_line_before_open_brace = none
+# Environment files
+[.env*]
+insert_final_newline = true
 
-[*.md]
-trim_trailing_whitespace = false
+#######################################
+# C# and .NET Files
+#######################################
+
+[*.cs]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+#### .NET Code Actions ####
+
+# Disable IDE0046: Convert to conditional expression
+dotnet_diagnostic.IDE0046.severity = none
+
+# Disable IDE0305: Use collection expression for fluent
+dotnet_diagnostic.IDE0305.severity = none
+
+# Ignore IDE0060: unused parameter (handled intentionally)
+dotnet_diagnostic.IDE0060.severity = none
+
+#### .NET Coding Conventions ####
+
+# Organize usings
+dotnet_separate_import_directive_groups = false
+dotnet_sort_system_directives_first = true
+file_header_template = unset
+
+# this. and Me. preferences
+dotnet_style_qualification_for_event = false
+dotnet_style_qualification_for_field = false
+dotnet_style_qualification_for_method = false
+dotnet_style_qualification_for_property = false
+
+# Language keywords vs BCL types preferences
+dotnet_style_predefined_type_for_locals_parameters_members = true
+dotnet_style_predefined_type_for_member_access = true
+
+# Parentheses preferences
+dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:warning
+dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:warning
+dotnet_style_parentheses_in_other_operators = never_if_unnecessary:warning
+dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:warning
+
+# Modifier preferences
+dotnet_style_require_accessibility_modifiers = for_non_interface_members
+
+#### C# Coding Conventions ####
+
+# Namespace preferences
+csharp_style_namespace_declarations = file_scoped:suggestion
+
+# Brace style - K&R (opening brace on same line)
+csharp_new_line_before_open_brace = none
+csharp_new_line_before_catch = false
+csharp_new_line_before_else = false
+csharp_new_line_before_finally = false
+csharp_new_line_before_members_in_anonymous_types = false
+csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_between_query_expression_clauses = false
+
+# Pattern matching preferences
+csharp_style_pattern_matching_over_as_with_null_check = true:warning
+csharp_style_pattern_matching_over_is_with_cast_check = true:warning
+csharp_style_prefer_pattern_matching = true:warning
+csharp_style_prefer_switch_expression = true:suggestion
+
+# Expression-bodied members
+csharp_style_expression_bodied_accessors = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_expression_bodied_lambdas = true:warning
