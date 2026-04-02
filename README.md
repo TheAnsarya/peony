@@ -150,6 +150,10 @@ dotnet pack
 - [Lynx Memory Mapper Design](docs/lynx-memory-mapper-design.md)
 - [Lynx Platform](docs/lynx-platform.md)
 
+### Performance
+
+- [Benchmarks](docs/BENCHMARKS.md) — Running and interpreting the BenchmarkDotNet suite
+
 ### Project
 
 - [Release Notes v1.0.0](RELEASE-NOTES-1.0.0.md)
