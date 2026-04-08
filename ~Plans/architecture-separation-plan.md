@@ -1,4 +1,4 @@
-# Architecture Separation Plan
+﻿# Architecture Separation Plan
 
 ## Goal
 

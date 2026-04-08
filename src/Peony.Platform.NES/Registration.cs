@@ -1,4 +1,4 @@
-namespace Peony.Platform.NES;
+﻿namespace Peony.Platform.NES;
 
 using Peony.Core;
 

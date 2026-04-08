@@ -1,4 +1,4 @@
-namespace Peony.Platform.Genesis;
+﻿namespace Peony.Platform.Genesis;
 
 using Peony.Core;
 

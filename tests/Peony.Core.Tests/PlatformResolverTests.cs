@@ -1,4 +1,4 @@
-using Peony.Core;
+﻿using Peony.Core;
 using Peony.Platform.NES;
 using Peony.Platform.SNES;
 using Peony.Platform.GameBoy;

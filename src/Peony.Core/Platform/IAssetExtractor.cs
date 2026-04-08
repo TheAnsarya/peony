@@ -1,4 +1,4 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 /// <summary>
 /// Per-platform asset extractor for extracting game assets (graphics, text, palettes, etc.)

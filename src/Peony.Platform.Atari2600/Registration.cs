@@ -1,4 +1,4 @@
-namespace Peony.Platform.Atari2600;
+﻿namespace Peony.Platform.Atari2600;
 
 using Peony.Core;
 

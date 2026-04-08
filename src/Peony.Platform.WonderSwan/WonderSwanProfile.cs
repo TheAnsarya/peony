@@ -1,4 +1,4 @@
-namespace Peony.Platform.WonderSwan;
+﻿namespace Peony.Platform.WonderSwan;
 
 using Peony.Core;
 

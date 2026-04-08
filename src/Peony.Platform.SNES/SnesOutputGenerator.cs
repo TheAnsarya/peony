@@ -1,4 +1,4 @@
-namespace Peony.Platform.SNES;
+﻿namespace Peony.Platform.SNES;
 
 using System.Text;
 using System.Text.RegularExpressions;

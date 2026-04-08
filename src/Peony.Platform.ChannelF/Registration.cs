@@ -1,4 +1,4 @@
-namespace Peony.Platform.ChannelF;
+﻿namespace Peony.Platform.ChannelF;
 
 using Peony.Core;
 
