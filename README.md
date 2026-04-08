@@ -16,15 +16,21 @@ Peony is a multi-system disassembler framework designed to work alongside [Poppy
 
 ## 🎮 Supported Systems
 
-| System | CPU | Tests | Status |
-|--------|-----|-------|--------|
-| **Atari 2600** | 6507 | 32 | ✅ Complete |
-| **NES** | 6502 | ~50 | ✅ Complete |
-| **SNES** | 65816 | ~57 | ✅ Complete |
-| **Game Boy** | Sharp LR35902 | 0 | ✅ Complete |
-| **GBA** | ARM7TDMI | 0 | ✅ Complete |
+| System | CPU | Profile | Status |
+|--------|-----|---------|--------|
+| **Atari 2600** | 6507 | `Atari2600Profile` | ✅ Complete |
+| **Atari Lynx** | 65SC02 | `LynxProfile` | ✅ Complete |
+| **NES** | 6502 | `NesProfile` | ✅ Complete |
+| **SNES** | 65816 | `SnesProfile` | ✅ Complete |
+| **Game Boy** | Sharp LR35902 | `GameBoyProfile` | ✅ Complete |
+| **GBA** | ARM7TDMI | `GbaProfile` | ✅ Complete |
+| **Genesis** | M68000 | `GenesisProfile` | ✅ Complete |
+| **Sega Master System** | Z80 | `SmsProfile` | ✅ Complete |
+| **PC Engine** | HuC6280 | `PceProfile` | ✅ Complete |
+| **WonderSwan** | V30MZ | `WonderSwanProfile` | ✅ Complete |
+| **Channel F** | F8 | `ChannelFProfile` | ✅ Complete |
 
-**Total**: 5 platforms, 960 tests passing
+**Total**: 11 platforms, 1,489 tests passing
 
 ## ✨ Features
 
@@ -78,30 +84,55 @@ peony open my-game.peony --extract ./output/
 peony verify original.nes -r rebuilt.nes
 ```
 
+## 🏗️ Architecture
+
+Peony uses a **plugin architecture** where each platform is a self-contained component implementing `IPlatformProfile`:
+
+```
+IPlatformProfile
+├── PlatformId          (enum identifier)
+├── DisplayName         (human-readable name)
+├── CpuDecoder          (ICpuDecoder — instruction decoding)
+├── Analyzer            (IPlatformAnalyzer — ROM analysis)
+├── OutputGenerator     (IOutputGenerator — .pasm output)
+├── AssetExtractors     (IAssetExtractor[] — graphics/text/palette)
+├── RomExtensions       (file extension auto-detection)
+└── PansyPlatformId     (Pansy metadata mapping)
+```
+
+Platforms register at startup via `PlatformResolver` — no reflection, no scanning, just explicit calls.
+
 ## 📁 Project Structure
 
 ```
 src/
-├── Peony.Core/              # Core framework
-├── Peony.Cpu.6502/          # 6502/6507 decoder
-├── Peony.Cpu.65816/         # 65816 decoder
-├── Peony.Cpu.65SC02/        # 65SC02 decoder (Lynx)
-├── Peony.Cpu.GameBoy/       # Sharp LR35902 decoder
-├── Peony.Cpu.ARM7TDMI/      # ARM7TDMI decoder (ARM + Thumb)
-├── Peony.Platform.Atari2600/# Atari 2600 analysis
-├── Peony.Platform.Lynx/     # Atari Lynx analysis
-├── Peony.Platform.NES/      # NES analysis
-├── Peony.Platform.SNES/     # SNES analysis
-├── Peony.Platform.GameBoy/  # Game Boy analysis
-├── Peony.Platform.GBA/      # Game Boy Advance analysis
-└── Peony.Cli/               # CLI application
+├── Peony.Core/               # Core framework (PlatformResolver, interfaces)
+│   └── Platform/             # IPlatformProfile, PlatformId, IOutputGenerator, IAssetExtractor
+├── Peony.Cpu.6502/           # 6502/6507 decoder
+├── Peony.Cpu.65816/          # 65816 decoder
+├── Peony.Cpu.65SC02/         # 65SC02 decoder (Lynx)
+├── Peony.Cpu.GameBoy/        # Sharp LR35902 decoder
+├── Peony.Cpu.ARM7TDMI/       # ARM7TDMI decoder (ARM + Thumb)
+├── Peony.Cpu.F8/             # F8 decoder (Channel F)
+├── Peony.Platform.Atari2600/ # Atari 2600 (Profile + Registration)
+├── Peony.Platform.Lynx/      # Atari Lynx
+├── Peony.Platform.NES/       # NES
+├── Peony.Platform.SNES/      # SNES (custom SnesOutputGenerator)
+├── Peony.Platform.GameBoy/   # Game Boy
+├── Peony.Platform.GBA/       # GBA
+├── Peony.Platform.Genesis/   # Genesis / Mega Drive
+├── Peony.Platform.SMS/       # Master System / Game Gear
+├── Peony.Platform.PCE/       # PC Engine / TurboGrafx-16
+├── Peony.Platform.WonderSwan/# WonderSwan
+├── Peony.Platform.ChannelF/  # Fairchild Channel F
+└── Peony.Cli/                # CLI application
 tests/
-├── Peony.Core.Tests/            # 679 tests
-├── Peony.Platform.GBA.Tests/    # 71 tests
-├── Peony.Platform.Atari2600.Tests/ # 68 tests
-├── Peony.Platform.Lynx.Tests/  # 56 tests
-├── Peony.Platform.SNES.Tests/  # 45 tests
-└── Peony.Platform.GameBoy.Tests/ # 41 tests
+├── Peony.Core.Tests/              # Core + PlatformResolver tests
+├── Peony.Platform.GBA.Tests/
+├── Peony.Platform.Atari2600.Tests/
+├── Peony.Platform.Lynx.Tests/
+├── Peony.Platform.SNES.Tests/
+└── Peony.Platform.GameBoy.Tests/
 ```
 
 ## 📦 .peony Project Format

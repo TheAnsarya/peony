@@ -30,6 +30,11 @@
 		<ProjectReference Include="..\..\src\Peony.Platform.GBA\Peony.Platform.GBA.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Cpu.F8\Peony.Cpu.F8.csproj" />
 		<ProjectReference Include="..\..\src\Peony.Platform.ChannelF\Peony.Platform.ChannelF.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.Lynx\Peony.Platform.Lynx.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.SMS\Peony.Platform.SMS.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.PCE\Peony.Platform.PCE.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.Genesis\Peony.Platform.Genesis.csproj" />
+		<ProjectReference Include="..\..\src\Peony.Platform.WonderSwan\Peony.Platform.WonderSwan.csproj" />
 	</ItemGroup>
 
 </Project>

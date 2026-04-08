@@ -3,9 +3,14 @@
 using System.Text.RegularExpressions;
 
 /// <summary>
-/// Formats disassembly output in Poppy assembler format with bank annotations
+/// Formats disassembly output in Poppy assembler format with bank annotations.
+/// Implements both legacy IOutputFormatter and new IOutputGenerator interfaces.
+/// Used as the default output generator for platforms without a custom generator.
 /// </summary>
-public sealed class PoppyFormatter : IOutputFormatter {
+public sealed class PoppyFormatter : IOutputFormatter, IOutputGenerator {
+	/// <summary>Shared singleton instance for use as default output generator</summary>
+	public static readonly PoppyFormatter Instance = new();
+
 public string Name => "Poppy";
 public string Extension => ".pasm";
 

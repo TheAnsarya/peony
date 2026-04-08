@@ -16,6 +16,19 @@ using Spectre.Console;
 
 // 🌺 Peony Disassembler CLI
 
+// Register all platform profiles — explicit, no reflection
+Peony.Platform.NES.Registration.RegisterAll();
+Peony.Platform.SNES.Registration.RegisterAll();
+Peony.Platform.GameBoy.Registration.RegisterAll();
+Peony.Platform.GBA.Registration.RegisterAll();
+Peony.Platform.Atari2600.Registration.RegisterAll();
+Peony.Platform.Lynx.Registration.RegisterAll();
+Peony.Platform.SMS.Registration.RegisterAll();
+Peony.Platform.PCE.Registration.RegisterAll();
+Peony.Platform.Genesis.Registration.RegisterAll();
+Peony.Platform.WonderSwan.Registration.RegisterAll();
+Peony.Platform.ChannelF.Registration.RegisterAll();
+
 var rootCommand = new RootCommand("🌺 Peony - Multi-system ROM disassembler");
 
 // Disasm command
@@ -67,20 +80,9 @@ platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
 AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
 
 // Get platform analyzer
-IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
-"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
-"lynx" or "atari lynx" => new LynxAnalyzer(),
-"nes" => new NesAnalyzer(),
-"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
-			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
-			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
-			"sms" or "master system" or "sega master system" or "game gear" or "gg" => new SmsAnalyzer(),
-			"pce" or "pc engine" or "turbografx" or "turbografx-16" or "tg16" => new PceAnalyzer(),
-			"ws" or "wonderswan" or "wonder swan" or "wsc" => new WonderSwanAnalyzer(),
-			"genesis" or "mega drive" or "megadrive" or "sega genesis" or "md" => new GenesisAnalyzer(),
-			"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
-			_ => throw new NotSupportedException($"Platform not supported: {platform}")
-		};
+var profile = PlatformResolver.Resolve(platform ?? "")
+	?? throw new NotSupportedException($"Platform not supported: {platform}");
+IPlatformAnalyzer analyzer = profile.Analyzer;
 
 		// Analyze ROM
 		var info = analyzer.Analyze(romData);
@@ -338,29 +340,11 @@ try {
 var romData = RomLoader.Load(file.FullName);
 var platform = RomLoader.DetectPlatform(romData, file.FullName);
 
-IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
-"atari2600" or "atari 2600" => new Atari2600Analyzer(),
-"lynx" or "atari lynx" => new LynxAnalyzer(),
-"nes" => new NesAnalyzer(),
-"sms" or "master system" or "game gear" => new SmsAnalyzer(),
-"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
-"ws" or "wonderswan" => new WonderSwanAnalyzer(),
-"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
-"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
-_ => throw new NotSupportedException($"Unknown platform: {platform}")
-};
+IPlatformAnalyzer analyzer = (PlatformResolver.Resolve(platform ?? "")
+	?? throw new NotSupportedException($"Unknown platform: {platform}")).Analyzer;
 
 var info = analyzer.Analyze(romData);
-var entryPoints = analyzer switch {
-Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
-LynxAnalyzer lynx => lynx.GetEntryPoints(romData),
-NesAnalyzer nes => nes.GetEntryPoints(romData),
-SmsAnalyzer sms => sms.GetEntryPoints(romData),
-PceAnalyzer pce => pce.GetEntryPoints(romData),
-WonderSwanAnalyzer ws => ws.GetEntryPoints(romData),
-GenesisAnalyzer gen => gen.GetEntryPoints(romData),
-_ => [0x8000]
-};
+var entryPoints = analyzer.GetEntryPoints(romData);
 
 var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
 var result = engine.Disassemble(romData, entryPoints);
@@ -495,20 +479,9 @@ exportCommand.SetHandler((context) => {
 		platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
 
 		// Get platform analyzer
-		IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
-			"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
-			"lynx" or "atari lynx" => new LynxAnalyzer(),
-			"nes" => new NesAnalyzer(),
-			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
-			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
-			"gba" or "game boy advance" or "advance" => new GbaAnalyzer(),
-			"sms" or "master system" or "game gear" => new SmsAnalyzer(),
-			"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
-			"ws" or "wonderswan" => new WonderSwanAnalyzer(),
-			"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
-			"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
-			_ => throw new NotSupportedException($"Platform not supported: {platform}")
-		};
+		var profile3 = PlatformResolver.Resolve(platform ?? "")
+			?? throw new NotSupportedException($"Platform not supported: {platform}");
+		IPlatformAnalyzer analyzer = profile3.Analyzer;
 
 		// Analyze ROM
 		var info = analyzer.Analyze(romData);
@@ -633,18 +606,8 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 			// Detect platform for roundtrip
 			var romData = RomLoader.Load(original.FullName);
 			var platform = RomLoader.DetectPlatform(romData, original.FullName);
-			IPlatformAnalyzer rtAnalyzer = platform?.ToLowerInvariant() switch {
-				"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
-				"lynx" or "atari lynx" => new LynxAnalyzer(),
-				"nes" => new NesAnalyzer(),
-				"snes" or "super nintendo" => new Peony.Platform.SNES.SnesAnalyzer(),
-				"sms" or "master system" or "game gear" => new SmsAnalyzer(),
-				"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
-				"ws" or "wonderswan" => new WonderSwanAnalyzer(),
-				"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
-				"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
-				_ => throw new NotSupportedException($"Platform not supported: {platform}")
-			};
+			IPlatformAnalyzer rtAnalyzer = (PlatformResolver.Resolve(platform ?? "")
+				?? throw new NotSupportedException($"Platform not supported: {platform}")).Analyzer;
 
 			AnsiConsole.Status()
 				.Spinner(Spinner.Known.Dots)
@@ -665,18 +628,8 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 			var romData = RomLoader.Load(original.FullName);
 			var platform = RomLoader.DetectPlatform(romData, original.FullName);
 
-			IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
-				"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
-				"lynx" or "atari lynx" => new LynxAnalyzer(),
-				"nes" => new NesAnalyzer(),
-				"snes" or "super nintendo" => new Peony.Platform.SNES.SnesAnalyzer(),
-				"sms" or "master system" or "game gear" => new SmsAnalyzer(),
-				"pce" or "pc engine" or "turbografx" => new PceAnalyzer(),
-				"ws" or "wonderswan" => new WonderSwanAnalyzer(),
-				"genesis" or "mega drive" or "megadrive" => new GenesisAnalyzer(),
-				"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
-				_ => throw new NotSupportedException($"Platform not supported: {platform}")
-			};
+			IPlatformAnalyzer analyzer = (PlatformResolver.Resolve(platform ?? "")
+				?? throw new NotSupportedException($"Platform not supported: {platform}")).Analyzer;
 
 			var info = analyzer.Analyze(romData);
 			var entryPoints = analyzer.GetEntryPoints(romData);
@@ -1365,20 +1318,9 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 		AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
 
 		// Step 4: Get platform analyzer
-		IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
-			"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
-			"lynx" or "atari lynx" => new LynxAnalyzer(),
-			"nes" => new NesAnalyzer(),
-			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
-			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
-			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
-			"sms" or "master system" or "sega master system" or "game gear" or "gg" => new SmsAnalyzer(),
-			"pce" or "pc engine" or "turbografx" or "turbografx-16" or "tg16" => new PceAnalyzer(),
-			"ws" or "wonderswan" or "wonder swan" or "wsc" => new WonderSwanAnalyzer(),
-			"genesis" or "mega drive" or "megadrive" or "sega genesis" or "md" => new GenesisAnalyzer(),
-			"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
-			_ => throw new NotSupportedException($"Platform not supported: {platform}")
-		};
+		var profile4 = PlatformResolver.Resolve(platform ?? "")
+			?? throw new NotSupportedException($"Platform not supported: {platform}");
+		IPlatformAnalyzer analyzer = profile4.Analyzer;
 
 		var info = analyzer.Analyze(romData);
 		AnsiConsole.MarkupLine($"[grey]Mapper:[/] {info.Mapper ?? "None"}");
@@ -1556,20 +1498,9 @@ projectCommand.SetHandler((context) => {
 		AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
 
 		// Get platform analyzer
-		IPlatformAnalyzer analyzer = platform?.ToLowerInvariant() switch {
-			"atari2600" or "atari 2600" or "2600" => new Atari2600Analyzer(),
-			"lynx" or "atari lynx" => new LynxAnalyzer(),
-			"nes" => new NesAnalyzer(),
-			"snes" or "super nintendo" or "super nes" => new Peony.Platform.SNES.SnesAnalyzer(),
-			"gameboy" or "game boy" or "gb" => new GameBoyAnalyzer(),
-			"gba" or "game boy advance" or "gameboy advance" or "advance" => new GbaAnalyzer(),
-			"sms" or "master system" or "sega master system" or "game gear" or "gg" => new SmsAnalyzer(),
-			"pce" or "pc engine" or "turbografx" or "turbografx-16" or "tg16" => new PceAnalyzer(),
-			"ws" or "wonderswan" or "wonder swan" or "wsc" => new WonderSwanAnalyzer(),
-			"genesis" or "mega drive" or "megadrive" or "sega genesis" or "md" => new GenesisAnalyzer(),
-			"channelf" or "channel f" or "fairchild" or "f8" => new ChannelFAnalyzer(),
-			_ => throw new NotSupportedException($"Platform not supported: {platform}")
-		};
+		var profile5 = PlatformResolver.Resolve(platform ?? "")
+			?? throw new NotSupportedException($"Platform not supported: {platform}");
+		IPlatformAnalyzer analyzer = profile5.Analyzer;
 
 		var info = analyzer.Analyze(romData);
 
