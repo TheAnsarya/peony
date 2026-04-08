@@ -33,6 +33,14 @@ public interface IPlatformProfile {
 	/// <summary>ROM file extensions for auto-detection (e.g., ".sfc", ".smc")</summary>
 	IReadOnlyList<string> RomExtensions { get; }
 
+	/// <summary>Primary ROM file extension without dot (e.g., "sfc", "nes")</summary>
+	string DefaultRomExtension => RomExtensions.Count > 0
+		? RomExtensions[0].TrimStart('.')
+		: "bin";
+
+	/// <summary>Normalized platform identifier for Poppy manifests (e.g., "nes", "snes", "gb")</summary>
+	string PoppyPlatformId { get; }
+
 	/// <summary>Pansy platform ID byte (0x01=NES, 0x02=SNES, etc.), null if not mapped</summary>
 	byte? PansyPlatformId { get; }
 }

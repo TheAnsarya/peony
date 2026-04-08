@@ -21,6 +21,7 @@ public sealed class SmsProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".sms", ".gg"];
 	public byte? PansyPlatformId => 0x06;
+	public string PoppyPlatformId => "sms";
 
 	private SmsProfile() {
 		var analyzer = new SmsAnalyzer();

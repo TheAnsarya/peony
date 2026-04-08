@@ -22,6 +22,7 @@ public sealed class SnesProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".sfc", ".smc"];
 	public byte? PansyPlatformId => 0x02;
+	public string PoppyPlatformId => "snes";
 
 	private SnesProfile() {
 		var analyzer = new SnesAnalyzer();

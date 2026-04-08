@@ -17,13 +17,17 @@ namespace Peony.Core.Tests;
 /// <summary>
 /// Tests for PlatformResolver registration, lookup, and alias resolution
 /// </summary>
+[Collection("PlatformResolver")]
 public class PlatformResolverTests : IDisposable {
 	public PlatformResolverTests() {
 		PlatformResolver.Clear();
 	}
 
 	public void Dispose() {
+		// Re-register all platforms after tests so other test classes
+		// that depend on PlatformResolver are not affected
 		PlatformResolver.Clear();
+		RegisterAllPlatforms();
 	}
 
 	[Fact]

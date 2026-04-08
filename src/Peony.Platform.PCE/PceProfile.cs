@@ -21,6 +21,7 @@ public sealed class PceProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".pce"];
 	public byte? PansyPlatformId => 0x07;
+	public string PoppyPlatformId => "pce";
 
 	private PceProfile() {
 		var analyzer = new PceAnalyzer();

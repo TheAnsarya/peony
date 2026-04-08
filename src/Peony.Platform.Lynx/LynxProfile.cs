@@ -21,6 +21,7 @@ public sealed class LynxProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".lnx", ".lyx"];
 	public byte? PansyPlatformId => 0x09;
+	public string PoppyPlatformId => "lynx";
 
 	private LynxProfile() {
 		var analyzer = new LynxAnalyzer();

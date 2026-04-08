@@ -7,6 +7,6 @@ using Peony.Core;
 /// </summary>
 public static class Registration {
 	public static void RegisterAll() {
-		PlatformResolver.Register(GameBoyProfile.Instance, "gameboy", "game boy", "gb");
+		PlatformResolver.Register(GameBoyProfile.Instance, "gameboy", "game boy", "gb", "gbc");
 	}
 }

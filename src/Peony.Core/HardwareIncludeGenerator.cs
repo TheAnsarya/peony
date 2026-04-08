@@ -8,13 +8,17 @@ namespace Peony.Core;
 /// </summary>
 public static class HardwareIncludeGenerator {
 	public static string Generate(string platform) {
-		return platform.ToLowerInvariant() switch {
-			"nes" => GenerateNes(),
-			"snes" or "super nes" => GenerateSnes(),
-			"game boy" or "gameboy" or "gb" => GenerateGameBoy(),
-			"game boy advance" or "gba" => GenerateGba(),
-			"atari 2600" or "atari2600" or "a26" => GenerateAtari2600(),
-			"atari lynx" or "lynx" => GenerateLynx(),
+		var profile = PlatformResolver.Resolve(platform);
+		if (profile is null)
+			return GenerateGeneric(platform);
+
+		return profile.Platform switch {
+			PlatformId.NES => GenerateNes(),
+			PlatformId.SNES => GenerateSnes(),
+			PlatformId.GameBoy => GenerateGameBoy(),
+			PlatformId.GBA => GenerateGba(),
+			PlatformId.Atari2600 => GenerateAtari2600(),
+			PlatformId.Lynx => GenerateLynx(),
 			_ => GenerateGeneric(platform)
 		};
 	}

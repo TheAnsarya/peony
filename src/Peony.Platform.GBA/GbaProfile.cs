@@ -21,6 +21,7 @@ public sealed class GbaProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".gba"];
 	public byte? PansyPlatformId => 0x04;
+	public string PoppyPlatformId => "gba";
 
 	private GbaProfile() {
 		var analyzer = new GbaAnalyzer();

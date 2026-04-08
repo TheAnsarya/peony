@@ -5,6 +5,7 @@ using Xunit;
 
 namespace Peony.Core.Tests;
 
+[Collection("PlatformResolver")]
 public class ProjectWriterTests {
 	private static DisassemblyResult MakeResult() {
 		var result = new DisassemblyResult {
@@ -304,6 +305,7 @@ public class ProjectWriterTests {
 	}
 }
 
+[Collection("PlatformResolver")]
 public class HardwareIncludeGeneratorTests {
 	[Theory]
 	[InlineData("NES")]

@@ -379,40 +379,8 @@ public static class SymbolExporter {
 	private static byte GetPansyPlatformId(RomInfo? info) {
 		if (info?.Platform == null) return PansyLoader.PLATFORM_CUSTOM;
 
-		return info.Platform.ToLowerInvariant() switch {
-			"nes" => PansyLoader.PLATFORM_NES,
-			"snes" or "super nintendo" => PansyLoader.PLATFORM_SNES,
-			"gb" or "game boy" or "gameboy" => PansyLoader.PLATFORM_GB,
-			"gba" or "game boy advance" => PansyLoader.PLATFORM_GBA,
-			"genesis" or "mega drive" => PansyLoader.PLATFORM_GENESIS,
-			"sms" or "master system" => PansyLoader.PLATFORM_SMS,
-			"pce" or "turbografx" or "pc engine" => PansyLoader.PLATFORM_PCE,
-			"atari 2600" or "atari2600" or "2600" => PansyLoader.PLATFORM_ATARI_2600,
-			"lynx" or "atari lynx" => PansyLoader.PLATFORM_LYNX,
-			"wonderswan" or "ws" => PansyLoader.PLATFORM_WONDERSWAN,
-			"neogeo" or "neo geo" => PansyLoader.PLATFORM_NEOGEO,
-			"spc700" or "spc" => PansyLoader.PLATFORM_SPC700,
-			"c64" or "commodore 64" => PansyLoader.PLATFORM_C64,
-			"msx" => PansyLoader.PLATFORM_MSX,
-			"atari 7800" or "7800" => PansyLoader.PLATFORM_ATARI_7800,
-			"atari 8-bit" or "a8" => PansyLoader.PLATFORM_ATARI_8BIT,
-			"apple ii" or "apple2" => PansyLoader.PLATFORM_APPLE_II,
-			"zx spectrum" or "spectrum" => PansyLoader.PLATFORM_ZX_SPECTRUM,
-			"colecovision" or "coleco" => PansyLoader.PLATFORM_COLECO,
-			"intellivision" or "intv" => PansyLoader.PLATFORM_INTELLIVISION,
-			"vectrex" => PansyLoader.PLATFORM_VECTREX,
-			"game gear" or "gg" => PansyLoader.PLATFORM_GAMEGEAR,
-			"32x" or "sega 32x" => PansyLoader.PLATFORM_32X,
-			"sega cd" or "segacd" => PansyLoader.PLATFORM_SEGACD,
-			"virtual boy" or "vb" => PansyLoader.PLATFORM_VIRTUALBOY,
-			"amstrad cpc" or "cpc" => PansyLoader.PLATFORM_AMSTRAD_CPC,
-			"bbc micro" or "bbc" => PansyLoader.PLATFORM_BBC_MICRO,
-			"vic-20" or "vic20" => PansyLoader.PLATFORM_VIC20,
-			"plus/4" or "plus4" => PansyLoader.PLATFORM_PLUS4,
-			"c128" or "commodore 128" => PansyLoader.PLATFORM_C128,
-			"channel f" or "channelf" or "fairchild" => PansyLoader.PLATFORM_CHANNEL_F,
-			_ => PansyLoader.PLATFORM_CUSTOM
-		};
+		var profile = PlatformResolver.Resolve(info.Platform);
+		return profile?.PansyPlatformId ?? PansyLoader.PLATFORM_CUSTOM;
 	}
 
 	/// <summary>

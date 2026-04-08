@@ -7,6 +7,6 @@ using Peony.Core;
 /// </summary>
 public static class Registration {
 	public static void RegisterAll() {
-		PlatformResolver.Register(PceProfile.Instance, "pce", "pc engine", "turbografx", "turbografx-16", "tg16");
+		PlatformResolver.Register(PceProfile.Instance, "pce", "pc engine", "pcengine", "turbografx", "turbografx-16", "tg16");
 	}
 }

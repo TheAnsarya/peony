@@ -21,6 +21,7 @@ public sealed class GameBoyProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".gb", ".gbc"];
 	public byte? PansyPlatformId => 0x03;
+	public string PoppyPlatformId => "gb";
 
 	private GameBoyProfile() {
 		var analyzer = new GameBoyAnalyzer();

@@ -143,19 +143,8 @@ public static class ProjectScaffolder {
 		if (string.IsNullOrEmpty(system))
 			return "unknown";
 
-		return system.ToLowerInvariant() switch {
-			"nes" => "nes",
-			"snes" or "superfamicom" => "snes",
-			"gameboy" or "gb" or "gbc" => "gb",
-			"gameboyadvance" or "gba" => "gba",
-			"genesis" or "megadrive" => "genesis",
-			"mastersystem" or "sms" => "sms",
-			"pcengine" or "pce" or "turbografx" => "pce",
-			"atari2600" or "a26" => "a26",
-			"lynx" => "lynx",
-			"wonderswan" or "ws" or "wsc" => "ws",
-			_ => system.ToLowerInvariant()
-		};
+		return PlatformResolver.Resolve(system)?.PoppyPlatformId
+			?? system.ToLowerInvariant();
 	}
 
 	private static string BuildPeonyJson(
@@ -236,18 +225,7 @@ public static class ProjectScaffolder {
 	}
 
 	private static string GetRomExtension(string platform) {
-		return platform switch {
-			"nes" => "nes",
-			"snes" => "sfc",
-			"gb" => "gb",
-			"gba" => "gba",
-			"genesis" => "bin",
-			"sms" => "sms",
-			"pce" => "pce",
-			"a26" => "a26",
-			"lynx" => "lnx",
-			"ws" => "ws",
-			_ => "bin"
-		};
+		return PlatformResolver.Resolve(platform)?.DefaultRomExtension
+			?? "bin";
 	}
 }

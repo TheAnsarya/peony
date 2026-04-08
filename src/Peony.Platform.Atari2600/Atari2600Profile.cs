@@ -21,6 +21,7 @@ public sealed class Atari2600Profile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".a26", ".bin"];
 	public byte? PansyPlatformId => 0x08;
+	public string PoppyPlatformId => "atari2600";
 
 	private Atari2600Profile() {
 		var analyzer = new Atari2600Analyzer();

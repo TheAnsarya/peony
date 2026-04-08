@@ -15,13 +15,16 @@ public static class PlatformMemoryMap {
 	/// Returns null for addresses that could be either code or data (e.g., ROM space).
 	/// </summary>
 	public static ByteClassification? GetKnownClassification(string platform, uint address) {
-		return platform switch {
-			"NES" => GetNesClassification(address),
-			"SNES" => GetSnesClassification(address),
-			"Game Boy" => GetGameBoyClassification(address),
-			"GBA" => GetGbaClassification(address),
-			"Atari 2600" => GetAtari2600Classification(address),
-			"Atari Lynx" => GetLynxClassification(address),
+		var profile = PlatformResolver.Resolve(platform);
+		if (profile is null) return null;
+
+		return profile.Platform switch {
+			PlatformId.NES => GetNesClassification(address),
+			PlatformId.SNES => GetSnesClassification(address),
+			PlatformId.GameBoy => GetGameBoyClassification(address),
+			PlatformId.GBA => GetGbaClassification(address),
+			PlatformId.Atari2600 => GetAtari2600Classification(address),
+			PlatformId.Lynx => GetLynxClassification(address),
 			_ => null,
 		};
 	}
@@ -30,10 +33,13 @@ public static class PlatformMemoryMap {
 	/// Get hardware register name for an address, or null if not a register.
 	/// </summary>
 	public static string? GetHardwareRegisterName(string platform, uint address) {
-		return platform switch {
-			"NES" => GetNesRegisterName(address),
-			"Game Boy" => GetGameBoyRegisterName(address),
-			"Atari 2600" => GetAtari2600RegisterName(address),
+		var profile = PlatformResolver.Resolve(platform);
+		if (profile is null) return null;
+
+		return profile.Platform switch {
+			PlatformId.NES => GetNesRegisterName(address),
+			PlatformId.GameBoy => GetGameBoyRegisterName(address),
+			PlatformId.Atari2600 => GetAtari2600RegisterName(address),
 			_ => null,
 		};
 	}
@@ -42,12 +48,15 @@ public static class PlatformMemoryMap {
 	/// Get vector addresses for the platform (reset, NMI, IRQ, etc.).
 	/// </summary>
 	public static IReadOnlyList<VectorEntry> GetVectors(string platform) {
-		return platform switch {
-			"NES" => NesVectors,
-			"SNES" => SnesNativeVectors,
-			"Game Boy" => GameBoyVectors,
-			"Atari 2600" => Atari2600Vectors,
-			"Atari Lynx" => LynxVectors,
+		var profile = PlatformResolver.Resolve(platform);
+		if (profile is null) return [];
+
+		return profile.Platform switch {
+			PlatformId.NES => NesVectors,
+			PlatformId.SNES => SnesNativeVectors,
+			PlatformId.GameBoy => GameBoyVectors,
+			PlatformId.Atari2600 => Atari2600Vectors,
+			PlatformId.Lynx => LynxVectors,
 			_ => [],
 		};
 	}

@@ -487,28 +487,13 @@ public sealed class ProjectWriter {
 		total > 0 ? (100.0 * part / total).ToString("F1") : "0.0";
 
 	private static string NormalizePoppyPlatform(string platform) {
-		return platform.ToLowerInvariant() switch {
-			"atari 2600" or "atari2600" or "a26" => "atari2600",
-			"atari lynx" or "lynx" => "lynx",
-			"game boy" or "gameboy" or "gb" => "gb",
-			"game boy advance" or "gba" => "gba",
-			"nes" => "nes",
-			"snes" or "super nes" or "super nintendo" => "snes",
-			_ => platform.ToLowerInvariant()
-		};
+		return PlatformResolver.Resolve(platform)?.PoppyPlatformId
+			?? platform.ToLowerInvariant();
 	}
 
 	private static string GetRomExtension(string platform) {
-		return platform.ToLowerInvariant() switch {
-			"nes" => "nes",
-			"snes" or "super nes" => "sfc",
-			"game boy" or "gameboy" or "gb" => "gb",
-			"game boy advance" or "gba" => "gba",
-			"atari 2600" or "atari2600" or "a26" => "a26",
-			"atari lynx" or "lynx" => "lnx",
-			"genesis" or "mega drive" => "bin",
-			_ => "bin"
-		};
+		return PlatformResolver.Resolve(platform)?.DefaultRomExtension
+			?? "bin";
 	}
 
 	private static string ComputeCrc32Hex(byte[] data) {

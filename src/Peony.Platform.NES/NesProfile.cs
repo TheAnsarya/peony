@@ -21,6 +21,7 @@ public sealed class NesProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".nes"];
 	public byte? PansyPlatformId => 0x01;
+	public string PoppyPlatformId => "nes";
 
 	private NesProfile() {
 		var analyzer = new NesAnalyzer();

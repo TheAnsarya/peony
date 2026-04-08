@@ -7,6 +7,6 @@ using Peony.Core;
 /// </summary>
 public static class Registration {
 	public static void RegisterAll() {
-		PlatformResolver.Register(SmsProfile.Instance, "sms", "master system", "sega master system", "game gear", "gg");
+		PlatformResolver.Register(SmsProfile.Instance, "sms", "master system", "mastersystem", "sega master system", "game gear", "gg");
 	}
 }

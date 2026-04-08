@@ -7,6 +7,7 @@ namespace Peony.Core.Tests;
 /// <summary>
 /// Tests for StaticAnalyzer — CDL-first deterministic classification.
 /// </summary>
+[Collection("PlatformResolver")]
 public class StaticAnalyzerTests {
 	private readonly NesAnalyzer _nesAnalyzer = new();
 

@@ -21,6 +21,7 @@ public sealed class ChannelFProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".chf"];
 	public byte? PansyPlatformId => null;
+	public string PoppyPlatformId => "channelf";
 
 	private ChannelFProfile() {
 		var analyzer = new ChannelFAnalyzer();

@@ -21,6 +21,7 @@ public sealed class GenesisProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".md", ".gen", ".bin"];
 	public byte? PansyPlatformId => 0x05;
+	public string PoppyPlatformId => "genesis";
 
 	private GenesisProfile() {
 		var analyzer = new GenesisAnalyzer();

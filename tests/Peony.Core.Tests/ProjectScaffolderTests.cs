@@ -1,9 +1,10 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Peony.Core;
 using Xunit;
 
 namespace Peony.Core.Tests;
 
+[Collection("PlatformResolver")]
 public class ProjectScaffolderTests : IDisposable {
 	private readonly string _tempDir;
 
@@ -259,7 +260,7 @@ public class ProjectScaffolderTests : IDisposable {
 	[InlineData("Gameboy", "gb")]
 	[InlineData("GameboyAdvance", "gba")]
 	[InlineData("Lynx", "lynx")]
-	[InlineData("Atari2600", "a26")]
+	[InlineData("Atari2600", "atari2600")]
 	[InlineData("WonderSwan", "ws")]
 	[InlineData("MasterSystem", "sms")]
 	[InlineData("PCEngine", "pce")]

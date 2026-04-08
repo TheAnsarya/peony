@@ -8,6 +8,6 @@ using Peony.Core;
 /// </summary>
 public static class Registration {
 	public static void RegisterAll() {
-		PlatformResolver.Register(SnesProfile.Instance, "snes", "super nintendo", "super nes");
+		PlatformResolver.Register(SnesProfile.Instance, "snes", "super nintendo", "super nes", "superfamicom");
 	}
 }

@@ -7,6 +7,6 @@ using Peony.Core;
 /// </summary>
 public static class Registration {
 	public static void RegisterAll() {
-		PlatformResolver.Register(Atari2600Profile.Instance, "atari2600", "atari 2600", "2600");
+		PlatformResolver.Register(Atari2600Profile.Instance, "atari2600", "atari 2600", "2600", "a26");
 	}
 }

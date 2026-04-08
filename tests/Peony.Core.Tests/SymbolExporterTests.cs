@@ -7,6 +7,7 @@ namespace Peony.Core.Tests;
 /// <summary>
 /// Tests for SymbolExporter functionality
 /// </summary>
+[Collection("PlatformResolver")]
 public class SymbolExporterTests {
 	private static DisassemblyResult CreateTestResult() {
 		var result = new DisassemblyResult {

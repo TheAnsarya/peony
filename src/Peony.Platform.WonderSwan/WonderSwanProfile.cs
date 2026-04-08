@@ -21,6 +21,7 @@ public sealed class WonderSwanProfile : IPlatformProfile {
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".ws", ".wsc"];
 	public byte? PansyPlatformId => 0x0a;
+	public string PoppyPlatformId => "ws";
 
 	private WonderSwanProfile() {
 		var analyzer = new WonderSwanAnalyzer();
