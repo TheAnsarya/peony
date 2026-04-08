@@ -30,7 +30,7 @@ Peony is a multi-system disassembler framework designed to work alongside [Poppy
 | **WonderSwan** | V30MZ | `WonderSwanProfile` | ✅ Complete |
 | **Channel F** | F8 | `ChannelFProfile` | ✅ Complete |
 
-**Total**: 11 platforms, 1,489 tests passing
+**Total**: 11 platforms, 1,615 tests passing
 
 ## ✨ Features
 
@@ -96,11 +96,23 @@ IPlatformProfile
 ├── Analyzer            (IPlatformAnalyzer — ROM analysis)
 ├── OutputGenerator     (IOutputGenerator — .pasm output)
 ├── AssetExtractors     (IAssetExtractor[] — graphics/text/palette)
+├── GraphicsExtractor?  (IAssetExtractor — platform graphics)
+├── TextExtractor?      (IAssetExtractor — platform text/dialogue)
 ├── RomExtensions       (file extension auto-detection)
+├── DefaultRomExtension (derived from RomExtensions)
+├── PoppyPlatformId     (Poppy project platform string)
 └── PansyPlatformId     (Pansy metadata mapping)
 ```
 
 Platforms register at startup via `PlatformResolver` — no reflection, no scanning, just explicit calls.
+
+Key core components:
+
+- **`PlatformResolver`** — Central registry for platform lookup by name, alias, or extension
+- **`DisassemblyPipeline`** — Static orchestrator for hint loading, entry point building, and engine creation
+- **`AsmFormatter`** — Shared assembly output formatting (labels, comments, cross-refs)
+- **`PlatformMemoryMap`** — Address classification, hardware register names, and interrupt vectors
+- **`SymbolExporter`** — Exports symbols/metadata to Pansy, DiztinGUIsh, and label formats
 
 ## 📁 Project Structure
 
@@ -133,6 +145,8 @@ tests/
 ├── Peony.Platform.Lynx.Tests/
 ├── Peony.Platform.SNES.Tests/
 └── Peony.Platform.GameBoy.Tests/
+benchmarks/
+└── Peony.Benchmarks/              # BenchmarkDotNet performance suite
 ```
 
 ## 📦 .peony Project Format
