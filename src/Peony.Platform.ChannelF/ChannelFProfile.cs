@@ -16,6 +16,8 @@ public sealed class ChannelFProfile : IPlatformProfile {
 	public IPlatformAnalyzer Analyzer { get; }
 	public IOutputGenerator OutputGenerator { get; }
 	public IReadOnlyList<IAssetExtractor> AssetExtractors { get; }
+	public IGraphicsExtractor? GraphicsExtractor => null;
+	public ITextExtractor? TextExtractor => null;
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".chf"];
 	public byte? PansyPlatformId => null;

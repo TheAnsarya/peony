@@ -138,19 +138,7 @@ IPlatformAnalyzer analyzer = profile.Analyzer;
 AnsiConsole.WriteLine();
 
 // Get entry points from platform analyzer
-uint[] platformEntryPoints = analyzer switch {
-	Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
-	LynxAnalyzer lynx => lynx.GetEntryPoints(romData),
-	NesAnalyzer nes => nes.GetEntryPoints(romData),
-	Peony.Platform.SNES.SnesAnalyzer snes => snes.GetEntryPoints(romData),
-	GameBoyAnalyzer gb => gb.GetEntryPoints(romData),
-	GbaAnalyzer gba => gba.GetEntryPoints(romData),
-	SmsAnalyzer sms => sms.GetEntryPoints(romData),
-	PceAnalyzer pce => pce.GetEntryPoints(romData),
-	WonderSwanAnalyzer ws => ws.GetEntryPoints(romData),
-	GenesisAnalyzer gen => gen.GetEntryPoints(romData),
-	_ => [0x8000]
-};
+uint[] platformEntryPoints = analyzer.GetEntryPoints(romData);
 
 var orderedPlatformEntryPoints = platformEntryPoints
 	.Distinct()
@@ -398,8 +386,10 @@ table.AddRow("File", Markup.Escape(rom.Name));
 table.AddRow("Size", $"{romData.Length} bytes ({romData.Length / 1024}K)");
 table.AddRow("Platform", platform ?? "Unknown");
 
-if (platform?.ToLowerInvariant() is "atari2600" or "atari 2600") {
-var analyzer = new Atari2600Analyzer();
+if (platform != null) {
+var profile = PlatformResolver.Resolve(platform);
+if (profile != null) {
+var analyzer = profile.Analyzer;
 var info = analyzer.Analyze(romData);
 table.AddRow("Mapper", info.Mapper ?? "None");
 table.AddRow("Banks", analyzer.BankCount.ToString());
@@ -407,24 +397,7 @@ foreach (var (key, value) in info.Metadata)
 table.AddRow(Markup.Escape(key), Markup.Escape(value));
 var entries = analyzer.GetEntryPoints(romData);
 table.AddRow("Entry Points", string.Join(", ", entries.Select(e => $"${e:x4}")));
-} else if (platform?.ToLowerInvariant() is "lynx" or "atari lynx") {
-var analyzer = new LynxAnalyzer();
-var info = analyzer.Analyze(romData);
-table.AddRow("Mapper", info.Mapper ?? "None");
-table.AddRow("Banks", analyzer.BankCount.ToString());
-foreach (var (key, value) in info.Metadata)
-table.AddRow(Markup.Escape(key), Markup.Escape(value));
-var entries = analyzer.GetEntryPoints(romData);
-table.AddRow("Entry Points", string.Join(", ", entries.Select(e => $"${e:x4}")));
-} else if (platform?.ToLowerInvariant() == "nes") {
-var analyzer = new NesAnalyzer();
-var info = analyzer.Analyze(romData);
-table.AddRow("Mapper", info.Mapper ?? "Unknown");
-table.AddRow("Banks", analyzer.BankCount.ToString());
-foreach (var (key, value) in info.Metadata)
-table.AddRow(Markup.Escape(key), Markup.Escape(value));
-var entries = analyzer.GetEntryPoints(romData);
-table.AddRow("Entry Points", string.Join(", ", entries.Select(e => $"${e:x4}")));
+}
 }
 
 AnsiConsole.Write(table);
@@ -1226,17 +1199,10 @@ pansyCommand.SetHandler((file, verbose) => {
 	}
 
 	static string GetPlatformName(byte platformId) {
-		return platformId switch {
-			PansyLoader.PLATFORM_NES => "NES",
-			PansyLoader.PLATFORM_SNES => "SNES",
-			PansyLoader.PLATFORM_GB => "Game Boy",
-			PansyLoader.PLATFORM_GBA => "Game Boy Advance",
-			PansyLoader.PLATFORM_GENESIS => "Sega Genesis",
-			PansyLoader.PLATFORM_ATARI_2600 => "Atari 2600",
-			PansyLoader.PLATFORM_CHANNEL_F => "Channel F",
-			PansyLoader.PLATFORM_CUSTOM => "Custom",
-			_ => $"Unknown ({platformId:x2})"
-		};
+		var profile = PlatformResolver.GetAll().FirstOrDefault(p => p.PansyPlatformId == platformId);
+		if (profile != null)
+			return profile.DisplayName;
+		return platformId == PansyLoader.PLATFORM_CUSTOM ? "Custom" : $"Unknown ({platformId:x2})";
 	}
 }, pansyFileArg, pansyVerboseOpt);
 
@@ -1354,15 +1320,7 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 		AnsiConsole.WriteLine();
 
 		// Step 6: Build entry points
-		uint[] platformEntryPoints = analyzer switch {
-			Atari2600Analyzer a2600 => a2600.GetEntryPoints(romData),
-			LynxAnalyzer lynx => lynx.GetEntryPoints(romData),
-			NesAnalyzer nes => nes.GetEntryPoints(romData),
-			Peony.Platform.SNES.SnesAnalyzer snes => snes.GetEntryPoints(romData),
-			GameBoyAnalyzer gb => gb.GetEntryPoints(romData),
-			GbaAnalyzer gba => gba.GetEntryPoints(romData),
-			_ => [0x8000]
-		};
+		uint[] platformEntryPoints = analyzer.GetEntryPoints(romData);
 
 		var entryPointSet = new HashSet<uint>(platformEntryPoints);
 		if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
@@ -1575,8 +1533,8 @@ projectCommand.SetHandler((context) => {
 		};
 
 		var writer = new ProjectWriter(options,
-			graphicsExtractor: ResolveGraphicsExtractor(platform),
-			textExtractor: ResolveTextExtractor(platform));
+			graphicsExtractor: profile5.GraphicsExtractor,
+			textExtractor: profile5.TextExtractor);
 
 		// Determine output
 		if (archive || (outputPath?.EndsWith(".peony", StringComparison.OrdinalIgnoreCase) ?? false)) {
@@ -1857,24 +1815,4 @@ instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern2
 }
 }
 return instruction;
-}
-
-static IGraphicsExtractor? ResolveGraphicsExtractor(string? platform) {
-	return platform?.ToLowerInvariant() switch {
-		"nes" => new NesChrExtractor(),
-		"snes" or "super nes" or "super nintendo" => new Peony.Platform.SNES.SnesChrExtractor(),
-		"game boy" or "gameboy" or "gb" => new GameBoyChrExtractor(),
-		"gba" or "game boy advance" => new GbaChrExtractor(),
-		_ => null
-	};
-}
-
-static ITextExtractor? ResolveTextExtractor(string? platform) {
-	return platform?.ToLowerInvariant() switch {
-		"nes" => new NesTextExtractor(),
-		"snes" or "super nes" or "super nintendo" => new Peony.Platform.SNES.SnesTextExtractor(),
-		"game boy" or "gameboy" or "gb" => new GameBoyTextExtractor(),
-		"gba" or "game boy advance" => new GbaTextExtractor(),
-		_ => null
-	};
 }

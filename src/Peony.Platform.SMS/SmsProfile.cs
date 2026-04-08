@@ -16,6 +16,8 @@ public sealed class SmsProfile : IPlatformProfile {
 	public IPlatformAnalyzer Analyzer { get; }
 	public IOutputGenerator OutputGenerator { get; }
 	public IReadOnlyList<IAssetExtractor> AssetExtractors { get; }
+	public IGraphicsExtractor? GraphicsExtractor => null;
+	public ITextExtractor? TextExtractor => null;
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".sms", ".gg"];
 	public byte? PansyPlatformId => 0x06;

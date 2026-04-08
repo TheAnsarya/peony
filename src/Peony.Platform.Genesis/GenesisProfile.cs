@@ -16,6 +16,8 @@ public sealed class GenesisProfile : IPlatformProfile {
 	public IPlatformAnalyzer Analyzer { get; }
 	public IOutputGenerator OutputGenerator { get; }
 	public IReadOnlyList<IAssetExtractor> AssetExtractors { get; }
+	public IGraphicsExtractor? GraphicsExtractor => null;
+	public ITextExtractor? TextExtractor => null;
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".md", ".gen", ".bin"];
 	public byte? PansyPlatformId => 0x05;

@@ -252,6 +252,46 @@ public class PlatformResolverTests : IDisposable {
 		Assert.Same(NesProfile.Instance, NesProfile.Instance);
 	}
 
+	[Theory]
+	[InlineData(PlatformId.NES)]
+	[InlineData(PlatformId.SNES)]
+	[InlineData(PlatformId.GameBoy)]
+	[InlineData(PlatformId.GBA)]
+	public void PlatformsWithExtractors_HaveGraphicsExtractor(PlatformId platformId) {
+		RegisterAllPlatforms();
+
+		var profile = PlatformResolver.GetProfile(platformId);
+		Assert.NotNull(profile.GraphicsExtractor);
+	}
+
+	[Theory]
+	[InlineData(PlatformId.NES)]
+	[InlineData(PlatformId.SNES)]
+	[InlineData(PlatformId.GameBoy)]
+	[InlineData(PlatformId.GBA)]
+	public void PlatformsWithExtractors_HaveTextExtractor(PlatformId platformId) {
+		RegisterAllPlatforms();
+
+		var profile = PlatformResolver.GetProfile(platformId);
+		Assert.NotNull(profile.TextExtractor);
+	}
+
+	[Theory]
+	[InlineData(PlatformId.Atari2600)]
+	[InlineData(PlatformId.Lynx)]
+	[InlineData(PlatformId.SMS)]
+	[InlineData(PlatformId.PCE)]
+	[InlineData(PlatformId.Genesis)]
+	[InlineData(PlatformId.WonderSwan)]
+	[InlineData(PlatformId.ChannelF)]
+	public void PlatformsWithoutExtractors_HaveNullExtractors(PlatformId platformId) {
+		RegisterAllPlatforms();
+
+		var profile = PlatformResolver.GetProfile(platformId);
+		Assert.Null(profile.GraphicsExtractor);
+		Assert.Null(profile.TextExtractor);
+	}
+
 	private static void RegisterAllPlatforms() {
 		Peony.Platform.NES.Registration.RegisterAll();
 		Peony.Platform.SNES.Registration.RegisterAll();

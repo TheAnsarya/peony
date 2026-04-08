@@ -16,6 +16,8 @@ public sealed class NesProfile : IPlatformProfile {
 	public IPlatformAnalyzer Analyzer { get; }
 	public IOutputGenerator OutputGenerator { get; }
 	public IReadOnlyList<IAssetExtractor> AssetExtractors { get; }
+	public IGraphicsExtractor? GraphicsExtractor { get; }
+	public ITextExtractor? TextExtractor { get; }
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".nes"];
 	public byte? PansyPlatformId => 0x01;
@@ -26,5 +28,7 @@ public sealed class NesProfile : IPlatformProfile {
 		Analyzer = analyzer;
 		OutputGenerator = PoppyFormatter.Instance;
 		AssetExtractors = [];
+		GraphicsExtractor = new NesChrExtractor();
+		TextExtractor = new NesTextExtractor();
 	}
 }

@@ -16,6 +16,8 @@ public sealed class GbaProfile : IPlatformProfile {
 	public IPlatformAnalyzer Analyzer { get; }
 	public IOutputGenerator OutputGenerator { get; }
 	public IReadOnlyList<IAssetExtractor> AssetExtractors { get; }
+	public IGraphicsExtractor? GraphicsExtractor { get; }
+	public ITextExtractor? TextExtractor { get; }
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".gba"];
 	public byte? PansyPlatformId => 0x04;
@@ -26,5 +28,7 @@ public sealed class GbaProfile : IPlatformProfile {
 		Analyzer = analyzer;
 		OutputGenerator = PoppyFormatter.Instance;
 		AssetExtractors = [];
+		GraphicsExtractor = new GbaChrExtractor();
+		TextExtractor = new GbaTextExtractor();
 	}
 }

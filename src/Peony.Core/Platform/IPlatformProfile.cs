@@ -24,6 +24,12 @@ public interface IPlatformProfile {
 	/// <summary>Platform-specific asset extractors (graphics, text, palettes, etc.)</summary>
 	IReadOnlyList<IAssetExtractor> AssetExtractors { get; }
 
+	/// <summary>Platform-specific graphics/CHR extractor, null if not available</summary>
+	IGraphicsExtractor? GraphicsExtractor { get; }
+
+	/// <summary>Platform-specific text extractor, null if not available</summary>
+	ITextExtractor? TextExtractor { get; }
+
 	/// <summary>ROM file extensions for auto-detection (e.g., ".sfc", ".smc")</summary>
 	IReadOnlyList<string> RomExtensions { get; }
 

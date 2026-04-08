@@ -17,6 +17,8 @@ public sealed class SnesProfile : IPlatformProfile {
 	public IPlatformAnalyzer Analyzer { get; }
 	public IOutputGenerator OutputGenerator { get; }
 	public IReadOnlyList<IAssetExtractor> AssetExtractors { get; }
+	public IGraphicsExtractor? GraphicsExtractor { get; }
+	public ITextExtractor? TextExtractor { get; }
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".sfc", ".smc"];
 	public byte? PansyPlatformId => 0x02;
@@ -27,5 +29,7 @@ public sealed class SnesProfile : IPlatformProfile {
 		Analyzer = analyzer;
 		OutputGenerator = new SnesOutputGenerator();
 		AssetExtractors = [];
+		GraphicsExtractor = new SnesChrExtractor();
+		TextExtractor = new SnesTextExtractor();
 	}
 }
