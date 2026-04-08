@@ -176,7 +176,7 @@ using var writer = output != null
 ? new StreamWriter(outputPath)
 : Console.Out;
 
-WriteAsmOutput(writer, rom, info, result);
+AsmFormatter.Instance.WriteOutput(writer, result, rom.Name);
 
 if (output != null)
 AnsiConsole.MarkupLine($"[green]Output written to:[/] {Markup.Escape(outputPath)}");
@@ -238,7 +238,7 @@ var formatter = new PoppyFormatter();
 formatter.Generate(result, outputPath);
 } else {
 using var writer = new StreamWriter(outputPath);
-WriteAsmOutput(writer, file, info, result);
+AsmFormatter.Instance.WriteOutput(writer, result, file.Name);
 }
 
 AnsiConsole.MarkupLine($"[green]✓[/] {Markup.Escape(file.Name)}");
@@ -1195,7 +1195,7 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 			AnsiConsole.MarkupLine($"[green]Output:[/] {Markup.Escape(outputPath)}");
 		} else {
 			using var writer = new StreamWriter(outputPath);
-			WriteAsmOutput(writer, packFile, info, result);
+			AsmFormatter.Instance.WriteOutput(writer, result, packFile.Name);
 			AnsiConsole.MarkupLine($"[green]Output:[/] {Markup.Escape(outputPath)}");
 		}
 
@@ -1560,60 +1560,4 @@ var ext = ".pasm";
 return Path.Combine(rom.DirectoryName!, Path.GetFileNameWithoutExtension(rom.Name) + ext);
 }
 
-static void WriteAsmOutput(TextWriter writer, FileInfo rom, RomInfo info, DisassemblyResult result) {
-writer.WriteLine($"; 🌺 Peony Disassembly");
-writer.WriteLine($"; ROM: {rom.Name}");
-writer.WriteLine($"; Platform: {info.Platform}");
-writer.WriteLine($"; Size: {info.Size} bytes");
-	writer.WriteLine();
-	writer.WriteLine($".system:{info.Platform}");
-if (info.Mapper != null)
-writer.WriteLine($"; Mapper: {info.Mapper}");
-if (result.Labels.Count > 0)
-writer.WriteLine($"; Labels: {result.Labels.Count}");
-writer.WriteLine();
 
-foreach (var block in result.Blocks.OrderBy(b => b.StartAddress)) {
-writer.WriteLine($"; === Block ${block.StartAddress:x4}-${block.EndAddress:x4} ({block.Type}) ===");
-foreach (var line in block.Lines) {
-var bytes = string.Join(" ", line.Bytes.Select(b => $"{b:x2}"));
-var comment = line.Comment != null ? $" {line.Comment}" : "";
-
-if (line.Label != null)
-writer.WriteLine($"{line.Label}:");
-
-// Apply label substitution to operands
-var content = FormatWithLabels(line.Content, result);
-writer.WriteLine($"\t{content,-24} ; ${line.Address:x4}: {bytes}{comment}".TrimEnd());
-}
-writer.WriteLine();
-}
-}
-
-static string FormatWithLabels(string instruction, DisassemblyResult result) {
-// Try to replace addresses with labels
-// Use regex to ensure we only match complete addresses (not partial)
-foreach (var kvp in result.Labels) {
-// Skip immediate mode for small values (< 0x100) - keep as constants
-// e.g. lda #$00 should stay as #$00, not #gen_byte_00
-if (kvp.Key < 0x100 && instruction.Contains($"#${kvp.Key:x2}", StringComparison.OrdinalIgnoreCase))
-continue;
-
-// Match $xxxx (4-digit hex) with word boundary
-var pattern4 = $@"\${kvp.Key:x4}(?![0-9a-f])";
-if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern4, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
-instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern4, kvp.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-continue;
-}
-
-// For addresses < 0x100, also match short form like $xx (but not immediate mode)
-if (kvp.Key < 0x100) {
-// Only match if it's NOT immediate mode (not preceded by #)
-var pattern2 = $@"(?<!#)\${kvp.Key:x2}(?![0-9a-f])";
-if (System.Text.RegularExpressions.Regex.IsMatch(instruction, pattern2, System.Text.RegularExpressions.RegexOptions.IgnoreCase)) {
-instruction = System.Text.RegularExpressions.Regex.Replace(instruction, pattern2, kvp.Value, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-}
-}
-}
-return instruction;
-}
