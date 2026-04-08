@@ -137,125 +137,17 @@ IPlatformAnalyzer analyzer = profile.Analyzer;
 
 AnsiConsole.WriteLine();
 
-// Get entry points from platform analyzer
-uint[] platformEntryPoints = analyzer.GetEntryPoints(romData);
-
-var orderedPlatformEntryPoints = platformEntryPoints
-	.Distinct()
-	.OrderBy(x => x)
-	.ToArray();
-
-var entryPoints = new List<uint>();
-var entryPointSet = new HashSet<uint>();
-
-void AddEntryPoint(uint address) {
-	if (entryPointSet.Add(address)) {
-		entryPoints.Add(address);
-	}
-}
-
-if (orderedPlatformEntryPoints.Length > 0) {
-	// Deterministic primary start: first command/entrypoint from platform mapping.
-	AddEntryPoint(orderedPlatformEntryPoints[0]);
-}
-
-var pansyImported = 0;
-if (symbolLoader?.PansySubEntryPoints.Count > 0) {
-	foreach (var offset in symbolLoader.PansySubEntryPoints.OrderBy(x => x)) {
-		var addr = analyzer.OffsetToAddress(offset);
-		if (addr.HasValue) {
-			var before = entryPoints.Count;
-			AddEntryPoint(addr.Value);
-			if (entryPoints.Count > before) {
-				pansyImported++;
-			}
-		}
-	}
-}
-
-if (symbolLoader?.PansyJumpTargets.Count > 0) {
-	foreach (var offset in symbolLoader.PansyJumpTargets.OrderBy(x => x)) {
-		var addr = analyzer.OffsetToAddress(offset);
-		if (addr.HasValue) {
-			var before = entryPoints.Count;
-			AddEntryPoint(addr.Value);
-			if (entryPoints.Count > before) {
-				pansyImported++;
-			}
-		}
-	}
-}
-
-if (symbolLoader?.PansyData is { } pansyData2 && pansyData2.CrossReferences.Count > 0) {
-	var pansyTargets = pansyData2.CrossReferences
-		.Where(x => x.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch)
-		.Select(x => x.To)
-		.Distinct()
-		.OrderBy(x => x);
-
-	foreach (var target in pansyTargets) {
-		var addr = analyzer.OffsetToAddress((int)target);
-		if (addr.HasValue) {
-			var before = entryPoints.Count;
-			AddEntryPoint(addr.Value);
-			if (entryPoints.Count > before) {
-				pansyImported++;
-			}
-		}
-	}
-}
-
-var cdlImported = 0;
-if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
-	foreach (var offset in cdlData.SubEntryPoints.OrderBy(x => x)) {
-		var addr = analyzer.OffsetToAddress(offset);
-		if (addr.HasValue) {
-			var before = entryPoints.Count;
-			AddEntryPoint(addr.Value);
-			if (entryPoints.Count > before) {
-				cdlImported++;
-			}
-		}
-	}
-}
-
-foreach (var extraPlatformEntry in orderedPlatformEntryPoints.Skip(1)) {
-	AddEntryPoint(extraPlatformEntry);
-}
-
-if (entryPoints.Count == 0) {
-	AddEntryPoint(0x8000);
-}
-
-AnsiConsole.MarkupLine($"[grey]Entry points:[/] primary {entryPoints[0]:x4}, platform {orderedPlatformEntryPoints.Length}, pansy {pansyImported}, cdl {cdlImported}, total {entryPoints.Count}");
+// Build entry points from platform + hints
+var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, symbolLoader);
+AnsiConsole.MarkupLine($"[grey]Entry points:[/] primary {entryPoints[0]:x4}, total {entryPoints.Length}");
 AnsiConsole.MarkupLine($"[grey]Static analysis:[/] {(useStaticAnalysis ? "enabled (opt-in)" : "quarantined/off")}");
 
+if (symbolLoader?.DataDefinitions.Count > 0)
+	AnsiConsole.MarkupLine($"[grey]Data regions:[/] {symbolLoader.DataDefinitions.Count}");
+
 // Create engine and disassemble
-var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
-engine.SetStaticAnalysisEnabled(useStaticAnalysis);
-
-// Set symbol loader for CDL/DIZ hints
-if (symbolLoader != null) {
-engine.SetSymbolLoader(symbolLoader);
-}
-
-// Add symbols to engine
-if (symbolLoader != null) {
-foreach (var (addr, label) in symbolLoader.Labels) {
-engine.AddLabel(addr, label);
-}
-foreach (var (addr, comment) in symbolLoader.Comments) {
-engine.AddComment(addr, comment);
-}
-foreach (var (addr, dataDef) in symbolLoader.DataDefinitions) {
-engine.AddDataRegion(addr, dataDef);
-}
-if (symbolLoader.DataDefinitions.Count > 0) {
-AnsiConsole.MarkupLine($"[grey]Data regions:[/] {symbolLoader.DataDefinitions.Count}");
-}
-}
-
-var result = engine.Disassemble(romData, entryPoints.ToArray(), allBanks);
+var engine = DisassemblyPipeline.CreateEngine(analyzer, symbolLoader, useStaticAnalysis);
+var result = engine.Disassemble(romData, entryPoints, allBanks);
 result.RomInfo = info;
 
 AnsiConsole.WriteLine();
@@ -328,13 +220,13 @@ try {
 var romData = RomLoader.Load(file.FullName);
 var platform = RomLoader.DetectPlatform(romData, file.FullName);
 
-IPlatformAnalyzer analyzer = (PlatformResolver.Resolve(platform ?? "")
-	?? throw new NotSupportedException($"Unknown platform: {platform}")).Analyzer;
+var batchProfile = PlatformResolver.Resolve(platform ?? "")
+	?? throw new NotSupportedException($"Unknown platform: {platform}");
+var analyzer = batchProfile.Analyzer;
 
 var info = analyzer.Analyze(romData);
-var entryPoints = analyzer.GetEntryPoints(romData);
-
-var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData);
+var engine = DisassemblyPipeline.CreateEngine(analyzer);
 var result = engine.Disassemble(romData, entryPoints);
 result.RomInfo = info;
 
@@ -460,61 +352,20 @@ exportCommand.SetHandler((context) => {
 		var info = analyzer.Analyze(romData);
 
 		// Load additional symbols
-		SymbolLoader? symbolLoader = null;
-		if (symbols?.Exists == true) {
-			symbolLoader = new SymbolLoader();
-			symbolLoader.Load(symbols.FullName);
-			AnsiConsole.MarkupLine($"[grey]Merged symbols:[/] {symbolLoader.Labels.Count} labels");
-		}
+		// Load hints
+		var symbolLoader = DisassemblyPipeline.LoadHints(
+			symbolsPath: symbols?.Exists == true ? symbols.FullName : null,
+			cdlPath: cdlFile?.Exists == true ? cdlFile.FullName : null,
+			dizPath: dizFile?.Exists == true ? dizFile.FullName : null,
+			pansyPath: pansyFile?.Exists == true ? pansyFile.FullName : null);
 
-		if (dizFile?.Exists == true) {
-			symbolLoader ??= new SymbolLoader();
-			symbolLoader.Load(dizFile.FullName);
-			AnsiConsole.MarkupLine($"[grey]Merged DIZ:[/] {symbolLoader.Labels.Count} labels");
-		}
+		if (symbolLoader != null)
+			AnsiConsole.MarkupLine($"[grey]Loaded hints:[/] {symbolLoader.Labels.Count} labels, {symbolLoader.TypedSymbols.Count} typed symbols");
 
-		// Load CDL if provided
-		if (cdlFile?.Exists == true) {
-			symbolLoader ??= new SymbolLoader();
-			symbolLoader.LoadCdl(cdlFile.FullName);
-			var stats = symbolLoader.CdlData!.GetCoverageStats();
-			AnsiConsole.MarkupLine($"[grey]CDL:[/] {stats.CodeBytes:N0} code bytes, {stats.DataBytes:N0} data bytes ({stats.CoveragePercent:F1}% coverage)");
-			AnsiConsole.MarkupLine($"[grey]CDL Entry Points:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0} subroutines detected");
-		}
-
-		// Load Pansy if provided
-		if (pansyFile?.Exists == true) {
-			symbolLoader ??= new SymbolLoader();
-			symbolLoader.LoadPansy(pansyFile.FullName);
-			AnsiConsole.MarkupLine($"[grey]Pansy:[/] {symbolLoader.TypedSymbols.Count} symbols, {symbolLoader.TypedComments.Count} comments");
-		}
-
-		// Get entry points and disassemble
-		var entryPoints = analyzer.GetEntryPoints(romData);
-
-		// Combine with CDL subroutine entry points if available
-		var entryPointSet = new HashSet<uint>(entryPoints);
-		if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
-			foreach (var offset in cdlData.SubEntryPoints) {
-				var addr = analyzer.OffsetToAddress(offset);
-				if (addr.HasValue)
-					entryPointSet.Add(addr.Value);
-			}
-		}
-
-		var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
-
-		if (symbolLoader != null) {
-			engine.SetSymbolLoader(symbolLoader);
-			foreach (var (addr, label) in symbolLoader.Labels) {
-				engine.AddLabel(addr, label);
-			}
-			foreach (var (addr, comment) in symbolLoader.Comments) {
-				engine.AddComment(addr, comment);
-			}
-		}
-
-		var result = engine.Disassemble(romData, entryPointSet.ToArray());
+		// Build entry points and disassemble
+		var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, symbolLoader);
+		var engine = DisassemblyPipeline.CreateEngine(analyzer, symbolLoader);
+		var result = engine.Disassemble(romData, entryPoints);
 		result.RomInfo = info;
 		var symFormat = format.ToLowerInvariant() switch {
 			"mesen" or "mlb" => SymbolFormat.Mesen,
@@ -601,12 +452,13 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 			var romData = RomLoader.Load(original.FullName);
 			var platform = RomLoader.DetectPlatform(romData, original.FullName);
 
-			IPlatformAnalyzer analyzer = (PlatformResolver.Resolve(platform ?? "")
-				?? throw new NotSupportedException($"Platform not supported: {platform}")).Analyzer;
+			var verifyProfile = PlatformResolver.Resolve(platform ?? "")
+				?? throw new NotSupportedException($"Platform not supported: {platform}");
+			var analyzer = verifyProfile.Analyzer;
 
-			var info = analyzer.Analyze(romData);
-			var entryPoints = analyzer.GetEntryPoints(romData);
-			var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+			analyzer.Analyze(romData);
+			var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData);
+			var engine = DisassemblyPipeline.CreateEngine(analyzer);
 			var disasm = engine.Disassemble(romData, entryPoints);
 
 			result = RoundtripVerifier.VerifyDisassembly(disasm, romData);
@@ -1320,36 +1172,12 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 		AnsiConsole.WriteLine();
 
 		// Step 6: Build entry points
-		uint[] platformEntryPoints = analyzer.GetEntryPoints(romData);
-
-		var entryPointSet = new HashSet<uint>(platformEntryPoints);
-		if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
-			foreach (var offset in cdlData.SubEntryPoints) {
-				var addr = analyzer.OffsetToAddress(offset);
-				if (addr.HasValue)
-					entryPointSet.Add(addr.Value);
-			}
-		}
-		var entryPoints = entryPointSet.ToArray();
-
-		AnsiConsole.MarkupLine($"[grey]Entry points:[/] {platformEntryPoints.Length} platform + {(entryPoints.Length - platformEntryPoints.Length)} CDL = {entryPoints.Length} total");
+		var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, symbolLoader);
+		AnsiConsole.MarkupLine($"[grey]Entry points:[/] {entryPoints.Length} total");
 
 		// Step 7: Disassemble
 		AnsiConsole.MarkupLine("[grey]Disassembling...[/]");
-		var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
-
-		if (symbolLoader != null) {
-			engine.SetSymbolLoader(symbolLoader);
-			foreach (var (addr, label) in symbolLoader.Labels) {
-				engine.AddLabel(addr, label);
-			}
-			foreach (var (addr, comment) in symbolLoader.Comments) {
-				engine.AddComment(addr, comment);
-			}
-			foreach (var (addr, dataDef) in symbolLoader.DataDefinitions) {
-				engine.AddDataRegion(addr, dataDef);
-			}
-		}
+		var engine = DisassemblyPipeline.CreateEngine(analyzer, symbolLoader);
 
 		var result = engine.Disassemble(romData, entryPoints, allBanks);
 		result.RomInfo = info;
@@ -1482,42 +1310,15 @@ projectCommand.SetHandler((context) => {
 
 		AnsiConsole.WriteLine();
 
-		// Get entry points
-		var entryPointSet = new HashSet<uint>(analyzer.GetEntryPoints(romData));
-		if (symbolLoader?.CdlData is { } cdlData && cdlData.SubEntryPoints.Count > 0) {
-			foreach (var offset in cdlData.SubEntryPoints) {
-				var addr = analyzer.OffsetToAddress(offset);
-				if (addr.HasValue)
-					entryPointSet.Add(addr.Value);
-			}
-		}
-		if (symbolLoader?.PansyData is { } pd && pd.CrossReferences.Count > 0) {
-			foreach (var xref in pd.CrossReferences) {
-				if (xref.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch) {
-					var addr = analyzer.OffsetToAddress((int)xref.To);
-					if (addr.HasValue)
-						entryPointSet.Add(addr.Value);
-				}
-			}
-		}
-
-		// Disassemble
-		var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
-		if (symbolLoader != null) {
-			engine.SetSymbolLoader(symbolLoader);
-			foreach (var (addr, label) in symbolLoader.Labels)
-				engine.AddLabel(addr, label);
-			foreach (var (addr, comment) in symbolLoader.Comments)
-				engine.AddComment(addr, comment);
-			foreach (var (addr, dataDef) in symbolLoader.DataDefinitions)
-				engine.AddDataRegion(addr, dataDef);
-		}
+		// Build entry points and disassemble
+		var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, symbolLoader);
+		var engine = DisassemblyPipeline.CreateEngine(analyzer, symbolLoader);
 
 		AnsiConsole.Status()
 			.Spinner(Spinner.Known.Dots)
 			.Start("Disassembling...", ctx => { });
 
-		var result = engine.Disassemble(romData, entryPointSet.ToArray(), allBanks: true);
+		var result = engine.Disassemble(romData, entryPoints, allBanks: true);
 		result.RomInfo = info;
 
 		AnsiConsole.MarkupLine($"[green]Disassembled {result.Blocks.Count} blocks[/]");
