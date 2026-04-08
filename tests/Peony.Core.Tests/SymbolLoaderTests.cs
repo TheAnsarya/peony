@@ -321,4 +321,112 @@ public class SymbolLoaderTests {
 	}
 
 	#endregion
+
+	#region AddLabel / AddBankLabel / GetLabel Tests
+
+	[Fact]
+	public void AddLabel_SetsLabel() {
+		var loader = new SymbolLoader();
+		loader.AddLabel(0x8000, "reset");
+		Assert.Equal("reset", loader.GetLabel(0x8000));
+	}
+
+	[Fact]
+	public void AddLabel_OverwritesExisting() {
+		var loader = new SymbolLoader();
+		loader.AddLabel(0x8000, "old_name");
+		loader.AddLabel(0x8000, "new_name");
+		Assert.Equal("new_name", loader.GetLabel(0x8000));
+	}
+
+	[Fact]
+	public void AddLabel_AppearsInLabelsDictionary() {
+		var loader = new SymbolLoader();
+		loader.AddLabel(0xc000, "main_loop");
+		Assert.True(loader.Labels.ContainsKey(0xc000));
+		Assert.Equal("main_loop", loader.Labels[0xc000]);
+	}
+
+	[Fact]
+	public void AddBankLabel_SetsLabel() {
+		var loader = new SymbolLoader();
+		loader.AddBankLabel(2, 0x8000, "bank2_entry");
+		Assert.Equal("bank2_entry", loader.GetLabel(0x8000, bank: 2));
+	}
+
+	[Fact]
+	public void AddBankLabel_AppearsInBankLabelsDictionary() {
+		var loader = new SymbolLoader();
+		loader.AddBankLabel(5, 0xa000, "data_table");
+		Assert.True(loader.BankLabels.ContainsKey((5, 0xa000)));
+	}
+
+	[Fact]
+	public void GetLabel_BankSpecific_TakesPriorityOverGlobal() {
+		var loader = new SymbolLoader();
+		loader.AddLabel(0x8000, "global_label");
+		loader.AddBankLabel(1, 0x8000, "bank1_label");
+
+		Assert.Equal("bank1_label", loader.GetLabel(0x8000, bank: 1));
+		Assert.Equal("global_label", loader.GetLabel(0x8000, bank: -1));
+		Assert.Equal("global_label", loader.GetLabel(0x8000));
+	}
+
+	[Fact]
+	public void GetLabel_NonexistentAddress_ReturnsNull() {
+		var loader = new SymbolLoader();
+		Assert.Null(loader.GetLabel(0x9999));
+	}
+
+	[Fact]
+	public void GetLabel_BankNotFound_FallsBackToGlobal() {
+		var loader = new SymbolLoader();
+		loader.AddLabel(0x8000, "global_label");
+
+		// Bank 3 has no label, should fall back to global
+		Assert.Equal("global_label", loader.GetLabel(0x8000, bank: 3));
+	}
+
+	#endregion
+
+	#region GetComment Tests
+
+	[Fact]
+	public void GetComment_NonexistentAddress_ReturnsNull() {
+		var loader = new SymbolLoader();
+		Assert.Null(loader.GetComment(0x1234));
+	}
+
+	[Fact]
+	public void GetComment_AfterPansyImport_ReturnsComment() {
+		var comments = new Dictionary<int, string> {
+			[0x8000] = "Main entry"
+		};
+		var pansyData = CreatePansyWithSymbolsAndComments([], comments);
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(pansyData);
+
+		Assert.Equal("Main entry", loader.GetComment(0x8000));
+	}
+
+	#endregion
+
+	#region Collection Property Tests
+
+	[Fact]
+	public void EmptyLoader_HasEmptyCollections() {
+		var loader = new SymbolLoader();
+		Assert.Empty(loader.Labels);
+		Assert.Empty(loader.Comments);
+		Assert.Empty(loader.DataDefinitions);
+		Assert.Empty(loader.BankLabels);
+		Assert.Empty(loader.TypedSymbols);
+		Assert.Empty(loader.TypedComments);
+		Assert.Empty(loader.PansyJumpTargets);
+		Assert.Empty(loader.PansySubEntryPoints);
+		Assert.Empty(loader.Bookmarks);
+		Assert.Empty(loader.PansyDataTypes);
+	}
+
+	#endregion
 }
