@@ -337,13 +337,22 @@ peony/
 │   ├── Peony.Cpu.65816/             # WDC 65816 decoder (SNES)
 │   ├── Peony.Cpu.65SC02/            # WDC 65SC02 decoder (Atari Lynx)
 │   ├── Peony.Cpu.ARM7TDMI/          # ARM7TDMI decoder (GBA)
-│   ├── Peony.Cpu.SM83/              # Sharp SM83 decoder (Game Boy)
-│   ├── Peony.Cpu.GameBoy/           # Legacy Game Boy decoder
+│   ├── Peony.Cpu.GameBoy/           # Sharp SM83 decoder (Game Boy)
+│   ├── Peony.Cpu.Z80/               # Zilog Z80 decoder (SMS)
+│   ├── Peony.Cpu.HuC6280/           # HuC6280 decoder (PC Engine)
+│   ├── Peony.Cpu.M68000/            # Motorola 68000 decoder (Genesis)
+│   ├── Peony.Cpu.V30MZ/             # NEC V30MZ decoder (WonderSwan)
+│   ├── Peony.Cpu.F8/                # Fairchild F8 decoder (Channel F)
 │   │
 │   ├── Peony.Platform.NES/          # NES: iNES header, PPU/APU registers, MMC1
 │   ├── Peony.Platform.SNES/         # SNES: LoRom/HiRom/ExRom, PPU/APU registers
-│   ├── Peony.Platform.GB/           # Game Boy platform
-│   ├── Peony.Platform.GBA/          # GBA platform
+│   ├── Peony.Platform.GameBoy/      # Game Boy: MBC detection, PPU/APU registers
+│   ├── Peony.Platform.GBA/          # GBA: ARM/Thumb, I/O registers
+│   ├── Peony.Platform.Genesis/      # Genesis: 68000 vectors, VDP/PSG registers
+│   ├── Peony.Platform.SMS/          # SMS: Z80, Sega/CodeMasters mapper detection
+│   ├── Peony.Platform.PCE/          # PC Engine: HuCard, VDC/VCE/PSG registers
+│   ├── Peony.Platform.WonderSwan/   # WonderSwan: V30MZ, 70+ I/O registers
+│   ├── Peony.Platform.ChannelF/     # Channel F: F8 decoder, simple I/O
 │   ├── Peony.Platform.Atari2600/    # Atari 2600: TIA/RIOT, mirrored $F000-$FFFF
 │   └── Peony.Platform.Lynx/         # Atari Lynx: LNX header, Suzy/Mikey
 │

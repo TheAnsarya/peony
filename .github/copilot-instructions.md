@@ -308,16 +308,25 @@ dotnet run --project src/Peony.Cli -- <args>
 │   │   ├── RomLoader.cs
 │   │   └── RoundtripVerifier.cs
 │   ├── Peony.Cli/             # Command-line interface
-│   ├── Peony.Cpu.6502/        # MOS 6502 decoder (NES)
+│   ├── Peony.Cpu.6502/        # MOS 6502 decoder (NES, Atari 2600)
 │   ├── Peony.Cpu.65816/       # WDC 65816 decoder (SNES)
 │   ├── Peony.Cpu.65SC02/      # 65SC02 decoder (Lynx)
 │   ├── Peony.Cpu.ARM7TDMI/    # ARM7TDMI decoder (GBA)
-│   ├── Peony.Cpu.SM83/        # Sharp SM83 decoder (GB)
-│   ├── Peony.Cpu.GameBoy/     # Legacy GB decoder
+│   ├── Peony.Cpu.GameBoy/     # Sharp SM83 decoder (GB)
+│   ├── Peony.Cpu.Z80/         # Z80 decoder (SMS)
+│   ├── Peony.Cpu.HuC6280/     # HuC6280 decoder (PCE)
+│   ├── Peony.Cpu.M68000/      # M68000 decoder (Genesis)
+│   ├── Peony.Cpu.V30MZ/       # V30MZ decoder (WonderSwan)
+│   ├── Peony.Cpu.F8/          # F8 decoder (Channel F)
 │   ├── Peony.Platform.NES/    # NES platform analyzer
 │   ├── Peony.Platform.SNES/   # SNES platform analyzer
-│   ├── Peony.Platform.GB/     # Game Boy platform
+│   ├── Peony.Platform.GameBoy/ # Game Boy platform
 │   ├── Peony.Platform.GBA/    # GBA platform
+│   ├── Peony.Platform.Genesis/ # Genesis platform
+│   ├── Peony.Platform.SMS/    # SMS platform
+│   ├── Peony.Platform.PCE/    # PC Engine platform
+│   ├── Peony.Platform.WonderSwan/ # WonderSwan platform
+│   ├── Peony.Platform.ChannelF/ # Channel F platform
 │   ├── Peony.Platform.Atari2600/ # Atari 2600 platform
 │   └── Peony.Platform.Lynx/   # Atari Lynx platform
 ├── tests/                     # Test projects

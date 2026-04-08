@@ -32,11 +32,16 @@ public interface ICpuDecoder {
 
 | Project | Architecture | Systems |
 |---------|-------------|---------|
-| `Peony.Cpu.6502` | MOS 6502 | NES |
+| `Peony.Cpu.6502` | MOS 6502 | NES, Atari 2600 |
 | `Peony.Cpu.65816` | WDC 65816 | SNES |
 | `Peony.Cpu.65SC02` | WDC 65SC02 | Atari Lynx |
-| `Peony.Cpu.SM83` | Sharp SM83 | Game Boy |
+| `Peony.Cpu.GameBoy` | Sharp SM83 | Game Boy |
 | `Peony.Cpu.ARM7TDMI` | ARM7TDMI | GBA |
+| `Peony.Cpu.Z80` | Zilog Z80 | SMS |
+| `Peony.Cpu.HuC6280` | HuC6280 | PC Engine |
+| `Peony.Cpu.M68000` | Motorola 68000 | Genesis |
+| `Peony.Cpu.V30MZ` | NEC V30MZ | WonderSwan |
+| `Peony.Cpu.F8` | Fairchild F8 | Channel F |
 
 **Decode() behavior by architecture:**
 
@@ -93,8 +98,13 @@ public interface IPlatformAnalyzer {
 |---------|----------|--------|---------|-------------|
 | `Peony.Platform.NES` | NES | iNES (16 bytes) | Mapper-dependent | $FFFA NMI, $FFFC RESET, $FFFE IRQ |
 | `Peony.Platform.SNES` | SNES | None (internal) | LoROM/HiROM | From internal header vectors |
-| `Peony.Platform.GB` | Game Boy | Embedded (0x100-0x14F) | MBC type | $0100 entry, $0040/$0048 RSTs |
+| `Peony.Platform.GameBoy` | Game Boy | Embedded (0x100-0x14F) | MBC type | $0100 entry, $0040/$0048 RSTs |
 | `Peony.Platform.GBA` | GBA | 192-byte header | Linear (no banking) | Header entry point ($08000000) |
+| `Peony.Platform.Genesis` | Genesis | $100-$1FF header | 512KB banks | 68000 exception vectors |
+| `Peony.Platform.SMS` | SMS | TMR SEGA signature | 16KB pages (Sega/CodeMasters) | $0000 RESET, $0038/$0066 IRQ |
+| `Peony.Platform.PCE` | PC Engine | Copier header (optional) | 8KB MPR pages | 5 vectors from last page |
+| `Peony.Platform.WonderSwan` | WonderSwan | 16-byte ROM footer | I/O port banking ($C0-$C3) | $FFFF0 RESET |
+| `Peony.Platform.ChannelF` | Channel F | None | No banking | $0800 (cart) or $0000 (BIOS) |
 | `Peony.Platform.Atari2600` | Atari 2600 | None | Bank-switching (F8, F6, etc.) | $FFFC RESET |
 | `Peony.Platform.Lynx` | Atari Lynx | LNX (64 bytes) | Cart-based | From LNX header |
 
