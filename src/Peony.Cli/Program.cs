@@ -55,56 +55,62 @@ disasmCommand.AddOption(cdlOpt);
 disasmCommand.AddOption(dizOpt);
 disasmCommand.AddOption(pansyOpt);
 
-disasmCommand.SetHandler((context) => {
-var rom = context.ParseResult.GetValueForArgument(romArg);
-var output = context.ParseResult.GetValueForOption(outputOpt);
-var platform = context.ParseResult.GetValueForOption(platformOpt);
-var format = context.ParseResult.GetValueForOption(formatOpt) ?? "asm";
-var allBanks = context.ParseResult.GetValueForOption(allBanksOpt);
-var useStaticAnalysis = context.ParseResult.GetValueForOption(staticAnalysisOpt);
-var symbols = context.ParseResult.GetValueForOption(symbolsOpt);
-var cdlFile = context.ParseResult.GetValueForOption(cdlOpt);
-var dizFile = context.ParseResult.GetValueForOption(dizOpt);
-var pansyFile = context.ParseResult.GetValueForOption(pansyOpt);
-try {
-AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler[/]");
-AnsiConsole.WriteLine();
+disasmCommand.SetHandler((context) =>
+{
+	var rom = context.ParseResult.GetValueForArgument(romArg);
+	var output = context.ParseResult.GetValueForOption(outputOpt);
+	var platform = context.ParseResult.GetValueForOption(platformOpt);
+	var format = context.ParseResult.GetValueForOption(formatOpt) ?? "asm";
+	var allBanks = context.ParseResult.GetValueForOption(allBanksOpt);
+	var useStaticAnalysis = context.ParseResult.GetValueForOption(staticAnalysisOpt);
+	var symbols = context.ParseResult.GetValueForOption(symbolsOpt);
+	var cdlFile = context.ParseResult.GetValueForOption(cdlOpt);
+	var dizFile = context.ParseResult.GetValueForOption(dizOpt);
+	var pansyFile = context.ParseResult.GetValueForOption(pansyOpt);
+	try
+	{
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler[/]");
+		AnsiConsole.WriteLine();
 
-// Load ROM
-AnsiConsole.MarkupLine($"[grey]Loading:[/] {Markup.Escape(rom.FullName)}");
-var romData = RomLoader.Load(rom.FullName);
-AnsiConsole.MarkupLine($"[grey]Size:[/] {romData.Length} bytes ({romData.Length / 1024}K)");
+		// Load ROM
+		AnsiConsole.MarkupLine($"[grey]Loading:[/] {Markup.Escape(rom.FullName)}");
+		var romData = RomLoader.Load(rom.FullName);
+		AnsiConsole.MarkupLine($"[grey]Size:[/] {romData.Length} bytes ({romData.Length / 1024}K)");
 
-// Detect platform
-platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
-AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
+		// Detect platform
+		platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
+		AnsiConsole.MarkupLine($"[grey]Platform:[/] {platform}");
 
-// Get platform analyzer
-var profile = PlatformResolver.Resolve(platform ?? "")
-	?? throw new NotSupportedException($"Platform not supported: {platform}");
-IPlatformAnalyzer analyzer = profile.Analyzer;
+		// Get platform analyzer
+		var profile = PlatformResolver.Resolve(platform ?? "")
+			?? throw new NotSupportedException($"Platform not supported: {platform}");
+		IPlatformAnalyzer analyzer = profile.Analyzer;
 
 		// Analyze ROM
 		var info = analyzer.Analyze(romData);
 		AnsiConsole.MarkupLine($"[grey]Mapper:[/] {info.Mapper ?? "None"}");
 
-		if (analyzer.BankCount > 1) {
+		if (analyzer.BankCount > 1)
+		{
 			AnsiConsole.MarkupLine($"[grey]Banks:[/] {analyzer.BankCount}");
-			if (allBanks) {
+			if (allBanks)
+			{
 				AnsiConsole.MarkupLine($"[cyan]Multi-bank mode enabled[/]");
 			}
 		}
 
 		// Load symbols if provided
 		SymbolLoader? symbolLoader = null;
-		if (symbols?.Exists == true) {
+		if (symbols?.Exists == true)
+		{
 			symbolLoader = new SymbolLoader();
 			symbolLoader.Load(symbols.FullName);
 			AnsiConsole.MarkupLine($"[grey]Symbols:[/] {symbolLoader.Labels.Count} labels loaded");
 		}
 
 		// Load CDL if provided
-		if (cdlFile?.Exists == true) {
+		if (cdlFile?.Exists == true)
+		{
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.LoadCdl(cdlFile.FullName);
 			var stats = symbolLoader.CdlData!.GetCoverageStats();
@@ -113,14 +119,16 @@ IPlatformAnalyzer analyzer = profile.Analyzer;
 		}
 
 		// Load DIZ if provided
-		if (dizFile?.Exists == true) {
+		if (dizFile?.Exists == true)
+		{
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.LoadDiz(dizFile.FullName);
 			AnsiConsole.MarkupLine($"[grey]DIZ:[/] Loaded DiztinGUIsh project");
 		}
 
 		// Load Pansy if provided
-		if (pansyFile?.Exists == true) {
+		if (pansyFile?.Exists == true)
+		{
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.LoadPansy(pansyFile.FullName);
 			var pansyData = symbolLoader.PansyData!;
@@ -135,57 +143,64 @@ IPlatformAnalyzer analyzer = profile.Analyzer;
 				AnsiConsole.MarkupLine($"[grey]Pansy Bookmarks:[/] {symbolLoader.Bookmarks.Count}");
 		}
 
-AnsiConsole.WriteLine();
+		AnsiConsole.WriteLine();
 
-// Build entry points from platform + hints
-var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, symbolLoader);
-AnsiConsole.MarkupLine($"[grey]Entry points:[/] primary {entryPoints[0]:x4}, total {entryPoints.Length}");
-AnsiConsole.MarkupLine($"[grey]Static analysis:[/] {(useStaticAnalysis ? "enabled (opt-in)" : "quarantined/off")}");
+		// Build entry points from platform + hints
+		var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, symbolLoader);
+		AnsiConsole.MarkupLine($"[grey]Entry points:[/] primary {entryPoints[0]:x4}, total {entryPoints.Length}");
+		AnsiConsole.MarkupLine($"[grey]Static analysis:[/] {(useStaticAnalysis ? "enabled (opt-in)" : "quarantined/off")}");
 
-if (symbolLoader?.DataDefinitions.Count > 0)
-	AnsiConsole.MarkupLine($"[grey]Data regions:[/] {symbolLoader.DataDefinitions.Count}");
+		if (symbolLoader?.DataDefinitions.Count > 0)
+			AnsiConsole.MarkupLine($"[grey]Data regions:[/] {symbolLoader.DataDefinitions.Count}");
 
-// Create engine and disassemble
-var engine = DisassemblyPipeline.CreateEngine(analyzer, symbolLoader, useStaticAnalysis);
-var result = engine.Disassemble(romData, entryPoints, allBanks);
-result.RomInfo = info;
+		// Create engine and disassemble
+		var engine = DisassemblyPipeline.CreateEngine(analyzer, symbolLoader, useStaticAnalysis);
+		var result = engine.Disassemble(romData, entryPoints, allBanks);
+		result.RomInfo = info;
 
-AnsiConsole.WriteLine();
-AnsiConsole.MarkupLine($"[green]Disassembled {result.Blocks.Count} blocks[/]");
+		AnsiConsole.WriteLine();
+		AnsiConsole.MarkupLine($"[green]Disassembled {result.Blocks.Count} blocks[/]");
 
-if (allBanks) {
-foreach (var bank in result.BankBlocks.Keys.OrderBy(b => b)) {
-var count = result.BankBlocks[bank].Count;
-if (count > 0) {
-AnsiConsole.MarkupLine($"[grey]  Bank {bank}:[/] {count} blocks");
-}
-}
-}
+		if (allBanks)
+		{
+			foreach (var bank in result.BankBlocks.Keys.OrderBy(b => b))
+			{
+				var count = result.BankBlocks[bank].Count;
+				if (count > 0)
+				{
+					AnsiConsole.MarkupLine($"[grey]  Bank {bank}:[/] {count} blocks");
+				}
+			}
+		}
 
-// Determine output path
-var outputPath = output?.FullName ?? GetDefaultOutputPath(rom, format);
+		// Determine output path
+		var outputPath = output?.FullName ?? GetDefaultOutputPath(rom, format);
 
-// Output based on format
-if (format == "poppy") {
-var formatter = new PoppyFormatter();
-formatter.Generate(result, outputPath);
-AnsiConsole.MarkupLine($"[green]Poppy output written to:[/] {Markup.Escape(outputPath)}");
-} else {
-// Standard ASM output
-using var writer = output != null
-? new StreamWriter(outputPath)
-: Console.Out;
+		// Output based on format
+		if (format == "poppy")
+		{
+			var formatter = new PoppyFormatter();
+			formatter.Generate(result, outputPath);
+			AnsiConsole.MarkupLine($"[green]Poppy output written to:[/] {Markup.Escape(outputPath)}");
+		}
+		else
+		{
+			// Standard ASM output
+			using var writer = output != null
+			? new StreamWriter(outputPath)
+			: Console.Out;
 
-AsmFormatter.Instance.WriteOutput(writer, result, rom.Name);
+			AsmFormatter.Instance.WriteOutput(writer, result, rom.Name);
 
-if (output != null)
-AnsiConsole.MarkupLine($"[green]Output written to:[/] {Markup.Escape(outputPath)}");
-}
-}
-catch (Exception ex) {
-AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
-Environment.Exit(1);
-}
+			if (output != null)
+				AnsiConsole.MarkupLine($"[green]Output written to:[/] {Markup.Escape(outputPath)}");
+		}
+	}
+	catch (Exception ex)
+	{
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
 });
 
 rootCommand.AddCommand(disasmCommand);
@@ -202,56 +217,63 @@ batchCommand.AddOption(outputDirOpt);
 batchCommand.AddOption(patternOpt);
 batchCommand.AddOption(batchFormatOpt);
 
-batchCommand.SetHandler((inputDir, outputDir, pattern, format) => {
-AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Batch Disassembler[/]");
-AnsiConsole.WriteLine();
+batchCommand.SetHandler((inputDir, outputDir, pattern, format) =>
+{
+	AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Batch Disassembler[/]");
+	AnsiConsole.WriteLine();
 
-outputDir ??= new DirectoryInfo(Path.Combine(inputDir.FullName, "disasm"));
-outputDir.Create();
+	outputDir ??= new DirectoryInfo(Path.Combine(inputDir.FullName, "disasm"));
+	outputDir.Create();
 
-var files = inputDir.GetFiles(pattern);
-AnsiConsole.MarkupLine($"[grey]Found {files.Length} files matching '{pattern}'[/]");
-AnsiConsole.WriteLine();
+	var files = inputDir.GetFiles(pattern);
+	AnsiConsole.MarkupLine($"[grey]Found {files.Length} files matching '{pattern}'[/]");
+	AnsiConsole.WriteLine();
 
-int success = 0, failed = 0;
+	int success = 0, failed = 0;
 
-foreach (var file in files) {
-try {
-var romData = RomLoader.Load(file.FullName);
-var platform = RomLoader.DetectPlatform(romData, file.FullName);
+	foreach (var file in files)
+	{
+		try
+		{
+			var romData = RomLoader.Load(file.FullName);
+			var platform = RomLoader.DetectPlatform(romData, file.FullName);
 
-var batchProfile = PlatformResolver.Resolve(platform ?? "")
-	?? throw new NotSupportedException($"Unknown platform: {platform}");
-var analyzer = batchProfile.Analyzer;
+			var batchProfile = PlatformResolver.Resolve(platform ?? "")
+				?? throw new NotSupportedException($"Unknown platform: {platform}");
+			var analyzer = batchProfile.Analyzer;
 
-var info = analyzer.Analyze(romData);
-var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData);
-var engine = DisassemblyPipeline.CreateEngine(analyzer);
-var result = engine.Disassemble(romData, entryPoints);
-result.RomInfo = info;
+			var info = analyzer.Analyze(romData);
+			var entryPoints = DisassemblyPipeline.BuildEntryPoints(analyzer, romData);
+			var engine = DisassemblyPipeline.CreateEngine(analyzer);
+			var result = engine.Disassemble(romData, entryPoints);
+			result.RomInfo = info;
 
-var ext = ".pasm";
-var outputPath = Path.Combine(outputDir.FullName, Path.GetFileNameWithoutExtension(file.Name) + ext);
+			var ext = ".pasm";
+			var outputPath = Path.Combine(outputDir.FullName, Path.GetFileNameWithoutExtension(file.Name) + ext);
 
-if (format == "poppy") {
-var formatter = new PoppyFormatter();
-formatter.Generate(result, outputPath);
-} else {
-using var writer = new StreamWriter(outputPath);
-AsmFormatter.Instance.WriteOutput(writer, result, file.Name);
-}
+			if (format == "poppy")
+			{
+				var formatter = new PoppyFormatter();
+				formatter.Generate(result, outputPath);
+			}
+			else
+			{
+				using var writer = new StreamWriter(outputPath);
+				AsmFormatter.Instance.WriteOutput(writer, result, file.Name);
+			}
 
-AnsiConsole.MarkupLine($"[green]✓[/] {Markup.Escape(file.Name)}");
-success++;
-}
-catch (Exception ex) {
-AnsiConsole.MarkupLine($"[red]✗[/] {Markup.Escape(file.Name)}: {Markup.Escape(ex.Message)}");
-failed++;
-}
-}
+			AnsiConsole.MarkupLine($"[green]✓[/] {Markup.Escape(file.Name)}");
+			success++;
+		}
+		catch (Exception ex)
+		{
+			AnsiConsole.MarkupLine($"[red]✗[/] {Markup.Escape(file.Name)}: {Markup.Escape(ex.Message)}");
+			failed++;
+		}
+	}
 
-AnsiConsole.WriteLine();
-AnsiConsole.MarkupLine($"[green]Success: {success}[/] | [red]Failed: {failed}[/]");
+	AnsiConsole.WriteLine();
+	AnsiConsole.MarkupLine($"[green]Success: {success}[/] | [red]Failed: {failed}[/]");
 }, inputDirArg, outputDirOpt, patternOpt, batchFormatOpt);
 
 rootCommand.AddCommand(batchCommand);
@@ -263,36 +285,39 @@ var infoPlatformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-
 infoCommand.AddArgument(infoRomArg);
 infoCommand.AddOption(infoPlatformOpt);
 
-infoCommand.SetHandler((rom, platform) => {
-AnsiConsole.MarkupLine("[bold magenta]🌺 Peony ROM Info[/]");
-AnsiConsole.WriteLine();
+infoCommand.SetHandler((rom, platform) =>
+{
+	AnsiConsole.MarkupLine("[bold magenta]🌺 Peony ROM Info[/]");
+	AnsiConsole.WriteLine();
 
-var romData = RomLoader.Load(rom.FullName);
-platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
+	var romData = RomLoader.Load(rom.FullName);
+	platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
 
-var table = new Table();
-table.AddColumn("Property");
-table.AddColumn("Value");
+	var table = new Table();
+	table.AddColumn("Property");
+	table.AddColumn("Value");
 
-table.AddRow("File", Markup.Escape(rom.Name));
-table.AddRow("Size", $"{romData.Length} bytes ({romData.Length / 1024}K)");
-table.AddRow("Platform", platform ?? "Unknown");
+	table.AddRow("File", Markup.Escape(rom.Name));
+	table.AddRow("Size", $"{romData.Length} bytes ({romData.Length / 1024}K)");
+	table.AddRow("Platform", platform ?? "Unknown");
 
-if (platform != null) {
-var profile = PlatformResolver.Resolve(platform);
-if (profile != null) {
-var analyzer = profile.Analyzer;
-var info = analyzer.Analyze(romData);
-table.AddRow("Mapper", info.Mapper ?? "None");
-table.AddRow("Banks", analyzer.BankCount.ToString());
-foreach (var (key, value) in info.Metadata)
-table.AddRow(Markup.Escape(key), Markup.Escape(value));
-var entries = analyzer.GetEntryPoints(romData);
-table.AddRow("Entry Points", string.Join(", ", entries.Select(e => $"${e:x4}")));
-}
-}
+	if (platform != null)
+	{
+		var profile = PlatformResolver.Resolve(platform);
+		if (profile != null)
+		{
+			var analyzer = profile.Analyzer;
+			var info = analyzer.Analyze(romData);
+			table.AddRow("Mapper", info.Mapper ?? "None");
+			table.AddRow("Banks", analyzer.BankCount.ToString());
+			foreach (var (key, value) in info.Metadata)
+				table.AddRow(Markup.Escape(key), Markup.Escape(value));
+			var entries = analyzer.GetEntryPoints(romData);
+			table.AddRow("Entry Points", string.Join(", ", entries.Select(e => $"${e:x4}")));
+		}
+	}
 
-AnsiConsole.Write(table);
+	AnsiConsole.Write(table);
 }, infoRomArg, infoPlatformOpt);
 
 rootCommand.AddCommand(infoCommand);
@@ -317,7 +342,8 @@ exportCommand.AddOption(exportDizOpt);
 exportCommand.AddOption(exportCdlOpt);
 exportCommand.AddOption(exportPansyOpt);
 
-exportCommand.SetHandler((context) => {
+exportCommand.SetHandler((context) =>
+{
 	var rom = context.ParseResult.GetValueForArgument(exportRomArg);
 	var output = context.ParseResult.GetValueForOption(exportOutputOpt);
 	var format = context.ParseResult.GetValueForOption(exportFormatOpt) ?? "mesen";
@@ -326,11 +352,13 @@ exportCommand.SetHandler((context) => {
 	var dizFile = context.ParseResult.GetValueForOption(exportDizOpt);
 	var cdlFile = context.ParseResult.GetValueForOption(exportCdlOpt);
 	var pansyFile = context.ParseResult.GetValueForOption(exportPansyOpt);
-	try {
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Symbol Exporter[/]");
 		AnsiConsole.WriteLine();
 
-		if (output == null) {
+		if (output == null)
+		{
 			AnsiConsole.MarkupLine("[red]Error:[/] Output file is required (--output)");
 			Environment.Exit(1);
 			return;
@@ -367,7 +395,8 @@ exportCommand.SetHandler((context) => {
 		var engine = DisassemblyPipeline.CreateEngine(analyzer, symbolLoader);
 		var result = engine.Disassemble(romData, entryPoints);
 		result.RomInfo = info;
-		var symFormat = format.ToLowerInvariant() switch {
+		var symFormat = format.ToLowerInvariant() switch
+		{
 			"mesen" or "mlb" => SymbolFormat.Mesen,
 			"fceux" or "nl" => SymbolFormat.FCEUX,
 			"nogba" or "nosns" or "no$gba" or "sym" => SymbolFormat.NoGlasses,
@@ -384,7 +413,8 @@ exportCommand.SetHandler((context) => {
 		AnsiConsole.MarkupLine($"[green]Exported {result.Labels.Count} labels to:[/] {Markup.Escape(output.FullName)}");
 		AnsiConsole.MarkupLine($"[grey]Format:[/] {symFormat}");
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -406,21 +436,26 @@ verifyCommand.AddOption(verifyWorkdirOpt);
 verifyCommand.AddOption(verifyAssemblerOpt);
 verifyCommand.AddOption(verifyReportOpt);
 
-verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, report) => {
-	try {
+verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, report) =>
+{
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Roundtrip Verifier[/]");
 		AnsiConsole.WriteLine();
 
 		RoundtripVerifier.VerificationResult result;
 
-		if (reassembled?.Exists == true) {
+		if (reassembled?.Exists == true)
+		{
 			// Direct file comparison
 			AnsiConsole.MarkupLine($"[grey]Original:[/]     {Markup.Escape(original.FullName)}");
 			AnsiConsole.MarkupLine($"[grey]Reassembled:[/]  {Markup.Escape(reassembled.FullName)}");
 			AnsiConsole.WriteLine();
 
 			result = RoundtripVerifier.VerifyFiles(original.FullName, reassembled.FullName);
-		} else if (workdir != null) {
+		}
+		else if (workdir != null)
+		{
 			// Full roundtrip test
 			AnsiConsole.MarkupLine($"[grey]Original:[/]    {Markup.Escape(original.FullName)}");
 			AnsiConsole.MarkupLine($"[grey]Work dir:[/]    {Markup.Escape(workdir.FullName)}");
@@ -435,7 +470,8 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 
 			AnsiConsole.Status()
 				.Spinner(Spinner.Known.Dots)
-				.Start("Running roundtrip test...", ctx => {
+				.Start("Running roundtrip test...", ctx =>
+				{
 					// Can't easily make this async in Spectre.Console
 				});
 
@@ -444,7 +480,9 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 				workdir.FullName,
 				rtAnalyzer,
 				assembler);
-		} else {
+		}
+		else
+		{
 			// Verify disassembly internally
 			AnsiConsole.MarkupLine($"[grey]Verifying disassembly of:[/] {Markup.Escape(original.FullName)}");
 			AnsiConsole.WriteLine();
@@ -465,12 +503,16 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 		}
 
 		// Display results
-		if (result.Success) {
+		if (result.Success)
+		{
 			AnsiConsole.MarkupLine("[bold green]✓ VERIFICATION PASSED[/]");
 			AnsiConsole.MarkupLine($"[grey]All {result.ByteMatches} bytes match[/]");
-		} else {
+		}
+		else
+		{
 			AnsiConsole.MarkupLine("[bold red]✗ VERIFICATION FAILED[/]");
-			if (result.ErrorMessage != null) {
+			if (result.ErrorMessage != null)
+			{
 				AnsiConsole.MarkupLine($"[red]{Markup.Escape(result.ErrorMessage)}[/]");
 			}
 		}
@@ -495,7 +537,8 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 		AnsiConsole.Write(statsTable);
 
 		// Show differences if any
-		if (result.Differences.Count > 0) {
+		if (result.Differences.Count > 0)
+		{
 			AnsiConsole.WriteLine();
 			AnsiConsole.MarkupLine("[yellow]First differences:[/]");
 
@@ -505,7 +548,8 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 			diffTable.AddColumn("Original");
 			diffTable.AddColumn("Reassembled");
 
-			foreach (var diff in result.Differences.Take(10)) {
+			foreach (var diff in result.Differences.Take(10))
+			{
 				diffTable.AddRow(
 					$"0x{diff.Offset:x6}",
 					$"${diff.Address:x4}",
@@ -516,13 +560,15 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 
 			AnsiConsole.Write(diffTable);
 
-			if (result.Differences.Count > 10) {
+			if (result.Differences.Count > 10)
+			{
 				AnsiConsole.MarkupLine($"[grey]... and {result.Differences.Count - 10} more differences[/]");
 			}
 		}
 
 		// Write report file if requested
-		if (report != null) {
+		if (report != null)
+		{
 			var reportContent = RoundtripVerifier.GenerateReport(result);
 			File.WriteAllText(report.FullName, reportContent);
 			AnsiConsole.WriteLine();
@@ -531,7 +577,8 @@ verifyCommand.SetHandler(async (original, reassembled, workdir, assembler, repor
 
 		Environment.Exit(result.Success ? 0 : 1);
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -563,8 +610,10 @@ chrCommand.AddOption(chrTilesPerRowOpt);
 chrCommand.AddOption(chrPaletteOpt);
 chrCommand.AddOption(chrPlatformOpt);
 
-chrCommand.SetHandler((rom, output, offsetStr, sizeStr, bits, tilesPerRow, paletteStr, platform) => {
-	try {
+chrCommand.SetHandler((rom, output, offsetStr, sizeStr, bits, tilesPerRow, paletteStr, platform) =>
+{
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony CHR Extractor[/]");
 		AnsiConsole.WriteLine();
 
@@ -578,22 +627,30 @@ chrCommand.SetHandler((rom, output, offsetStr, sizeStr, bits, tilesPerRow, palet
 
 		// Determine size
 		int size;
-		if (!string.IsNullOrEmpty(sizeStr)) {
+		// Resolve platform profile via PlatformResolver
+		platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
+		var chrProfile = platform != null ? PlatformResolver.Resolve(platform) : null;
+		chrProfile ??= PlatformResolver.ResolveByExtension(Path.GetExtension(rom.FullName));
+
+		if (!string.IsNullOrEmpty(sizeStr))
+		{
 			size = ParseHexOrDecimal(sizeStr);
-		} else {
-			// Auto-detect based on platform
-			platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
-			size = platform?.ToLowerInvariant() switch {
-				"nes" => romData.Length >= 0x4010 ? 0x2000 : romData.Length - offset, // Default 8KB CHR
-				"snes" => Math.Min(0x4000, romData.Length - offset), // 16KB default
-				"gb" or "gameboy" => Math.Min(0x2000, romData.Length - offset),
+		}
+		else
+		{
+			size = chrProfile?.Platform switch
+			{
+				PlatformId.NES => romData.Length >= 0x4010 ? 0x2000 : romData.Length - offset, // Default 8KB CHR
+				PlatformId.SNES => Math.Min(0x4000, romData.Length - offset), // 16KB default
+				PlatformId.GameBoy => Math.Min(0x2000, romData.Length - offset),
 				_ => Math.Min(0x2000, romData.Length - offset)
 			};
 		}
 		AnsiConsole.MarkupLine($"[grey]Size:[/] ${size:x4} ({size} bytes)");
 
 		// Calculate tile count
-		int bytesPerTile = bits switch {
+		int bytesPerTile = bits switch
+		{
 			2 => 16,
 			4 => 32,
 			8 => 64,
@@ -602,16 +659,28 @@ chrCommand.SetHandler((rom, output, offsetStr, sizeStr, bits, tilesPerRow, palet
 		int tileCount = size / bytesPerTile;
 		AnsiConsole.MarkupLine($"[grey]Tiles:[/] {tileCount} ({bits}bpp)");
 
-		// Extract tiles
+		// Extract tiles — use profile extractor if available, otherwise generic
+		byte[] pixels;
 		var slice = romData.AsSpan(offset, size);
-		byte[] pixels = bits switch {
-			2 => TileGraphics.Decode2bppPlanar(slice, tileCount),
-			4 => TileGraphics.Decode4bppPlanar(slice, tileCount),
-			_ => TileGraphics.Decode2bppPlanar(slice, tileCount)
-		};
+		if (chrProfile?.GraphicsExtractor is { } gfxExtractor)
+		{
+			var tileData = gfxExtractor.ExtractTiles(romData, offset, size, bits);
+			pixels = tileData.Pixels;
+			AnsiConsole.MarkupLine($"[grey]Extractor:[/] {gfxExtractor.Platform}");
+		}
+		else
+		{
+			pixels = bits switch
+			{
+				2 => TileGraphics.Decode2bppPlanar(slice, tileCount),
+				4 => TileGraphics.Decode4bppPlanar(slice, tileCount),
+				_ => TileGraphics.Decode2bppPlanar(slice, tileCount)
+			};
+		}
 
 		// Get palette
-		uint[] palette = (paletteStr?.ToLowerInvariant()) switch {
+		uint[] palette = (paletteStr?.ToLowerInvariant()) switch
+		{
 			null or "grayscale" or "gray" => TileGraphics.NesGrayscale,
 			"nes" => TileGraphics.NesPalette,
 			_ => ParseCustomPalette(paletteStr) ?? TileGraphics.NesGrayscale
@@ -634,7 +703,8 @@ chrCommand.SetHandler((rom, output, offsetStr, sizeStr, bits, tilesPerRow, palet
 		AnsiConsole.MarkupLine($"[green]✓ Exported {tileCount} tiles ({imageWidth}x{imageHeight})[/]");
 		AnsiConsole.MarkupLine($"[grey]Output:[/] {Markup.Escape(outputPath)}");
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -668,8 +738,10 @@ textCommand.AddOption(textPointerCountOpt);
 textCommand.AddOption(textMinLengthOpt);
 textCommand.AddOption(textScanOpt);
 
-textCommand.SetHandler((context) => {
-	try {
+textCommand.SetHandler((context) =>
+{
+	try
+	{
 		var rom = context.ParseResult.GetValueForArgument(textRomArg);
 		var tableFile = context.ParseResult.GetValueForOption(textTableOpt);
 		var output = context.ParseResult.GetValueForOption(textOutputOpt);
@@ -689,24 +761,35 @@ textCommand.SetHandler((context) => {
 		AnsiConsole.MarkupLine($"[grey]Loading:[/] {Markup.Escape(rom.FullName)}");
 		var romData = RomLoader.Load(rom.FullName);
 
+		// Resolve platform profile for text extraction
+		var textProfile = PlatformResolver.ResolveByExtension(Path.GetExtension(rom.FullName));
+		var textExtractor = textProfile?.TextExtractor;
+		if (textExtractor != null)
+			AnsiConsole.MarkupLine($"[grey]Extractor:[/] {textProfile!.DisplayName}");
+
 		// Load or create table
 		TableFile table;
-		if (tableFile?.Exists == true) {
+		if (tableFile?.Exists == true)
+		{
 			var content = File.ReadAllText(tableFile.FullName);
 			table = TableFile.LoadFromTbl(content);
 			AnsiConsole.MarkupLine($"[grey]Table:[/] {tableFile.Name} ({table.ByteMappings.Count} entries)");
-		} else {
+		}
+		else
+		{
 			table = TableFile.CreateAsciiTable();
 			AnsiConsole.MarkupLine("[grey]Table:[/] ASCII (default)");
 		}
 
 		// Parse end byte (single byte)
 		byte? endByte = null;
-		if (!string.IsNullOrEmpty(endBytesStr)) {
+		if (!string.IsNullOrEmpty(endBytesStr))
+		{
 			endByte = (byte)ParseHexOrDecimal(endBytesStr.Split(',')[0].Trim());
 		}
 
-		var options = new TextExtractionOptions {
+		var options = new TextExtractionOptions
+		{
 			EndByte = endByte,
 			MinLength = minLength,
 			MaxLength = length
@@ -714,22 +797,32 @@ textCommand.SetHandler((context) => {
 
 		List<TextBlock> blocks;
 
-		if (scan) {
-			// Scan entire ROM for text
+		if (scan)
+		{
+			// Scan entire ROM for text — use profile extractor if available
 			AnsiConsole.MarkupLine("[cyan]Scanning ROM for text...[/]");
-			blocks = TextExtraction.ScanForText(romData, table, options);
-		} else if (!string.IsNullOrEmpty(pointerStr) && pointerCount > 0) {
-			// Extract from pointer table
+			blocks = textExtractor != null
+				? textExtractor.ExtractAllText(romData, table, options)
+				: TextExtraction.ScanForText(romData, table, options);
+		}
+		else if (!string.IsNullOrEmpty(pointerStr) && pointerCount > 0)
+		{
+			// Extract from pointer table (generic — not in ITextExtractor interface)
 			int ptrOffset = ParseHexOrDecimal(pointerStr);
 			AnsiConsole.MarkupLine($"[grey]Pointer table:[/] ${ptrOffset:x6} ({pointerCount} pointers)");
-			// Use 0 as text bank offset (relative pointers)
 			blocks = TextExtraction.ExtractFromPointerTable(romData, ptrOffset, pointerCount, 0, table, options);
-		} else if (!string.IsNullOrEmpty(offsetStr)) {
-			// Extract from fixed offset
+		}
+		else if (!string.IsNullOrEmpty(offsetStr))
+		{
+			// Extract from fixed offset — use profile extractor if available
 			int offset = ParseHexOrDecimal(offsetStr);
-			var text = TextExtraction.ExtractText(romData, offset, length, table, options);
+			var text = textExtractor != null
+				? textExtractor.ExtractText(romData, offset, length, table)
+				: TextExtraction.ExtractText(romData, offset, length, table, options);
 			blocks = [new TextBlock { Offset = offset, Text = text, Length = text.Length, RawBytes = [] }];
-		} else {
+		}
+		else
+		{
 			AnsiConsole.MarkupLine("[yellow]No offset specified. Use --offset, --pointer-table, or --scan[/]");
 			return;
 		}
@@ -738,8 +831,10 @@ textCommand.SetHandler((context) => {
 		AnsiConsole.WriteLine();
 
 		// Output based on format
-		if (output != null) {
-			switch (format.ToLowerInvariant()) {
+		if (output != null)
+		{
+			switch (format.ToLowerInvariant())
+			{
 				case "json":
 					TextExtraction.SaveAsJson(blocks, output.FullName);
 					break;
@@ -747,8 +842,10 @@ textCommand.SetHandler((context) => {
 					TextExtraction.SaveAsScript(blocks, output.FullName);
 					break;
 				default:
-					using (var writer = new StreamWriter(output.FullName)) {
-						foreach (var block in blocks) {
+					using (var writer = new StreamWriter(output.FullName))
+					{
+						foreach (var block in blocks)
+						{
 							writer.WriteLine($"; ${block.Offset:x6}");
 							writer.WriteLine(block.Text);
 							writer.WriteLine();
@@ -757,17 +854,22 @@ textCommand.SetHandler((context) => {
 					break;
 			}
 			AnsiConsole.MarkupLine($"[grey]Output:[/] {Markup.Escape(output.FullName)}");
-		} else {
+		}
+		else
+		{
 			// Output to console
-			foreach (var block in blocks.Take(20)) {
+			foreach (var block in blocks.Take(20))
+			{
 				AnsiConsole.MarkupLine($"[grey]${block.Offset:x6}:[/] {Markup.Escape(block.Text.Replace("\n", "\\n"))}");
 			}
-			if (blocks.Count > 20) {
+			if (blocks.Count > 20)
+			{
 				AnsiConsole.MarkupLine($"[grey]... and {blocks.Count - 20} more[/]");
 			}
 		}
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -791,8 +893,10 @@ paletteCommand.AddOption(paletteCountOpt);
 paletteCommand.AddOption(paletteFormatOpt);
 paletteCommand.AddOption(paletteOutputFormatOpt);
 
-paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) => {
-	try {
+paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) =>
+{
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Palette Extractor[/]");
 		AnsiConsole.WriteLine();
 
@@ -807,8 +911,10 @@ paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) 
 		var colors = new uint[count];
 		var slice = romData.AsSpan(offset);
 
-		for (int i = 0; i < count; i++) {
-			colors[i] = format.ToLowerInvariant() switch {
+		for (int i = 0; i < count; i++)
+		{
+			colors[i] = format.ToLowerInvariant() switch
+			{
 				"nes" => i < slice.Length ? TileGraphics.NesPalette[slice[i] & 0x3f] : 0xff000000,
 				"snes" => ConvertSnesColor(slice, i * 2),
 				"gba" => ConvertGbaColor(slice, i * 2),
@@ -819,9 +925,11 @@ paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) 
 
 		// Display palette preview
 		AnsiConsole.WriteLine();
-		for (int row = 0; row < (count + 15) / 16; row++) {
+		for (int row = 0; row < (count + 15) / 16; row++)
+		{
 			var line = new System.Text.StringBuilder();
-			for (int col = 0; col < 16 && row * 16 + col < count; col++) {
+			for (int col = 0; col < 16 && row * 16 + col < count; col++)
+			{
 				int idx = row * 16 + col;
 				uint c = colors[idx];
 				byte r = (byte)((c >> 16) & 0xff);
@@ -833,10 +941,13 @@ paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) 
 		}
 
 		// Output
-		if (output != null) {
-			switch (outputFormat.ToLowerInvariant()) {
+		if (output != null)
+		{
+			switch (outputFormat.ToLowerInvariant())
+			{
 				case "json":
-					var json = System.Text.Json.JsonSerializer.Serialize(new {
+					var json = System.Text.Json.JsonSerializer.Serialize(new
+					{
 						offset = $"0x{offset:x6}",
 						count,
 						format,
@@ -845,11 +956,13 @@ paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) 
 					File.WriteAllText(output.FullName, json);
 					break;
 				case "asm":
-					using (var writer = new StreamWriter(output.FullName)) {
+					using (var writer = new StreamWriter(output.FullName))
+					{
 						writer.WriteLine($"; Palette extracted from ${offset:x6}");
 						writer.WriteLine($"; Format: {format}");
 						writer.WriteLine();
-						for (int i = 0; i < count; i++) {
+						for (int i = 0; i < count; i++)
+						{
 							uint c = colors[i];
 							writer.WriteLine($"\t.db ${(c >> 16) & 0xff:x2}, ${(c >> 8) & 0xff:x2}, ${c & 0xff:x2} ; Color {i}");
 						}
@@ -863,7 +976,8 @@ paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) 
 			AnsiConsole.MarkupLine($"[grey]Output:[/] {Markup.Escape(output.FullName)}");
 		}
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -883,28 +997,36 @@ tblCommand.AddOption(tblTemplateOpt);
 tblCommand.AddOption(tblFromOpt);
 tblCommand.AddOption(tblToFormatOpt);
 
-tblCommand.SetHandler((output, template, fromFile, toFormat) => {
-	try {
+tblCommand.SetHandler((output, template, fromFile, toFormat) =>
+{
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Table Generator[/]");
 		AnsiConsole.WriteLine();
 
 		TableFile table;
 
-		if (fromFile?.Exists == true) {
+		if (fromFile?.Exists == true)
+		{
 			// Convert existing table
 			var content = File.ReadAllText(fromFile.FullName);
 			table = TableFile.LoadFromTbl(content);
 			AnsiConsole.MarkupLine($"[grey]Loaded:[/] {fromFile.Name} ({table.ByteMappings.Count} entries)");
-		} else {
+		}
+		else
+		{
 			// Generate from template
 			table = TableFile.GetTemplate(template);
 			AnsiConsole.MarkupLine($"[grey]Template:[/] {template} → {table.Name} ({table.ByteMappings.Count} byte + {table.WordMappings.Count} word entries)");
 		}
 
-		if (output != null) {
-			switch (toFormat.ToLowerInvariant()) {
+		if (output != null)
+		{
+			switch (toFormat.ToLowerInvariant())
+			{
 				case "json":
-					var json = System.Text.Json.JsonSerializer.Serialize(new {
+					var json = System.Text.Json.JsonSerializer.Serialize(new
+					{
 						mappings = table.ByteMappings.ToDictionary(
 							kvp => $"0x{kvp.Key:x2}",
 							kvp => kvp.Value)
@@ -912,35 +1034,44 @@ tblCommand.SetHandler((output, template, fromFile, toFormat) => {
 					File.WriteAllText(output.FullName, json);
 					break;
 				case "asm":
-					using (var writer = new StreamWriter(output.FullName)) {
+					using (var writer = new StreamWriter(output.FullName))
+					{
 						writer.WriteLine("; Text table (ASM format)");
-						foreach (var kvp in table.ByteMappings.OrderBy(k => k.Key)) {
+						foreach (var kvp in table.ByteMappings.OrderBy(k => k.Key))
+						{
 							var escaped = kvp.Value.Replace("\"", "\\\"");
 							writer.WriteLine($".define CHAR_{kvp.Key:x2} = \"{escaped}\"");
 						}
 					}
 					break;
 				default: // tbl
-					using (var writer = new StreamWriter(output.FullName)) {
-						foreach (var kvp in table.ByteMappings.OrderBy(k => k.Key)) {
+					using (var writer = new StreamWriter(output.FullName))
+					{
+						foreach (var kvp in table.ByteMappings.OrderBy(k => k.Key))
+						{
 							writer.WriteLine($"{kvp.Key:X2}={kvp.Value}");
 						}
 					}
 					break;
 			}
 			AnsiConsole.MarkupLine($"[green]Output:[/] {Markup.Escape(output.FullName)}");
-		} else {
+		}
+		else
+		{
 			// Preview to console
 			AnsiConsole.MarkupLine("[grey]Sample mappings:[/]");
-			foreach (var kvp in table.ByteMappings.Take(16)) {
+			foreach (var kvp in table.ByteMappings.Take(16))
+			{
 				AnsiConsole.MarkupLine($"  ${kvp.Key:x2} = {Markup.Escape(kvp.Value)}");
 			}
-			if (table.ByteMappings.Count > 16) {
+			if (table.ByteMappings.Count > 16)
+			{
 				AnsiConsole.MarkupLine($"  ... and {table.ByteMappings.Count - 16} more");
 			}
 		}
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -956,12 +1087,15 @@ var pansyVerboseOpt = new Option<bool>(["--verbose", "-v"], "Show detailed infor
 pansyCommand.AddArgument(pansyFileArg);
 pansyCommand.AddOption(pansyVerboseOpt);
 
-pansyCommand.SetHandler((file, verbose) => {
-	try {
+pansyCommand.SetHandler((file, verbose) =>
+{
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Pansy File Viewer[/]");
 		AnsiConsole.WriteLine();
 
-		if (!file.Exists) {
+		if (!file.Exists)
+		{
 			AnsiConsole.MarkupLine($"[red]Error:[/] File not found: {Markup.Escape(file.FullName)}");
 			Environment.Exit(1);
 		}
@@ -998,7 +1132,8 @@ pansyCommand.SetHandler((file, verbose) => {
 		AnsiConsole.WriteLine();
 
 		// Show memory regions if any
-		if (pansy.MemoryRegions.Count > 0) {
+		if (pansy.MemoryRegions.Count > 0)
+		{
 			AnsiConsole.MarkupLine("[bold cyan]Memory Regions:[/]");
 			var regionTable = new Table()
 				.Border(TableBorder.Rounded)
@@ -1008,7 +1143,8 @@ pansyCommand.SetHandler((file, verbose) => {
 				.AddColumn("Type")
 				.AddColumn("Name");
 
-			foreach (var region in pansy.MemoryRegions.Take(10)) {
+			foreach (var region in pansy.MemoryRegions.Take(10))
+			{
 				regionTable.AddRow(
 					$"${region.Start:x4}",
 					$"${region.End:x4}",
@@ -1018,7 +1154,8 @@ pansyCommand.SetHandler((file, verbose) => {
 				);
 			}
 
-			if (pansy.MemoryRegions.Count > 10) {
+			if (pansy.MemoryRegions.Count > 10)
+			{
 				regionTable.AddRow("[grey]...[/]", $"[grey]+{pansy.MemoryRegions.Count - 10} more[/]", "", "", "");
 			}
 
@@ -1027,30 +1164,35 @@ pansyCommand.SetHandler((file, verbose) => {
 		}
 
 		// Show symbols if verbose
-		if (verbose && pansy.Symbols.Count > 0) {
+		if (verbose && pansy.Symbols.Count > 0)
+		{
 			AnsiConsole.MarkupLine("[bold cyan]Symbols (first 20):[/]");
 			var symbolTable = new Table()
 				.Border(TableBorder.Rounded)
 				.AddColumn("Address")
 				.AddColumn("Name");
 
-			foreach (var (addr, name) in pansy.Symbols.Take(20)) {
+			foreach (var (addr, name) in pansy.Symbols.Take(20))
+			{
 				symbolTable.AddRow($"${addr:x4}", Markup.Escape(name));
 			}
 
-			if (pansy.Symbols.Count > 20) {
+			if (pansy.Symbols.Count > 20)
+			{
 				symbolTable.AddRow("[grey]...[/]", $"[grey]+{pansy.Symbols.Count - 20} more[/]");
 			}
 
 			AnsiConsole.Write(symbolTable);
 		}
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
 
-	static string GetPlatformName(byte platformId) {
+	static string GetPlatformName(byte platformId)
+	{
 		var profile = PlatformResolver.GetAll().FirstOrDefault(p => p.PansyPlatformId == platformId);
 		if (profile != null)
 			return profile.DisplayName;
@@ -1079,12 +1221,15 @@ importCommand.AddOption(importFormatOpt);
 importCommand.AddOption(importNoScaffoldOpt);
 importCommand.AddOption(importForceOpt);
 
-importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, force) => {
-	try {
+importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, force) =>
+{
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Nexen Pack Import[/]");
 		AnsiConsole.WriteLine();
 
-		if (!packFile.Exists) {
+		if (!packFile.Exists)
+		{
 			AnsiConsole.MarkupLine($"[red]Error:[/] File not found: {Markup.Escape(packFile.FullName)}");
 			Environment.Exit(1);
 			return;
@@ -1104,12 +1249,14 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 		string romPath = pack.RomPath;
 		string outputDir;
 
-		if (!noScaffold) {
+		if (!noScaffold)
+		{
 			var projDir = projectDir?.FullName
 				?? Path.Combine(Directory.GetCurrentDirectory(), pack.GameName.Replace(' ', '-'));
 			AnsiConsole.MarkupLine($"[grey]Scaffolding project:[/] {Markup.Escape(projDir)}");
 
-			scaffold = ProjectScaffolder.Scaffold(pack, projDir, new ScaffoldOptions {
+			scaffold = ProjectScaffolder.Scaffold(pack, projDir, new ScaffoldOptions
+			{
 				Force = force,
 				PackZipPath = packFile.FullName
 			});
@@ -1117,7 +1264,9 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 			romPath = scaffold.RomPath;
 			outputDir = Path.Combine(projDir, "output");
 			AnsiConsole.MarkupLine($"[green]✓[/] Project created ({scaffold.MetadataFileCount} metadata files)");
-		} else {
+		}
+		else
+		{
 			outputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
 			Directory.CreateDirectory(outputDir);
 			AnsiConsole.MarkupLine("[grey]Scaffolding skipped[/]");
@@ -1142,14 +1291,16 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 
 		var info = analyzer.Analyze(romData);
 		AnsiConsole.MarkupLine($"[grey]Mapper:[/] {info.Mapper ?? "None"}");
-		if (analyzer.BankCount > 1) {
+		if (analyzer.BankCount > 1)
+		{
 			AnsiConsole.MarkupLine($"[grey]Banks:[/] {analyzer.BankCount}");
 		}
 
 		// Step 5: Load metadata (CDL, Pansy, labels)
 		SymbolLoader? symbolLoader = null;
 
-		if (pack.CdlPath != null && File.Exists(pack.CdlPath)) {
+		if (pack.CdlPath != null && File.Exists(pack.CdlPath))
+		{
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.LoadCdl(pack.CdlPath);
 			var stats = symbolLoader.CdlData!.GetCoverageStats();
@@ -1157,13 +1308,15 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 			AnsiConsole.MarkupLine($"[grey]CDL Subroutines:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0}");
 		}
 
-		if (pack.PansyPath != null && File.Exists(pack.PansyPath)) {
+		if (pack.PansyPath != null && File.Exists(pack.PansyPath))
+		{
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.LoadPansy(pack.PansyPath);
 			AnsiConsole.MarkupLine($"[grey]Pansy:[/] {symbolLoader.Labels.Count} labels, {symbolLoader.Comments.Count} comments");
 		}
 
-		if (pack.LabelsPath != null && File.Exists(pack.LabelsPath)) {
+		if (pack.LabelsPath != null && File.Exists(pack.LabelsPath))
+		{
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.Load(pack.LabelsPath);
 			AnsiConsole.MarkupLine($"[grey]Labels:[/] {symbolLoader.Labels.Count} total labels");
@@ -1189,11 +1342,14 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 		var outputBaseName = Path.GetFileNameWithoutExtension(pack.RomFileName ?? pack.GameName);
 		var outputPath = Path.Combine(outputDir, outputBaseName + ".pasm");
 
-		if (format == "poppy") {
+		if (format == "poppy")
+		{
 			var formatter = new PoppyFormatter();
 			formatter.Generate(result, outputPath);
 			AnsiConsole.MarkupLine($"[green]Output:[/] {Markup.Escape(outputPath)}");
-		} else {
+		}
+		else
+		{
 			using var writer = new StreamWriter(outputPath);
 			AsmFormatter.Instance.WriteOutput(writer, result, packFile.Name);
 			AnsiConsole.MarkupLine($"[green]Output:[/] {Markup.Escape(outputPath)}");
@@ -1219,13 +1375,15 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 		summaryTable.AddRow("Labels", $"{result.Labels.Count}");
 		summaryTable.AddRow("Output", Markup.Escape(outputPath));
 		summaryTable.AddRow("Pansy", Markup.Escape(pansyOutputPath));
-		if (scaffold != null) {
+		if (scaffold != null)
+		{
 			summaryTable.AddRow("Project", Markup.Escape(scaffold.ProjectDirectory));
 		}
 
 		AnsiConsole.Write(summaryTable);
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -1257,7 +1415,8 @@ projectCommand.AddOption(projectCdlOpt);
 projectCommand.AddOption(projectPansyOpt);
 projectCommand.AddOption(projectSymbolsOpt);
 
-projectCommand.SetHandler((context) => {
+projectCommand.SetHandler((context) =>
+{
 	var rom = context.ParseResult.GetValueForArgument(projectRomArg);
 	var outputPath = context.ParseResult.GetValueForOption(projectOutputOpt);
 	var name = context.ParseResult.GetValueForOption(projectNameOpt);
@@ -1267,7 +1426,8 @@ projectCommand.SetHandler((context) => {
 	var pansyFile = context.ParseResult.GetValueForOption(projectPansyOpt);
 	var symbols = context.ParseResult.GetValueForOption(projectSymbolsOpt);
 
-	try {
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Project Generator[/]");
 		AnsiConsole.WriteLine();
 
@@ -1292,17 +1452,20 @@ projectCommand.SetHandler((context) => {
 
 		// Load hints
 		SymbolLoader? symbolLoader = null;
-		if (symbols?.Exists == true) {
+		if (symbols?.Exists == true)
+		{
 			symbolLoader = new SymbolLoader();
 			symbolLoader.Load(symbols.FullName);
 			AnsiConsole.MarkupLine($"[grey]Symbols:[/] {symbolLoader.Labels.Count} labels");
 		}
-		if (cdlFile?.Exists == true) {
+		if (cdlFile?.Exists == true)
+		{
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.LoadCdl(cdlFile.FullName);
 			AnsiConsole.MarkupLine($"[grey]CDL:[/] loaded");
 		}
-		if (pansyFile?.Exists == true) {
+		if (pansyFile?.Exists == true)
+		{
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.LoadPansy(pansyFile.FullName);
 			AnsiConsole.MarkupLine($"[grey]Pansy:[/] {symbolLoader.TypedSymbols.Count} symbols");
@@ -1324,7 +1487,8 @@ projectCommand.SetHandler((context) => {
 		AnsiConsole.MarkupLine($"[green]Disassembled {result.Blocks.Count} blocks[/]");
 
 		// Generate project
-		var options = new ProjectOptions {
+		var options = new ProjectOptions
+		{
 			ProjectName = name,
 			RomPath = rom.FullName,
 			SplitBanks = result.BankBlocks.Count > 1,
@@ -1338,19 +1502,24 @@ projectCommand.SetHandler((context) => {
 			textExtractor: profile5.TextExtractor);
 
 		// Determine output
-		if (archive || (outputPath?.EndsWith(".peony", StringComparison.OrdinalIgnoreCase) ?? false)) {
+		if (archive || (outputPath?.EndsWith(".peony", StringComparison.OrdinalIgnoreCase) ?? false))
+		{
 			outputPath ??= Path.Combine(rom.DirectoryName!, $"{name}.peony");
 			AnsiConsole.Status()
 				.Spinner(Spinner.Known.Dots)
-				.Start("Creating archive...", ctx => {
+				.Start("Creating archive...", ctx =>
+				{
 					writer.WriteProjectArchive(outputPath, result, romData);
 				});
 			AnsiConsole.MarkupLine($"[green]Archive written to:[/] {Markup.Escape(outputPath)}");
-		} else {
+		}
+		else
+		{
 			outputPath ??= Path.Combine(rom.DirectoryName!, name);
 			AnsiConsole.Status()
 				.Spinner(Spinner.Known.Dots)
-				.Start("Creating project folder...", ctx => {
+				.Start("Creating project folder...", ctx =>
+				{
 					writer.WriteProjectFolder(outputPath, result, romData);
 				});
 			AnsiConsole.MarkupLine($"[green]Project created at:[/] {Markup.Escape(outputPath)}");
@@ -1369,7 +1538,8 @@ projectCommand.SetHandler((context) => {
 		statsTable.AddRow("Cross-refs", $"{coverage.CrossRefCount:N0}");
 		AnsiConsole.Write(statsTable);
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -1387,12 +1557,15 @@ openCommand.AddArgument(openFileArg);
 openCommand.AddOption(openExtractOpt);
 openCommand.AddOption(openInfoOpt);
 
-openCommand.SetHandler((file, extractDir, infoOnly) => {
-	try {
+openCommand.SetHandler((file, extractDir, infoOnly) =>
+{
+	try
+	{
 		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Project Inspector[/]");
 		AnsiConsole.WriteLine();
 
-		if (!file.Exists) {
+		if (!file.Exists)
+		{
 			AnsiConsole.MarkupLine($"[red]File not found:[/] {Markup.Escape(file.FullName)}");
 			Environment.Exit(1);
 			return;
@@ -1402,7 +1575,8 @@ openCommand.SetHandler((file, extractDir, infoOnly) => {
 
 		// Find and parse the manifest
 		var manifestEntry = archive.GetEntry("peony-project.json");
-		if (manifestEntry == null) {
+		if (manifestEntry == null)
+		{
 			AnsiConsole.MarkupLine("[red]Not a valid .peony archive (missing peony-project.json)[/]");
 			Environment.Exit(1);
 			return;
@@ -1425,7 +1599,8 @@ openCommand.SetHandler((file, extractDir, infoOnly) => {
 		if (manifest.TryGetProperty("formatVersion", out var fv))
 			table.AddRow("Format Version", Markup.Escape(fv.GetString() ?? ""));
 
-		if (manifest.TryGetProperty("rom", out var romObj)) {
+		if (manifest.TryGetProperty("rom", out var romObj))
+		{
 			if (romObj.TryGetProperty("platform", out var plat))
 				table.AddRow("Platform", Markup.Escape(plat.GetString() ?? ""));
 			if (romObj.TryGetProperty("size", out var sz))
@@ -1434,7 +1609,8 @@ openCommand.SetHandler((file, extractDir, infoOnly) => {
 				table.AddRow("CRC32", Markup.Escape(crc.GetString() ?? ""));
 		}
 
-		if (manifest.TryGetProperty("statistics", out var stats)) {
+		if (manifest.TryGetProperty("statistics", out var stats))
+		{
 			if (stats.TryGetProperty("codeBytes", out var cb))
 				table.AddRow("Code", $"{cb.GetInt32():N0} bytes");
 			if (stats.TryGetProperty("dataBytes", out var db))
@@ -1450,20 +1626,23 @@ openCommand.SetHandler((file, extractDir, infoOnly) => {
 
 		// List archive contents
 		AnsiConsole.MarkupLine($"[grey]Archive contains {archive.Entries.Count} files:[/]");
-		foreach (var entry in archive.Entries.OrderBy(e => e.FullName)) {
+		foreach (var entry in archive.Entries.OrderBy(e => e.FullName))
+		{
 			var size = entry.Length > 0 ? $" ({entry.Length:N0} bytes)" : "";
 			AnsiConsole.MarkupLine($"  [grey]{Markup.Escape(entry.FullName)}{size}[/]");
 		}
 
 		// Extract if requested
-		if (extractDir != null) {
+		if (extractDir != null)
+		{
 			AnsiConsole.WriteLine();
 			extractDir.Create();
 			System.IO.Compression.ZipFile.ExtractToDirectory(file.FullName, extractDir.FullName, overwriteFiles: true);
 			AnsiConsole.MarkupLine($"[green]Extracted to:[/] {Markup.Escape(extractDir.FullName)}");
 		}
 	}
-	catch (Exception ex) {
+	catch (Exception ex)
+	{
 		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
 		Environment.Exit(1);
 	}
@@ -1472,28 +1651,29 @@ openCommand.SetHandler((file, extractDir, infoOnly) => {
 rootCommand.AddCommand(openCommand);
 
 // Version
-rootCommand.SetHandler(() => {
+rootCommand.SetHandler(() =>
+{
 	AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Disassembler v0.5.0[/]");
-AnsiConsole.MarkupLine("Multi-system ROM disassembler with asset pipeline & project generator");
-AnsiConsole.WriteLine();
-AnsiConsole.MarkupLine("Supported platforms:");
-AnsiConsole.MarkupLine("  • Atari 2600 (6502)");
-AnsiConsole.MarkupLine("  • NES (6502) with MMC1 multi-bank");
-AnsiConsole.MarkupLine("  • SNES (65816)");
-AnsiConsole.MarkupLine("  • Game Boy (SM83)");
-AnsiConsole.MarkupLine("  • GBA (ARM7TDMI)");
-AnsiConsole.WriteLine();
-AnsiConsole.MarkupLine("Commands:");
-AnsiConsole.MarkupLine("  • disasm  - Disassemble a ROM file");
-AnsiConsole.MarkupLine("  • project - Generate a complete project folder or .peony archive");
-AnsiConsole.MarkupLine("  • open    - Inspect or extract a .peony archive");
-AnsiConsole.MarkupLine("  • export  - Export symbols to various formats");
-AnsiConsole.MarkupLine("  • verify  - Roundtrip verification");
-AnsiConsole.MarkupLine("  • chr     - Extract tile graphics");
-AnsiConsole.MarkupLine("  • text    - Extract text with table files");
-AnsiConsole.MarkupLine("  • palette - Extract color palettes");
-AnsiConsole.MarkupLine("  • tbl     - Generate/convert table files");
-AnsiConsole.MarkupLine("  • import  - Import Nexen game pack");
+	AnsiConsole.MarkupLine("Multi-system ROM disassembler with asset pipeline & project generator");
+	AnsiConsole.WriteLine();
+	AnsiConsole.MarkupLine("Supported platforms:");
+	AnsiConsole.MarkupLine("  • Atari 2600 (6502)");
+	AnsiConsole.MarkupLine("  • NES (6502) with MMC1 multi-bank");
+	AnsiConsole.MarkupLine("  • SNES (65816)");
+	AnsiConsole.MarkupLine("  • Game Boy (SM83)");
+	AnsiConsole.MarkupLine("  • GBA (ARM7TDMI)");
+	AnsiConsole.WriteLine();
+	AnsiConsole.MarkupLine("Commands:");
+	AnsiConsole.MarkupLine("  • disasm  - Disassemble a ROM file");
+	AnsiConsole.MarkupLine("  • project - Generate a complete project folder or .peony archive");
+	AnsiConsole.MarkupLine("  • open    - Inspect or extract a .peony archive");
+	AnsiConsole.MarkupLine("  • export  - Export symbols to various formats");
+	AnsiConsole.MarkupLine("  • verify  - Roundtrip verification");
+	AnsiConsole.MarkupLine("  • chr     - Extract tile graphics");
+	AnsiConsole.MarkupLine("  • text    - Extract text with table files");
+	AnsiConsole.MarkupLine("  • palette - Extract color palettes");
+	AnsiConsole.MarkupLine("  • tbl     - Generate/convert table files");
+	AnsiConsole.MarkupLine("  • import  - Import Nexen game pack");
 });
 
 return await rootCommand.InvokeAsync(args);
@@ -1502,20 +1682,25 @@ return await rootCommand.InvokeAsync(args);
 // Helper functions
 // ============================================================================
 
-static int ParseHexOrDecimal(string value) {
+static int ParseHexOrDecimal(string value)
+{
 	value = value.Trim();
-	if (value.StartsWith("$") || value.StartsWith("0x", StringComparison.OrdinalIgnoreCase)) {
+	if (value.StartsWith("$") || value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+	{
 		var hex = value.StartsWith("$") ? value[1..] : value[2..];
 		return Convert.ToInt32(hex, 16);
 	}
 	return int.Parse(value);
 }
 
-static uint[]? ParseCustomPalette(string value) {
-	try {
+static uint[]? ParseCustomPalette(string value)
+{
+	try
+	{
 		var colors = value.Split(',', ';', ' ')
 			.Where(s => !string.IsNullOrWhiteSpace(s))
-			.Select(s => {
+			.Select(s =>
+			{
 				var hex = s.Trim().TrimStart('#', '$');
 				if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 					hex = hex[2..];
@@ -1524,12 +1709,14 @@ static uint[]? ParseCustomPalette(string value) {
 			.ToArray();
 		return colors.Length > 0 ? colors : null;
 	}
-	catch {
+	catch
+	{
 		return null;
 	}
 }
 
-static uint ConvertSnesColor(ReadOnlySpan<byte> data, int offset) {
+static uint ConvertSnesColor(ReadOnlySpan<byte> data, int offset)
+{
 	if (offset + 2 > data.Length) return 0xff000000;
 	ushort bgr = (ushort)(data[offset] | (data[offset + 1] << 8));
 	byte r = (byte)((bgr & 0x1f) << 3);
@@ -1538,14 +1725,17 @@ static uint ConvertSnesColor(ReadOnlySpan<byte> data, int offset) {
 	return 0xff000000 | ((uint)r << 16) | ((uint)g << 8) | b;
 }
 
-static uint ConvertGbaColor(ReadOnlySpan<byte> data, int offset) {
+static uint ConvertGbaColor(ReadOnlySpan<byte> data, int offset)
+{
 	// GBA uses same format as SNES (15-bit BGR)
 	return ConvertSnesColor(data, offset);
 }
 
-static uint ConvertGbColor(byte value) {
+static uint ConvertGbColor(byte value)
+{
 	// Game Boy 2-bit grayscale
-	byte gray = value switch {
+	byte gray = value switch
+	{
 		0 => 255,
 		1 => 170,
 		2 => 85,
@@ -1555,9 +1745,8 @@ static uint ConvertGbColor(byte value) {
 }
 
 // Helper methods
-static string GetDefaultOutputPath(FileInfo rom, string format) {
-var ext = ".pasm";
-return Path.Combine(rom.DirectoryName!, Path.GetFileNameWithoutExtension(rom.Name) + ext);
+static string GetDefaultOutputPath(FileInfo rom, string format)
+{
+	var ext = ".pasm";
+	return Path.Combine(rom.DirectoryName!, Path.GetFileNameWithoutExtension(rom.Name) + ext);
 }
-
-
