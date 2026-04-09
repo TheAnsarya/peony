@@ -505,46 +505,17 @@ public static class SymbolExporter {
 	}
 
 	/// <summary>
-	/// Convert CPU address to ROM file offset (platform-specific).
+	/// Convert CPU address to ROM file offset using the platform analyzer.
 	/// </summary>
 	private static int GetRomOffset(uint address, RomInfo info) {
-		var platform = info.Platform?.ToLowerInvariant() ?? "";
-
-		return platform switch {
-			"nes" => (int)(address - 0x8000 + 16), // Account for 16-byte iNES header
-			"snes" => ConvertSnesAddressToOffset(address, info),
-			"gb" or "gameboy" or "game boy" => (int)address, // Usually 1:1 mapping
-			"gba" or "game boy advance" => (int)(address - 0x08000000), // GBA ROM base
-			_ => (int)address // Default: direct mapping
-		};
-	}
-
-	/// <summary>
-	/// Convert SNES CPU address to ROM offset based on mapping mode.
-	/// </summary>
-	private static int ConvertSnesAddressToOffset(uint address, RomInfo info) {
-		var bank = (int)(address >> 16);
-		var offset = (int)(address & 0xffff);
-
-		// Check mapping mode from mapper name
-		var isHiROM = info.Mapper?.Contains("HiROM", StringComparison.OrdinalIgnoreCase) == true;
-
-		if (isHiROM) {
-			// HiROM: banks $C0-$FF map linearly, $40-$7D mirror
-			if (bank >= 0xC0) {
-				return ((bank - 0xC0) * 0x10000) + offset;
-			} else if (bank >= 0x40 && bank < 0x7E) {
-				return ((bank - 0x40) * 0x10000) + offset;
-			}
-		} else {
-			// LoROM: $8000-$FFFF of each bank, banks $80-$FF map to $00-$7F
-			if (offset >= 0x8000) {
-				var realBank = bank >= 0x80 ? bank - 0x80 : bank;
-				return (realBank * 0x8000) + (offset - 0x8000);
-			}
+		var platform = info.Platform ?? "";
+		var profile = PlatformResolver.Resolve(platform);
+		if (profile != null) {
+			return profile.Analyzer.AddressToOffset(address, info.Size);
 		}
 
-		return (int)address; // Fallback
+		// Fallback: direct mapping
+		return (int)address;
 	}
 
 	#endregion
