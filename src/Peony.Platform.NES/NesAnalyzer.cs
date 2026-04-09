@@ -138,6 +138,19 @@ if (Mapper == 1) return address >= 0x8000 && address < 0xc000; // MMC1: $8000-$B
 return address >= 0x8000 && address < 0xc000; // Default assumption
 }
 
+public bool IsValidAddress(uint address) {
+return address >= 0x8000 && address <= 0xffff;
+}
+
+public int GetTargetBank(uint target, int currentBank) {
+// In NES MMC1, $C000-$FFFF is fixed (last bank)
+// $8000-$BFFF uses current switchable bank
+if (target >= 0xc000) {
+	return BankCount - 1;
+}
+return currentBank;
+}
+
 public int AddressToOffset(uint address, int romLength) {
 // Default to last bank for fixed region
 return AddressToOffset(address, romLength, PrgBanks - 1);

@@ -223,6 +223,19 @@ public sealed class SnesAnalyzer : IPlatformAnalyzer {
 		return false;
 	}
 
+	public bool IsValidAddress(uint address) {
+		return true;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		// For SNES, use bank byte from address
+		// Address format: $BB:XXXX where BB is bank
+		if (target > 0xffff) {
+			return (int)(target >> 16);
+		}
+		return currentBank;
+	}
+
 	public int AddressToOffset(uint address, int romLength) {
 		return AddressToOffset(address, romLength, 0);
 	}

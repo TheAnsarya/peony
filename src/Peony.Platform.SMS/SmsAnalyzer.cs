@@ -175,6 +175,14 @@ public sealed class SmsAnalyzer : IPlatformAnalyzer {
 		return address >= 0x0400 && address < 0xc000;
 	}
 
+	public bool IsValidAddress(uint address) {
+		return true;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		return currentBank;
+	}
+
 	public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 		// Look for writes to mapper registers
 		// ld a, <bank>; ld ($ffff), a pattern

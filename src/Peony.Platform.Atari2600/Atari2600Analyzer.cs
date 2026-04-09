@@ -131,6 +131,14 @@ public bool IsInSwitchableRegion(uint address) {
 return DetectedScheme != null && address >= 0xf000;
 }
 
+public bool IsValidAddress(uint address) {
+return address >= 0xf000 && address <= 0xffff;
+}
+
+public int GetTargetBank(uint target, int currentBank) {
+return currentBank;
+}
+
 public int AddressToOffset(uint address, int romLength) {
 return AddressToOffset(address, romLength, -1);
 }

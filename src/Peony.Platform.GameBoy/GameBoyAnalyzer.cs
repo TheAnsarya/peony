@@ -155,6 +155,21 @@ public sealed class GameBoyAnalyzer : IPlatformAnalyzer {
 		       (address >= 0xa000 && address < 0xc000 && _ramBanks > 0);
 	}
 
+	public bool IsValidAddress(uint address) {
+		return true;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		// $0000-$3fff is always bank 0, $4000-$7fff is switchable
+		if (target < 0x4000) {
+			return 0;
+		}
+		if (target >= 0x4000 && target < 0x8000) {
+			return currentBank;
+		}
+		return currentBank;
+	}
+
 	public int AddressToOffset(uint address, int romLength) {
 		return AddressToOffset(address, romLength, -1);
 	}

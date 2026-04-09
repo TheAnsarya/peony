@@ -187,6 +187,14 @@ public sealed class PceAnalyzer : IPlatformAnalyzer {
 		return address >= 0x4000;
 	}
 
+	public bool IsValidAddress(uint address) {
+		return true;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		return currentBank;
+	}
+
 	public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 		// Look for TAM instruction (0x53) which sets MPR
 		var offset = AddressToOffset(address, rom.Length, currentBank);

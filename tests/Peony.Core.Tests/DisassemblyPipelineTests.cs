@@ -39,6 +39,8 @@ public class DisassemblyPipelineTests {
 		public uint? OffsetToAddress(int offset) => (uint)(0x8000 + offset);
 		public string? GetRegisterLabel(uint address) => null;
 		public bool IsInSwitchableRegion(uint address) => false;
+		public bool IsValidAddress(uint address) => true;
+		public int GetTargetBank(uint target, int currentBank) => currentBank;
 		public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) => null;
 		public MemoryRegion GetMemoryRegion(uint address) => MemoryRegion.Code;
 		public uint[] GetEntryPoints(ReadOnlySpan<byte> rom) => EntryPoints;

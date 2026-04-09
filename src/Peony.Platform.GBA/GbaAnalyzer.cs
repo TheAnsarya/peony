@@ -166,6 +166,18 @@ public sealed class GbaAnalyzer : IPlatformAnalyzer {
 		return false;
 	}
 
+	public bool IsValidAddress(uint address) {
+		return true;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		// GBA ROM maps to $08000000-$09ffffff
+		if (target >= 0x08000000 && target < 0x0a000000) {
+			return (int)((target - 0x08000000) / 0x8000);
+		}
+		return currentBank;
+	}
+
 	public int AddressToOffset(uint address, int romLength) {
 		return AddressToOffset(address, romLength, -1);
 	}

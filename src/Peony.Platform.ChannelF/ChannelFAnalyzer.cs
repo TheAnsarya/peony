@@ -104,6 +104,14 @@ public sealed class ChannelFAnalyzer : IPlatformAnalyzer {
 		return false; // No bank switching on standard Channel F
 	}
 
+	public bool IsValidAddress(uint address) {
+		return true;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		return currentBank;
+	}
+
 	public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 		return null; // No bank switching on standard Channel F
 	}

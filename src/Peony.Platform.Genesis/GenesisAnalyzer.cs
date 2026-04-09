@@ -238,6 +238,14 @@ public sealed class GenesisAnalyzer : IPlatformAnalyzer {
 		return false;
 	}
 
+	public bool IsValidAddress(uint address) {
+		return true;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		return currentBank;
+	}
+
 	public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 		// SSFII mapper uses writes to $A130F1-$A130FF
 		// Most Genesis games don't use bank switching

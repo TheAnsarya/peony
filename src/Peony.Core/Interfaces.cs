@@ -60,9 +60,16 @@ uint? OffsetToAddress(int offset);
 /// <summary>Check if address is in switchable bank region</summary>
 bool IsInSwitchableRegion(uint address);
 
-/// <summary>Detect bank switch calls (e.g., BRK-based)</summary>
-BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank);
+	/// <summary>Check if a CPU address is valid for disassembly on this platform</summary>
+	bool IsValidAddress(uint address);
+
+	/// <summary>Determine the target bank for a CPU address</summary>
+	int GetTargetBank(uint target, int currentBank);
+
+	/// <summary>Detect bank switch calls (e.g., BRK-based)</summary>
+	BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank);
 }
+
 
 /// <summary>
 /// Output format generator

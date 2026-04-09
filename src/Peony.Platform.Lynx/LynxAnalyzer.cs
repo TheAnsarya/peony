@@ -348,6 +348,16 @@ public sealed class LynxAnalyzer : IPlatformAnalyzer {
 		return false;
 	}
 
+	public bool IsValidAddress(uint address) {
+		// Lynx: ROM loaded to $0200-$fbff (RAM region)
+		// $fc00-$ffff are hardware registers and boot ROM
+		return address >= 0x0200 && address < 0xfc00;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		return currentBank;
+	}
+
 	/// <summary>
 	/// Detects bank switch calls.
 	/// </summary>

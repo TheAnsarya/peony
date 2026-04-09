@@ -259,6 +259,14 @@ public sealed class WonderSwanAnalyzer : IPlatformAnalyzer {
 		return address >= 0x20000 && address < 0x40000;
 	}
 
+	public bool IsValidAddress(uint address) {
+		return true;
+	}
+
+	public int GetTargetBank(uint target, int currentBank) {
+		return currentBank;
+	}
+
 	public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) {
 		// Look for OUT instructions to ports $C0-$C3
 		var offset = AddressToOffset(address, rom.Length, currentBank);

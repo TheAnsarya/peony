@@ -539,6 +539,8 @@ public class PansyDeepIntegrationTests {
 		public MemoryRegion GetMemoryRegion(uint address) => MemoryRegion.Unknown;
 		public uint[] GetEntryPoints(ReadOnlySpan<byte> rom) => [];
 		public bool IsInSwitchableRegion(uint address) => false;
+		public bool IsValidAddress(uint address) => true;
+		public int GetTargetBank(uint target, int currentBank) => currentBank;
 		public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) => null;
 	}
 

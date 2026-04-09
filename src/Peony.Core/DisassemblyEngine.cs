@@ -488,18 +488,7 @@ public sealed class DisassemblyEngine {
 	/// Check if an address is valid for the current platform.
 	/// </summary>
 	private bool IsValidAddress(uint address) {
-		if (_platformAnalyzer.Platform == "Atari 2600") {
-			return address >= 0xf000 && address <= 0xffff;
-		}
-		if (_platformAnalyzer.Platform == "NES") {
-			return address >= 0x8000 && address <= 0xffff;
-		}
-		if (_platformAnalyzer.Platform == "Atari Lynx") {
-			// Lynx: ROM loaded to $0200-$fbff (RAM region)
-			// $fc00-$ffff are hardware registers and boot ROM
-			return address >= 0x0200 && address < 0xfc00;
-		}
-		return true;
+		return _platformAnalyzer.IsValidAddress(address);
 	}
 
 	/// <summary>
@@ -516,42 +505,7 @@ public sealed class DisassemblyEngine {
 		}
 
 		// Fall back to platform-specific bank detection
-		if (_platformAnalyzer.Platform == "NES") {
-			// In NES MMC1, $C000-$FFFF is fixed (last bank)
-			// $8000-$BFFF uses current switchable bank
-			if (target >= 0xc000) {
-				return _platformAnalyzer.BankCount - 1;
-			}
-		}
-		else if (_platformAnalyzer.Platform == "SNES") {
-			// For SNES LoROM, use bank byte from address
-			// Address format: $BB:XXXX where BB is bank
-			if (target > 0xFFFF) {
-				return (int)(target >> 16);
-			}
-		}
-		else if (_platformAnalyzer.Platform == "Game Boy") {
-			// For Game Boy, ROM bank is in $4000-$7FFF region
-			// $0000-$3FFF is always bank 0, $4000-$7FFF is switchable
-			if (target >= 0x4000 && target < 0x8000) {
-				// Use current bank for switchable region
-				return currentBank;
-			}
-			else if (target < 0x4000) {
-				// Fixed bank 0
-				return 0;
-			}
-		}
-		else if (_platformAnalyzer.Platform == "GBA") {
-			// For GBA, ROM typically maps to $08000000-$09FFFFFF
-			// Bank is determined by ROM size (typically 32KB banks)
-			if (target >= 0x08000000 && target < 0x0A000000) {
-				return (int)((target - 0x08000000) / 0x8000);
-			}
-		}
-
-		// Default: keep current bank
-		return currentBank;
+		return _platformAnalyzer.GetTargetBank(target, currentBank);
 	}
 
 	private void DisassembleBlock(ReadOnlySpan<byte> rom, uint startAddress, int bank, DisassemblyResult result) {
