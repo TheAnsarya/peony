@@ -20,7 +20,7 @@ public sealed class ChannelFProfile : IPlatformProfile {
 	public ITextExtractor? TextExtractor => null;
 
 	public IReadOnlyList<string> RomExtensions { get; } = [".chf"];
-	public byte? PansyPlatformId => null;
+	public byte? PansyPlatformId => 0x1f;
 	public string PoppyPlatformId => "channelf";
 
 	private ChannelFProfile() {

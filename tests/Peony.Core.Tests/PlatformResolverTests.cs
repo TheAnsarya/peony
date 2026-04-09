@@ -213,11 +213,11 @@ public class PlatformResolverTests : IDisposable {
 	}
 
 	[Fact]
-	public void ChannelF_HasNullPansyPlatformId() {
+	public void ChannelF_HasPansyPlatformId() {
 		RegisterAllPlatforms();
 
 		var profile = PlatformResolver.GetProfile(PlatformId.ChannelF);
-		Assert.Null(profile.PansyPlatformId);
+		Assert.Equal((byte)0x1f, profile.PansyPlatformId);
 	}
 
 	[Fact]
