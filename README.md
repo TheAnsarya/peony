@@ -198,6 +198,7 @@ dotnet pack
 ### Performance
 
 - [Benchmarks](docs/BENCHMARKS.md) — Running and interpreting the BenchmarkDotNet suite
+- [Static Analysis](docs/STATIC-ANALYSIS.md) — Quarantined static byte classification (opt-in via `--static-analysis`)
 
 ### Project
 
