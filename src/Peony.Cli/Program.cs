@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.Globalization;
 using System.IO.Compression;
 using Pansy.Core;
 using Peony.Core;
@@ -309,7 +310,7 @@ infoCommand.SetHandler((rom, platform) =>
 			var analyzer = profile.Analyzer;
 			var info = analyzer.Analyze(romData);
 			table.AddRow("Mapper", info.Mapper ?? "None");
-			table.AddRow("Banks", analyzer.BankCount.ToString());
+			table.AddRow("Banks", analyzer.BankCount.ToString(CultureInfo.InvariantCulture));
 			foreach (var (key, value) in info.Metadata)
 				table.AddRow(Markup.Escape(key), Markup.Escape(value));
 			var entries = analyzer.GetEntryPoints(romData);
@@ -697,7 +698,7 @@ chrCommand.SetHandler((rom, output, offsetStr, sizeStr, bits, tilesPerRow, palet
 		File.WriteAllBytes(outputPath, bmpData);
 
 		int imageWidth = tilesPerRow * 8;
-		int imageHeight = ((tileCount + tilesPerRow - 1) / tilesPerRow) * 8;
+		int imageHeight = (tileCount + tilesPerRow - 1) / tilesPerRow * 8;
 
 		AnsiConsole.WriteLine();
 		AnsiConsole.MarkupLine($"[green]✓ Exported {tileCount} tiles ({imageWidth}x{imageHeight})[/]");
@@ -748,7 +749,7 @@ textCommand.SetHandler((context) =>
 		var offsetStr = context.ParseResult.GetValueForOption(textOffsetOpt);
 		var length = context.ParseResult.GetValueForOption(textLengthOpt);
 		var endBytesStr = context.ParseResult.GetValueForOption(textEndBytesOpt);
-		var format = context.ParseResult.GetValueForOption(textFormatOpt);
+		var format = context.ParseResult.GetValueForOption(textFormatOpt) ?? "text";
 		var pointerStr = context.ParseResult.GetValueForOption(textPointerOpt);
 		var pointerCount = context.ParseResult.GetValueForOption(textPointerCountOpt);
 		var minLength = context.ParseResult.GetValueForOption(textMinLengthOpt);
@@ -919,7 +920,7 @@ paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) 
 				"snes" => ConvertSnesColor(slice, i * 2),
 				"gba" => ConvertGbaColor(slice, i * 2),
 				"gb" or "gameboy" => ConvertGbColor(i < slice.Length ? slice[i] : (byte)0),
-				_ => (uint)(0xff000000 | (i < slice.Length ? (slice[i] << 16 | slice[i] << 8 | slice[i]) : 0))
+				_ => (uint)(0xff000000 | (i < slice.Length ? ((slice[i] << 16) | (slice[i] << 8) | slice[i]) : 0))
 			};
 		}
 
@@ -928,14 +929,14 @@ paletteCommand.SetHandler((rom, output, offsetStr, count, format, outputFormat) 
 		for (int row = 0; row < (count + 15) / 16; row++)
 		{
 			var line = new System.Text.StringBuilder();
-			for (int col = 0; col < 16 && row * 16 + col < count; col++)
+			for (int col = 0; col < 16 && (row * 16) + col < count; col++)
 			{
-				int idx = row * 16 + col;
+				int idx = (row * 16) + col;
 				uint c = colors[idx];
 				byte r = (byte)((c >> 16) & 0xff);
 				byte g = (byte)((c >> 8) & 0xff);
 				byte b = (byte)(c & 0xff);
-				line.Append($"[rgb({r},{g},{b})]██[/]");
+				line.Append(CultureInfo.InvariantCulture, $"[rgb({r},{g},{b})]██[/]");
 			}
 			AnsiConsole.MarkupLine(line.ToString());
 		}
@@ -1507,10 +1508,7 @@ projectCommand.SetHandler((context) =>
 			outputPath ??= Path.Combine(rom.DirectoryName!, $"{name}.peony");
 			AnsiConsole.Status()
 				.Spinner(Spinner.Known.Dots)
-				.Start("Creating archive...", ctx =>
-				{
-					writer.WriteProjectArchive(outputPath, result, romData);
-				});
+				.Start("Creating archive...", ctx => writer.WriteProjectArchive(outputPath, result, romData));
 			AnsiConsole.MarkupLine($"[green]Archive written to:[/] {Markup.Escape(outputPath)}");
 		}
 		else
@@ -1518,10 +1516,7 @@ projectCommand.SetHandler((context) =>
 			outputPath ??= Path.Combine(rom.DirectoryName!, name);
 			AnsiConsole.Status()
 				.Spinner(Spinner.Known.Dots)
-				.Start("Creating project folder...", ctx =>
-				{
-					writer.WriteProjectFolder(outputPath, result, romData);
-				});
+				.Start("Creating project folder...", ctx => writer.WriteProjectFolder(outputPath, result, romData));
 			AnsiConsole.MarkupLine($"[green]Project created at:[/] {Markup.Escape(outputPath)}");
 		}
 
@@ -1685,12 +1680,12 @@ return await rootCommand.InvokeAsync(args);
 static int ParseHexOrDecimal(string value)
 {
 	value = value.Trim();
-	if (value.StartsWith("$") || value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+	if (value.StartsWith('$') || value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 	{
-		var hex = value.StartsWith("$") ? value[1..] : value[2..];
+		var hex = value.StartsWith('$') ? value[1..] : value[2..];
 		return Convert.ToInt32(hex, 16);
 	}
-	return int.Parse(value);
+	return int.Parse(value, CultureInfo.InvariantCulture);
 }
 
 static uint[]? ParseCustomPalette(string value)

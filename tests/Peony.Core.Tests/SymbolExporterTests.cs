@@ -1,4 +1,5 @@
-﻿using Pansy.Core;
+﻿using System.Globalization;
+using Pansy.Core;
 using Peony.Core;
 using Xunit;
 
@@ -261,7 +262,7 @@ public class SymbolExporterTests {
 
 		try {
 			foreach (var format in Enum.GetValues<SymbolFormat>()) {
-				var tempFile = Path.Combine(tempDir, $"test.{format.ToString().ToLower()}");
+				var tempFile = Path.Combine(tempDir, $"test.{format.ToString().ToLower(CultureInfo.InvariantCulture)}");
 				SymbolExporter.Export(result, tempFile, format);
 				Assert.True(File.Exists(tempFile), $"Failed to export {format}");
 			}

@@ -11,7 +11,7 @@ public class CoverageAnalyzerTests {
 		};
 
 		for (int bank = 0; bank < bankCount; bank++) {
-			uint baseAddr = (uint)(0x8000 + bank * 0x4000);
+			uint baseAddr = (uint)(0x8000 + (bank * 0x4000));
 
 			var codeLines = new List<DisassembledLine> {
 				new(baseAddr, [0x78], bank == 0 ? "reset" : $"bank{bank}_start", "sei", null),

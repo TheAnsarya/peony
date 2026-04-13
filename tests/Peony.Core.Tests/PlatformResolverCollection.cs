@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System.Diagnostics.CodeAnalysis;
+using Xunit;
 
 namespace Peony.Core.Tests;
 
@@ -8,6 +9,7 @@ namespace Peony.Core.Tests;
 /// interfere with other tests needing registered platforms.
 /// </summary>
 [CollectionDefinition("PlatformResolver")]
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "xUnit collection fixture naming convention")]
 public class PlatformResolverCollection : ICollectionFixture<PlatformResolverFixture> {
 }
 

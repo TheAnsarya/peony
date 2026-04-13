@@ -32,9 +32,9 @@ public class NesChrExtractorTests {
 		// Each row: 7 zeros, then a 1
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 7; col++) {
-				Assert.Equal(0, pixels[row * 8 + col]);
+				Assert.Equal(0, pixels[(row * 8) + col]);
 			}
-			Assert.Equal(1, pixels[row * 8 + 7]);
+			Assert.Equal(1, pixels[(row * 8) + 7]);
 		}
 	}
 

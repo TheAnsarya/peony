@@ -381,10 +381,10 @@ public class CpuF8DecoderTests {
 	[InlineData(0x94)]  // BNZ
 	[InlineData(0x98)]  // BNO
 	public void IsControlFlow_BranchAndJumpOpcodes_ReturnsTrue(byte opcode) {
-		byte[] data = opcode >= 0x28 && opcode <= 0x29
+		byte[] data = opcode is >= 0x28 and <= 0x29
 			? [opcode, 0x08, 0x00]
-			: opcode >= 0x80 && opcode <= 0x9f && opcode != 0x88 && opcode != 0x89 && opcode != 0x8a &&
-			  opcode != 0x8b && opcode != 0x8c && opcode != 0x8d && opcode != 0x8e
+			: opcode is >= 0x80 and <= 0x9f and not 0x88 and not 0x89 and not 0x8a and
+			  not 0x8b and not 0x8c and not 0x8d and not 0x8e
 				? [opcode, 0x10]
 				: [opcode];
 
