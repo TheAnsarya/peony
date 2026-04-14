@@ -86,13 +86,13 @@ public class SnesChrExtractorTests {
 
 		for (int row = 0; row < 8; row++) {
 			data[row * 2] = 0xff;      // plane 0
-			data[row * 2 + 1] = 0xff;  // plane 1
-			data[16 + row * 2] = 0xff; // plane 2
-			data[16 + row * 2 + 1] = 0xff; // plane 3
-			data[32 + row * 2] = 0xff; // plane 4
-			data[32 + row * 2 + 1] = 0xff; // plane 5
-			data[48 + row * 2] = 0xff; // plane 6
-			data[48 + row * 2 + 1] = 0xff; // plane 7
+			data[(row * 2) + 1] = 0xff;  // plane 1
+			data[16 + (row * 2)] = 0xff; // plane 2
+			data[16 + (row * 2) + 1] = 0xff; // plane 3
+			data[32 + (row * 2)] = 0xff; // plane 4
+			data[32 + (row * 2) + 1] = 0xff; // plane 5
+			data[48 + (row * 2)] = 0xff; // plane 6
+			data[48 + (row * 2) + 1] = 0xff; // plane 7
 		}
 
 		var pixels = SnesChrExtractor.Decode8bppSnesPlanar(data, 1);
@@ -217,9 +217,9 @@ public class SnesChrExtractorTests {
 		uint blue = argb & 0xff;
 
 		// Should be around 123 (15 * 8 + 15/4 ≈ 123)
-		Assert.True(red >= 120 && red <= 130);
-		Assert.True(green >= 120 && green <= 130);
-		Assert.True(blue >= 120 && blue <= 130);
+		Assert.True(red is >= 120 and <= 130);
+		Assert.True(green is >= 120 and <= 130);
+		Assert.True(blue is >= 120 and <= 130);
 	}
 
 	[Fact]
@@ -278,7 +278,7 @@ public class SnesChrExtractorTests {
 
 	[Fact]
 	public void Mode7_ExtractTilemap_CorrectSize() {
-		var data = new byte[128 * 128 + 100];
+		var data = new byte[(128 * 128) + 100];
 		var tilemap = SnesMode7Extractor.ExtractMode7Tilemap(data, 0);
 
 		Assert.Equal(128 * 128, tilemap.Length);

@@ -378,7 +378,7 @@ public sealed class SnesOutputGenerator : IOutputGenerator {
 					span[pos++] = ' ';
 				}
 				span[pos++] = '$';
-				b[i].TryFormat(span[pos..], out _, "x2");
+				b[i].TryFormat(span[pos..], out _, "x2", System.Globalization.CultureInfo.InvariantCulture);
 				pos += 2;
 			}
 		});

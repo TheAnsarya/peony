@@ -49,10 +49,10 @@ public class GraphicsPatternTests {
 		// 8-line sprite (common for Atari 2600 player graphics)
 		var rom = new byte[32];
 		for (int i = 0; i < 8; i++) {
-			rom[i * 4 + 0] = 0xa9;       // LDA #imm
-			rom[i * 4 + 1] = (byte)(i * 0x11); // sprite data
-			rom[i * 4 + 2] = 0x85;       // STA zpg
-			rom[i * 4 + 3] = 0x1b;       // GRP0
+			rom[(i * 4) + 0] = 0xa9;       // LDA #imm
+			rom[(i * 4) + 1] = (byte)(i * 0x11); // sprite data
+			rom[(i * 4) + 2] = 0x85;       // STA zpg
+			rom[(i * 4) + 3] = 0x1b;       // GRP0
 		}
 
 		var regions = GraphicsPatternDetector.Detect(rom);
@@ -107,7 +107,7 @@ public class GraphicsPatternTests {
 
 		var regions = GraphicsPatternDetector.Detect(rom);
 
-		Assert.Single(regions.Where(r => r.Type == GraphicsType.SpriteInline));
+		Assert.Single(regions, r => r.Type == GraphicsType.SpriteInline);
 	}
 
 	[Fact]
@@ -122,7 +122,7 @@ public class GraphicsPatternTests {
 
 		var regions = GraphicsPatternDetector.Detect(rom);
 
-		Assert.Single(regions.Where(r => r.Type == GraphicsType.SpriteInline));
+		Assert.Single(regions, r => r.Type == GraphicsType.SpriteInline);
 		Assert.Equal(4, regions[0].RomOffset);
 	}
 
@@ -372,10 +372,10 @@ public class GraphicsPatternTests {
 		rom[1] = 0x02;
 		// 4× LDA #imm / STA GRP0 (inline sprite for scanlines)
 		for (int i = 0; i < 4; i++) {
-			rom[2 + i * 4 + 0] = 0xa9;
-			rom[2 + i * 4 + 1] = (byte)(0x18 << i);
-			rom[2 + i * 4 + 2] = 0x85;
-			rom[2 + i * 4 + 3] = 0x1b;
+			rom[2 + (i * 4) + 0] = 0xa9;
+			rom[2 + (i * 4) + 1] = (byte)(0x18 << i);
+			rom[2 + (i * 4) + 2] = 0x85;
+			rom[2 + (i * 4) + 3] = 0x1b;
 		}
 		// STA WSYNC
 		rom[18] = 0x85;
@@ -396,10 +396,10 @@ public class GraphicsPatternTests {
 
 		// Sprite chain at offset $100
 		for (int i = 0; i < 5; i++) {
-			rom[0x100 + i * 4 + 0] = 0xa9;
-			rom[0x100 + i * 4 + 1] = (byte)(i * 0x20);
-			rom[0x100 + i * 4 + 2] = 0x85;
-			rom[0x100 + i * 4 + 3] = 0x1b;
+			rom[0x100 + (i * 4) + 0] = 0xa9;
+			rom[0x100 + (i * 4) + 1] = (byte)(i * 0x20);
+			rom[0x100 + (i * 4) + 2] = 0x85;
+			rom[0x100 + (i * 4) + 3] = 0x1b;
 		}
 
 		// Playfield triplet at offset $200
