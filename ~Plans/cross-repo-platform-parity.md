@@ -13,12 +13,12 @@ The union of all platforms across the four repos defines the target platform set
 | 2 | SNES | WDC 65816 | ✅ | ✅ | ✅ | ✅ |
 | 3 | Game Boy | Sharp SM83/LR35902 | ✅ | ✅ | ✅ | ✅ |
 | 4 | GBA | ARM7TDMI | ✅ | ✅ | 🚧 | ✅ |
-| 5 | SMS | Zilog Z80 | ✅ | ✅ | ❌ | ❌ |
-| 6 | PCE/TG16 | Hudson HuC6280 | ✅ | ✅ | ❌ | ❌ |
-| 7 | WonderSwan | NEC V30MZ | ✅ | ✅ | ❌ | ❌ |
+| 5 | SMS | Zilog Z80 | ✅ | ✅ | ❌ | ✅ |
+| 6 | PCE/TG16 | Hudson HuC6280 | ✅ | ✅ | ❌ | ✅ |
+| 7 | WonderSwan | NEC V30MZ | ✅ | ✅ | ❌ | ✅ |
 | 8 | Atari Lynx | WDC 65SC02 | ✅ | ✅ | ✅ | ✅ |
 | 9 | Atari 2600 | MOS 6507 | ❌ | ✅ | ✅ | ✅ |
-| 10 | Sega Genesis | Motorola M68000 | ❌ | ✅ | ❌ | ❌ |
+| 10 | Sega Genesis | Motorola M68000 | ❌ | ✅ | ❌ | ✅ |
 
 Legend: ✅ Complete | 🚧 In Progress | ❌ Missing
 
@@ -28,22 +28,10 @@ Legend: ✅ Complete | 🚧 In Progress | ❌ Missing
 
 Already supports 30+ platforms. No work needed.
 
-### Peony (Disassembler) — 4 Missing Platforms
+### Peony (Disassembler) — ✅ Complete
 
-| Platform | CPU Decoder Needed | Platform Analyzer Needed |
-|----------|--------------------|--------------------------|
-| SMS | `Peony.Cpu.Z80` | `Peony.Platform.SMS` |
-| PCE/TG16 | `Peony.Cpu.HuC6280` | `Peony.Platform.PCE` |
-| WonderSwan | `Peony.Cpu.V30MZ` | `Peony.Platform.WonderSwan` |
-| Genesis | `Peony.Cpu.M68000` | `Peony.Platform.Genesis` |
-
-Each platform requires:
-
-- CPU decoder project implementing `ICpuDecoder` (opcode table, decode, control flow, targets)
-- Platform analyzer project implementing `IPlatformAnalyzer` (ROM analysis, memory map, registers, entry points)
-- Test project with instruction decode verification
-- Solution + CLI registration
-- RomLoader platform detection updates
+All platforms now have CPU decoders, platform analyzers, and test projects.
+Completed in session 2026-04-13 (issues #124, #163).
 
 ### Poppy (Assembler) — 4 Missing Instruction Encoders
 

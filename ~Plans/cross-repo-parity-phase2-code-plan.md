@@ -8,16 +8,17 @@
 - #128 Genesis/Mega Drive disassembly support (M68000)
 - #124 Epic: Cross-Repo Platform Parity
 
-## Current Status
+## Current Status — ✅ COMPLETED
 
-All 4 platforms **already have** full analyzer + CPU decoder implementations:
+All 4 platforms have full analyzer + CPU decoder implementations AND test projects.
+Completed in session 2026-04-13 (issue #163).
 
 | Platform | Analyzer | CPU Decoder | CLI Dispatch | Tests |
 |----------|----------|-------------|-------------|-------|
-| SMS | `SmsAnalyzer` | `Z80Decoder` | ✅ disasm/batch/verify/export | ❌ None |
-| PCE | `PceAnalyzer` | `HuC6280Decoder` | ✅ disasm/batch/verify/export | ❌ None |
-| WonderSwan | `WonderSwanAnalyzer` | `V30MZDecoder` | ✅ disasm/batch/verify/export | ❌ None |
-| Genesis | `GenesisAnalyzer` | `M68000Decoder` | ✅ disasm/batch/verify/export | ❌ None |
+| SMS | `SmsAnalyzer` | `Z80Decoder` | ✅ disasm/batch/verify/export | ✅ 20 tests |
+| PCE | `PceAnalyzer` | `HuC6280Decoder` | ✅ disasm/batch/verify/export | ✅ 21 tests |
+| WonderSwan | `WonderSwanAnalyzer` | `V30MZDecoder` | ✅ disasm/batch/verify/export | ✅ 23 tests |
+| Genesis | `GenesisAnalyzer` | `M68000Decoder` | ✅ disasm/batch/verify/export | ✅ 32 tests |
 
 ## Remaining Work
 
