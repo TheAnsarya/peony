@@ -200,7 +200,7 @@ public class ProjectWriterTests {
 		};
 
 		for (int bank = 0; bank < 4; bank++) {
-			uint baseAddr = (uint)(0x8000 + bank * 0x4000);
+			uint baseAddr = (uint)(0x8000 + (bank * 0x4000));
 			var lines = new List<DisassembledLine> {
 				new(baseAddr, [0x78], $"bank{bank}_start", "sei", null),
 				new(baseAddr + 1, [0xd8], null, "cld", null)

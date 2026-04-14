@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Globalization;
+using System.IO.Compression;
 using Peony.Core;
 using StreamHash.Core;
 using Xunit;
@@ -14,6 +15,7 @@ public class NexenPackLoaderTests : IDisposable {
 	}
 
 	public void Dispose() {
+		GC.SuppressFinalize(this);
 		if (Directory.Exists(_tempDir))
 			Directory.Delete(_tempDir, true);
 	}
@@ -476,7 +478,7 @@ public class NexenPackLoaderTests : IDisposable {
 		byte[] romData = [0x4e, 0x45, 0x53, 0x1a, 0x02, 0x01, 0x00, 0x00];
 		// Compute the actual CRC32 of this data to put in manifest
 		uint crc = BitConverter.ToUInt32(HashFacade.ComputeCrc32(romData));
-		string crcHex = crc.ToString("x8");
+		string crcHex = crc.ToString("x8", CultureInfo.InvariantCulture);
 
 		string manifest = $"""
 			Nexen Game Package

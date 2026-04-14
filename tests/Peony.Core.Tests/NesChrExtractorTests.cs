@@ -1,4 +1,4 @@
-namespace Peony.Core.Tests;
+﻿namespace Peony.Core.Tests;
 
 using Peony.Platform.NES;
 using Xunit;

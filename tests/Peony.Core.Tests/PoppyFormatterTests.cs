@@ -69,7 +69,7 @@ public class PoppyFormatterTests {
 
 		var refs = new List<CrossRef>();
 		for (uint i = 0; i < 8; i++) {
-			refs.Add(new CrossRef(0x8000 + i * 0x10, 0, CrossRefType.Call));
+			refs.Add(new CrossRef(0x8000 + (i * 0x10), 0, CrossRefType.Call));
 		}
 		result.CrossReferences[0x8100] = refs;
 

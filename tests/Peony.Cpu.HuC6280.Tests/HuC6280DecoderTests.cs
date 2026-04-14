@@ -1,4 +1,4 @@
-namespace Peony.Cpu.HuC6280.Tests;
+﻿namespace Peony.Cpu.HuC6280.Tests;
 
 using Peony.Core;
 using Peony.Cpu;

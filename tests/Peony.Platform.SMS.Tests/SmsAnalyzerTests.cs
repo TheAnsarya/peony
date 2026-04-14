@@ -1,4 +1,4 @@
-namespace Peony.Platform.SMS.Tests;
+﻿namespace Peony.Platform.SMS.Tests;
 
 using Peony.Core;
 using Xunit;

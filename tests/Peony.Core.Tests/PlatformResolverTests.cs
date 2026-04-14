@@ -24,6 +24,7 @@ public class PlatformResolverTests : IDisposable {
 	}
 
 	public void Dispose() {
+		GC.SuppressFinalize(this);
 		// Re-register all platforms after tests so other test classes
 		// that depend on PlatformResolver are not affected
 		PlatformResolver.Clear();

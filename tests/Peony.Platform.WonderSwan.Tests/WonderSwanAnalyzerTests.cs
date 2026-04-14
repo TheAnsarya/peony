@@ -1,4 +1,4 @@
-namespace Peony.Platform.WonderSwan.Tests;
+﻿namespace Peony.Platform.WonderSwan.Tests;
 
 using Peony.Core;
 using Xunit;

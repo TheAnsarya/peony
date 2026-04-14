@@ -14,6 +14,7 @@ public class ProjectScaffolderTests : IDisposable {
 	}
 
 	public void Dispose() {
+		GC.SuppressFinalize(this);
 		if (Directory.Exists(_tempDir))
 			Directory.Delete(_tempDir, true);
 	}

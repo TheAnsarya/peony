@@ -1,4 +1,4 @@
-namespace Peony.Platform.Genesis.Tests;
+﻿namespace Peony.Platform.Genesis.Tests;
 
 using System.Text;
 
