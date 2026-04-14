@@ -358,12 +358,19 @@ peony/
 │
 ├── tests/
 │   ├── Peony.Core.Tests/            # Core unit tests
-│   ├── Peony.Cpu.6502.Tests/
+│   ├── Peony.Cpu.Z80.Tests/
+│   ├── Peony.Cpu.HuC6280.Tests/
+│   ├── Peony.Cpu.V30MZ.Tests/
+│   ├── Peony.Cpu.M68000.Tests/
 │   ├── Peony.Platform.Atari2600.Tests/
 │   ├── Peony.Platform.GameBoy.Tests/
 │   ├── Peony.Platform.GBA.Tests/
+│   ├── Peony.Platform.Genesis.Tests/
 │   ├── Peony.Platform.Lynx.Tests/
-│   └── Peony.Platform.SNES.Tests/
+│   ├── Peony.Platform.PCE.Tests/
+│   ├── Peony.Platform.SMS.Tests/
+│   ├── Peony.Platform.SNES.Tests/
+│   └── Peony.Platform.WonderSwan.Tests/
 │
 ├── docs/                            # Documentation (this directory)
 │   ├── ARCHITECTURE.md              # ← You are here

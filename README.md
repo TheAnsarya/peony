@@ -3,7 +3,7 @@
 > The anti-Poppy: ROM → Source code conversion
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![License](https://img.shields.io/badge/license-Unlicense-green)](LICENSE)
 
 ## Overview
 
@@ -30,7 +30,7 @@ Peony is a multi-system disassembler framework designed to work alongside [Poppy
 | **WonderSwan** | V30MZ | `WonderSwanProfile` | ✅ Complete |
 | **Channel F** | F8 | `ChannelFProfile` | ✅ Complete |
 
-**Total**: 11 platforms, 1,615 tests passing
+**Total**: 11 platforms, 2,034 tests passing
 
 ## ✨ Features
 
@@ -140,11 +140,19 @@ src/
 └── Peony.Cli/                # CLI application
 tests/
 ├── Peony.Core.Tests/              # Core + PlatformResolver tests
+├── Peony.Cpu.Z80.Tests/
+├── Peony.Cpu.HuC6280.Tests/
+├── Peony.Cpu.V30MZ.Tests/
+├── Peony.Cpu.M68000.Tests/
 ├── Peony.Platform.GBA.Tests/
 ├── Peony.Platform.Atari2600.Tests/
 ├── Peony.Platform.Lynx.Tests/
 ├── Peony.Platform.SNES.Tests/
-└── Peony.Platform.GameBoy.Tests/
+├── Peony.Platform.GameBoy.Tests/
+├── Peony.Platform.SMS.Tests/
+├── Peony.Platform.PCE.Tests/
+├── Peony.Platform.WonderSwan.Tests/
+└── Peony.Platform.Genesis.Tests/
 benchmarks/
 └── Peony.Benchmarks/              # BenchmarkDotNet performance suite
 ```
@@ -235,4 +243,4 @@ See the [Integrated Pipeline Master Plan](https://github.com/TheAnsarya/pansy/bl
 
 ## 📜 License
 
-MIT License - See [LICENSE](LICENSE) for details.
+Unlicense - See [LICENSE](LICENSE) for details.
