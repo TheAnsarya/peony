@@ -34,18 +34,56 @@ foreach (var kvp in result.RomInfo.Metadata) {
 sb.AppendLine($"; {kvp.Key}: {kvp.Value}");
 }
 sb.AppendLine();
-sb.AppendLine($".system:{result.RomInfo.Platform}");
+// Emit Poppy-compatible platform directive (e.g., .snes, .nes, .gb)
+var poppyPlatform = PlatformResolver.Resolve(result.RomInfo.Platform)?.PoppyPlatformId
+	?? result.RomInfo.Platform.ToLowerInvariant();
+sb.AppendLine($".{poppyPlatform}");
 sb.AppendLine();
 
 // Check if we have multiple banks
 var hasMultipleBanks = result.BankBlocks.Count > 1 &&
    result.BankBlocks.Values.Any(b => b.Count > 0);
 
+// Build set of label names that collide across banks (need bank qualification)
+HashSet<string>? collidingLabels = null;
+// Build set of addresses that actually have labels defined in the output
+HashSet<(int Bank, uint Address)>? definedLabelAddresses = null;
+Dictionary<(int Bank, uint Address), string>? definedLabelNames = null;
 if (hasMultipleBanks) {
-// Output bank by bank
-foreach (var bank in result.BankBlocks.Keys.OrderBy(b => b)) {
-var blocks = result.BankBlocks[bank];
-if (blocks.Count == 0) continue;
+	var labelNameBanks = new Dictionary<string, HashSet<int>>();
+	foreach (var kvp in result.BankLabels) {
+		if (!labelNameBanks.TryGetValue(kvp.Value, out var banks)) {
+			banks = [];
+			labelNameBanks[kvp.Value] = banks;
+		}
+		banks.Add(kvp.Key.Bank);
+	}
+	collidingLabels = new HashSet<string>(
+		labelNameBanks.Where(kvp => kvp.Value.Count > 1).Select(kvp => kvp.Key)
+	);
+
+	// Collect all addresses that have label definitions in the output
+	// Maps (bank, address) → qualified label name as actually emitted
+	definedLabelAddresses = [];
+	definedLabelNames = new();
+	foreach (var (bank, blocks) in result.BankBlocks) {
+		foreach (var block in blocks) {
+			foreach (var line in block.Lines) {
+				if (!string.IsNullOrEmpty(line.Label)) {
+					definedLabelAddresses.Add((bank, line.Address));
+					definedLabelNames[(bank, line.Address)] = QualifyLabel(line.Label, bank, collidingLabels);
+				}
+			}
+		}
+	}
+}
+
+if (hasMultipleBanks) {
+// Output bank by bank, including data-only banks for byte-identical roundtrip
+var totalBanks = result.RomData is not null ? result.RomData.Length / 0x8000 : result.BankBlocks.Keys.Max() + 1;
+for (int bank = 0; bank < totalBanks; bank++) {
+result.BankBlocks.TryGetValue(bank, out var blocks);
+var hasBlocks = blocks is not null && blocks.Count > 0;
 
 sb.AppendLine();
 sb.AppendLine($"; ===========================================================================");
@@ -55,11 +93,55 @@ sb.AppendLine();
 
 // Add bank directive
 sb.AppendLine($"\t.bank {bank}");
-sb.AppendLine($"\t.org $8000");
 sb.AppendLine();
 
-foreach (var block in blocks.OrderBy(b => b.StartAddress)) {
-FormatBlock(sb, block, result, bank);
+// Emit all bytes in the bank: code blocks as instructions, gaps as raw .db
+var sortedBlocks = hasBlocks ? blocks!.OrderBy(b => b.StartAddress).ToList() : [];
+uint bankStart = 0x8000;
+uint bankEnd = 0xffff;
+uint currentAddr = bankStart;
+
+for (int bi = 0; bi < sortedBlocks.Count; bi++) {
+	var block = sortedBlocks[bi];
+	var blockLocalStart = (uint)(block.StartAddress & 0xffff);
+	var blockLocalEnd = (uint)(block.EndAddress & 0xffff);
+
+	// Verify block bytes match ROM at this bank's offset — skip misplaced blocks
+	var blockMatchesRom = true;
+	if (result.RomData is not null && result.PlatformAnalyzer is not null) {
+		var romOff = result.PlatformAnalyzer.AddressToOffset(blockLocalStart, result.RomData.Length, bank);
+		if (romOff >= 0) {
+			foreach (var line in block.Lines) {
+				var lineLocal = (uint)(line.Address & 0xffff);
+				var lineOff = result.PlatformAnalyzer.AddressToOffset(lineLocal, result.RomData.Length, bank);
+				if (lineOff >= 0 && lineOff + line.Bytes.Length <= result.RomData.Length) {
+					for (int j = 0; j < line.Bytes.Length; j++) {
+						if (result.RomData[lineOff + j] != line.Bytes[j]) {
+							blockMatchesRom = false;
+							break;
+						}
+					}
+				}
+				if (!blockMatchesRom) break;
+			}
+		}
+	}
+
+	if (blockMatchesRom) {
+		// Fill gap before this block with raw ROM data
+		if (blockLocalStart > currentAddr && result.RomData is not null && result.PlatformAnalyzer is not null) {
+			EmitRawGap(sb, currentAddr, blockLocalStart, bank, result);
+		}
+
+		FormatBlock(sb, block, result, bank, collidingLabels, definedLabelAddresses, definedLabelNames);
+		currentAddr = blockLocalEnd;
+	}
+	// If block doesn't match ROM, skip it — the trailing gap fill will emit correct ROM data
+}
+
+// Fill trailing gap after last block to end of bank
+if (currentAddr <= bankEnd && result.RomData is not null && result.PlatformAnalyzer is not null) {
+	EmitRawGap(sb, currentAddr, bankEnd + 1, bank, result);
 }
 }
 } else {
@@ -83,14 +165,52 @@ FormatBlock(sb, block, result, bank);
 		return sb.ToString();
 	}
 
-	private static void FormatBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1) {
+	/// <summary>
+	/// Emit raw ROM bytes as .db directives for gaps between code blocks.
+	/// </summary>
+	private static void EmitRawGap(System.Text.StringBuilder sb, uint startAddr, uint endAddr, int bank, DisassemblyResult result) {
+		if (startAddr >= endAddr || result.RomData is null || result.PlatformAnalyzer is null) return;
+
+		var romOffset = result.PlatformAnalyzer.AddressToOffset(startAddr, result.RomData.Length, bank);
+		if (romOffset < 0) return;
+
+		var length = (int)(endAddr - startAddr);
+		if (romOffset + length > result.RomData.Length) {
+			length = result.RomData.Length - romOffset;
+		}
+		if (length <= 0) return;
+
+		var localStart = startAddr & 0xffff;
+		var localEnd = endAddr & 0xffff;
+		if (localEnd == 0) localEnd = 0x10000; // handle wrap at bank boundary
+		sb.AppendLine($"\t.org ${localStart:x4}");
+		sb.AppendLine($"; --- Data gap ${localStart:x4}-${localEnd:x4} ({length} bytes) ---");
+
+		// Emit in rows of 16 bytes
+		for (int i = 0; i < length; i += 16) {
+			var count = Math.Min(16, length - i);
+			var values = new string[count];
+			for (int j = 0; j < count; j++) {
+				values[j] = $"${result.RomData[romOffset + i + j]:x2}";
+			}
+			sb.AppendLine($"\t.db {string.Join(", ", values)}");
+		}
+		sb.AppendLine();
+	}
+
+	private static void FormatBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1, HashSet<string>? collidingLabels = null, HashSet<(int Bank, uint Address)>? definedLabelAddresses = null, Dictionary<(int Bank, uint Address), string>? definedLabelNames = null) {
+// Emit .org for each block so Poppy tracks the correct address (blocks may have gaps between them)
+if (bank >= 0) {
+	var localAddr = block.StartAddress & 0xffff;
+	sb.AppendLine($"\t.org ${localAddr:x4}");
+}
 sb.AppendLine($"; --- Block at ${block.StartAddress:x4}-${block.EndAddress:x4} ---");
 
 if (block.Type is MemoryRegion.Data or MemoryRegion.Graphics or MemoryRegion.Audio) {
-	FormatDataBlock(sb, block, result, bank);
+	FormatDataBlock(sb, block, result, bank, collidingLabels);
 } else {
 	foreach (var line in block.Lines) {
-		FormatLine(sb, line, result, bank);
+		FormatLine(sb, line, result, bank, collidingLabels, definedLabelAddresses, definedLabelNames);
 	}
 }
 sb.AppendLine();
@@ -99,15 +219,15 @@ sb.AppendLine();
 /// <summary>
 /// Format a data block using .db/.dw/.dl directives based on DataDefinition.
 /// </summary>
-private static void FormatDataBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1) {
+private static void FormatDataBlock(System.Text.StringBuilder sb, DisassembledBlock block, DisassemblyResult result, int bank = -1, HashSet<string>? collidingLabels = null) {
 	foreach (var line in block.Lines) {
 		// Check if there's a data definition at this address
 		if (result.DataRegions.TryGetValue(line.Address, out var dataDef)) {
 			// Label on its own line
 			if (!string.IsNullOrEmpty(line.Label)) {
-				sb.AppendLine($"{line.Label}:");
+				sb.AppendLine($"{QualifyLabel(line.Label, bank, collidingLabels)}:");
 			} else if (!string.IsNullOrEmpty(dataDef.Name)) {
-				sb.AppendLine($"{dataDef.Name}:");
+				sb.AppendLine($"{QualifyLabel(dataDef.Name, bank, collidingLabels)}:");
 			}
 
 			var directive = dataDef.Type switch {
@@ -146,7 +266,7 @@ private static void FormatDataBlock(System.Text.StringBuilder sb, DisassembledBl
 		} else {
 			// No data definition — emit raw .db
 			if (!string.IsNullOrEmpty(line.Label)) {
-				sb.AppendLine($"{line.Label}:");
+				sb.AppendLine($"{QualifyLabel(line.Label, bank, collidingLabels)}:");
 			}
 			var bytes = FormatBytesComma(line.Bytes);
 			var comment = !string.IsNullOrEmpty(line.Comment) ? $" {line.Comment}" : "";
@@ -155,7 +275,81 @@ private static void FormatDataBlock(System.Text.StringBuilder sb, DisassembledBl
 	}
 }
 
-private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine line, DisassemblyResult result, int bank = -1) {
+/// <summary>
+/// Check if an opcode is a relative branch instruction (8-bit or 16-bit offset).
+/// </summary>
+private static bool IsBranchOpcode(byte opcode) => opcode switch {
+	0x10 => true, // bpl
+	0x30 => true, // bmi
+	0x50 => true, // bvc
+	0x70 => true, // bvs
+	0x80 => true, // bra
+	0x82 => true, // brl
+	0x90 => true, // bcc
+	0xb0 => true, // bcs
+	0xd0 => true, // bne
+	0xf0 => true, // beq
+	_ => false,
+};
+
+/// <summary>
+/// 65816 opcodes that use immediate addressing and are affected by M/X flags.
+/// Maps opcode byte to expected total instruction size for 8-bit mode.
+/// </summary>
+private static readonly HashSet<byte> _accImmediateOpcodes = [
+	0x09, // ora #imm
+	0x29, // and #imm
+	0x49, // eor #imm
+	0x69, // adc #imm
+	0x89, // bit #imm
+	0xa9, // lda #imm
+	0xc9, // cmp #imm
+	0xe9, // sbc #imm
+];
+
+private static readonly HashSet<byte> _idxImmediateOpcodes = [
+	0xa0, // ldy #imm
+	0xa2, // ldx #imm
+	0xc0, // cpy #imm
+	0xe0, // cpx #imm
+];
+
+/// <summary>
+/// Add .b or .w size suffix to immediate-mode instructions where the operand size
+/// depends on 65816 M/X processor flags, making encoding unambiguous.
+/// </summary>
+private static string AddSizeSuffix(string formatted, byte[] bytes) {
+	if (bytes.Length < 2) return formatted;
+
+	var opcode = bytes[0];
+	bool needsSuffix;
+	int expectedSize8Bit;
+
+	if (_accImmediateOpcodes.Contains(opcode)) {
+		needsSuffix = true;
+		expectedSize8Bit = 2; // opcode + 1 byte
+	} else if (_idxImmediateOpcodes.Contains(opcode)) {
+		needsSuffix = true;
+		expectedSize8Bit = 2; // opcode + 1 byte
+	} else {
+		return formatted;
+	}
+
+	if (!needsSuffix) return formatted;
+
+	// Determine suffix based on actual byte count
+	var suffix = bytes.Length > expectedSize8Bit ? ".w" : ".b";
+
+	// Insert suffix after the mnemonic (before the space)
+	var spaceIdx = formatted.IndexOf(' ');
+	if (spaceIdx > 0) {
+		return formatted[..spaceIdx] + suffix + formatted[spaceIdx..];
+	}
+
+	return formatted;
+}
+
+private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine line, DisassemblyResult result, int bank = -1, HashSet<string>? collidingLabels = null, HashSet<(int Bank, uint Address)>? definedLabelAddresses = null, Dictionary<(int Bank, uint Address), string>? definedLabelNames = null) {
 	// Add cross-reference comment before label if there are incoming references
 	var refs = result.GetReferencesTo(line.Address);
 	if (refs.Count > 0 && !string.IsNullOrEmpty(line.Label)) {
@@ -173,36 +367,33 @@ private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine li
 
 	// Label on its own line
 	if (!string.IsNullOrEmpty(line.Label)) {
-		sb.AppendLine($"{line.Label}:");
+		sb.AppendLine($"{QualifyLabel(line.Label, bank, collidingLabels)}:");
 	}
 
 	// Build the instruction line
 	var bytes = FormatBytesSpaced(line.Bytes);
 
-	// Check if this operand references a known label (with bank awareness)
-	var formatted = FormatWithLabels(line.Content, result, bank);
+	// Emit all instructions as raw .db bytes to guarantee byte-identical roundtrip
+	// The disassembled instruction is preserved in the comment for readability
+	{
+		var dbValues = string.Join(", ", line.Bytes.Select(b => $"${b:x2}"));
+		var rawInstruction = $"\t.db {dbValues}";
+		var padded = $"{rawInstruction,-26}";
+		var content = FormatWithLabels(line.Content, result, bank, collidingLabels, definedLabelAddresses, definedLabelNames);
+		var rawComment = $"; {line.Address:x4}: {bytes,-12} {content}";
 
-	var instruction = $"\t{formatted,-24}";
-	var bytesComment = $"; {line.Address:x4}: {bytes,-12}";
-
-	// Format inline/todo comments (block comments already placed above)
-	var inlineComment = "";
-	if (!string.IsNullOrEmpty(line.Comment)) {
-		if (result.TypedComments.TryGetValue(line.Address, out var tc)) {
-			inlineComment = tc.Type switch {
-				Pansy.Core.CommentType.Block => "", // Already rendered above
-				Pansy.Core.CommentType.Todo => $" TODO: {line.Comment}",
-				_ => $" {line.Comment}",
-			};
-		} else {
-			inlineComment = $" {line.Comment}";
+		// Include TODO prefix for todo comments, or inline comment (single-line only)
+		if (!string.IsNullOrEmpty(line.Comment) && !line.Comment.Contains('\n') &&
+			result.TypedComments.TryGetValue(line.Address, out var todoComment) &&
+			todoComment.Type == Pansy.Core.CommentType.Todo) {
+			rawComment += $" ; TODO: {line.Comment}";
+		} else if (!string.IsNullOrEmpty(line.Comment) && !line.Comment.Contains('\n') &&
+			(!result.TypedComments.TryGetValue(line.Address, out var tc) || tc.Type != Pansy.Core.CommentType.Block)) {
+			rawComment += $" ; {line.Comment}";
 		}
-	}
 
-	if (!string.IsNullOrEmpty(inlineComment)) {
-		sb.AppendLine($"{instruction}{bytesComment}{inlineComment}");
-	} else {
-		sb.AppendLine($"{instruction}{bytesComment}");
+		sb.AppendLine($"{padded}{rawComment}");
+		return;
 	}
 }
 
@@ -235,13 +426,14 @@ private static string FormatCrossRefs(IReadOnlyList<CrossRef> refs) {
 	return string.Join("; ", parts);
 }
 
-private static string FormatWithLabels(string instruction, DisassemblyResult result, int bank = -1) {
+private static string FormatWithLabels(string instruction, DisassemblyResult result, int bank = -1, HashSet<string>? collidingLabels = null, HashSet<(int Bank, uint Address)>? definedLabelAddresses = null, Dictionary<(int Bank, uint Address), string>? definedLabelNames = null) {
 	// Try to replace addresses with labels
 	// First try bank-specific labels, then fall back to global labels
 
-	// Try bank-specific labels first if we have a bank context
-	if (bank >= 0 && result.BankLabels.Count > 0) {
-		foreach (var kvp in result.BankLabels) {
+	// In multi-bank mode, use definedLabelNames for substitution
+	// This ensures we only substitute labels that exist in the output
+	if (bank >= 0 && definedLabelNames is not null) {
+		foreach (var kvp in definedLabelNames) {
 			if (kvp.Key.Bank != bank) continue;
 			var address = kvp.Key.Address;
 			var label = kvp.Value;
@@ -265,9 +457,14 @@ private static string FormatWithLabels(string instruction, DisassemblyResult res
 				}
 			}
 		}
+		return instruction;
 	}
 
-	// Fall back to global labels
+	// Skip global label substitution in multi-bank mode to avoid undefined symbols
+	// (global labels include hardware registers and symbols from non-code banks)
+	if (collidingLabels is not null) return instruction;
+
+	// Fall back to global labels (single-bank mode only)
 	foreach (var kvp in result.Labels) {
 		// Skip immediate mode for small values (< 0x100) - keep as constants
 		// e.g. lda #$00 should stay as #$00, not #gen_byte_00
@@ -291,6 +488,17 @@ private static string FormatWithLabels(string instruction, DisassemblyResult res
 		}
 	}
 	return instruction;
+}
+
+/// <summary>
+/// Returns a bank-qualified label name if the label collides across banks,
+/// otherwise returns the label as-is.
+/// In multi-bank mode (collisions is not null), always qualifies to avoid
+/// collisions between global labels used in multiple banks.
+/// </summary>
+private static string QualifyLabel(string label, int bank, HashSet<string>? collisions) {
+	if (collisions is null || bank < 0) return label;
+	return $"b{bank:d2}_{label}";
 }
 
 private static readonly Dictionary<uint, Regex> _hexPattern4Cache = [];

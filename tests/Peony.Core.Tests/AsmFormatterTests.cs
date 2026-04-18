@@ -91,7 +91,7 @@ public class AsmFormatterTests {
 		Assert.Contains("; ROM: test.nes", output);
 		Assert.Contains("; Platform: NES", output);
 		Assert.Contains("; Size: 32768 bytes", output);
-		Assert.Contains(".system:NES", output);
+		Assert.Contains(".nes", output);
 	}
 
 	[Fact]

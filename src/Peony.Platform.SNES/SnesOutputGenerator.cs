@@ -40,6 +40,45 @@ public sealed class SnesOutputGenerator : IOutputGenerator {
 		sb.AppendLine($"\t.{mapMode}");
 		sb.AppendLine();
 
+		// Collect all labels that appear as definitions on disassembled lines
+		var definedLabels = new HashSet<string>(StringComparer.Ordinal);
+		foreach (var block in result.Blocks) {
+			foreach (var line in block.Lines) {
+				if (!string.IsNullOrEmpty(line.Label)) {
+					definedLabels.Add(line.Label);
+				}
+			}
+		}
+		foreach (var blocks in result.BankBlocks.Values) {
+			foreach (var block in blocks) {
+				foreach (var line in block.Lines) {
+					if (!string.IsNullOrEmpty(line.Label)) {
+						definedLabels.Add(line.Label);
+					}
+				}
+			}
+		}
+
+		// Emit .equ directives for labels that have no definition (e.g., RAM addresses)
+		var undefinedLabels = new List<(uint Address, string Name)>();
+		foreach (var kvp in result.Labels) {
+			if (!definedLabels.Contains(kvp.Value)) {
+				undefinedLabels.Add((kvp.Key, kvp.Value));
+			}
+		}
+		foreach (var kvp in result.BankLabels) {
+			if (!definedLabels.Contains(kvp.Value)) {
+				undefinedLabels.Add((kvp.Key.Address, kvp.Value));
+			}
+		}
+		if (undefinedLabels.Count > 0) {
+			sb.AppendLine("; --- External/RAM symbol definitions ---");
+			foreach (var (address, name) in undefinedLabels.DistinctBy(x => x.Name).OrderBy(x => x.Address)) {
+				sb.AppendLine($"{name} = ${address:x4}");
+			}
+			sb.AppendLine();
+		}
+
 		// Initial processor state — SNES starts in emulation mode (8-bit A and XY)
 		sb.AppendLine("\t.a8");
 		sb.AppendLine("\t.i8");

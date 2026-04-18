@@ -170,6 +170,16 @@ public sealed class DisassemblyResult {
 	public List<DisassembledBlock> Blocks { get; } = [];
 	public Dictionary<uint, string> Labels { get; } = [];
 	public Dictionary<(uint Address, int Bank), string> BankLabels { get; } = [];
+
+	/// <summary>
+	/// Raw ROM data for gap-filling in roundtrip output.
+	/// </summary>
+	public byte[]? RomData { get; set; }
+
+	/// <summary>
+	/// Platform analyzer for address-to-ROM-offset mapping (used by formatters for data gap fill).
+	/// </summary>
+	public IPlatformAnalyzer? PlatformAnalyzer { get; set; }
 	public Dictionary<uint, string> Comments { get; } = [];
 	public Dictionary<int, List<DisassembledBlock>> BankBlocks { get; } = [];
 

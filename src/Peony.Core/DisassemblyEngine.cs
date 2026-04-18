@@ -165,7 +165,11 @@ public sealed class DisassemblyEngine {
 	/// </summary>
 	public DisassemblyResult Disassemble(ReadOnlySpan<byte> rom, uint[] entryPoints, bool allBanks = false) {
 		var romInfo = _platformAnalyzer.Analyze(rom);
-		var result = new DisassemblyResult { RomInfo = romInfo };
+		var result = new DisassemblyResult {
+			RomInfo = romInfo,
+			RomData = rom.ToArray(),
+			PlatformAnalyzer = _platformAnalyzer,
+		};
 		_classification = null;
 
 		// Static analysis is intentionally quarantined behind an explicit opt-in.
