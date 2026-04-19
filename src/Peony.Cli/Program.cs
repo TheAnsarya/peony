@@ -1661,6 +1661,156 @@ openCommand.SetHandler((file, extractDir, infoOnly) =>
 
 rootCommand.AddCommand(openCommand);
 
+// Extract command - Intelligent asset extraction with CDL + heuristic detection
+var extractCommand = new Command("extract", "Extract all assets from ROM using CDL-guided and heuristic detection");
+var extractRomArg = new Argument<FileInfo>("rom", "ROM file to extract assets from");
+var extractOutputOpt = new Option<DirectoryInfo?>(["--output", "-o"], "Output directory (default: output/assets)");
+var extractCdlOpt = new Option<FileInfo?>(["--cdl"], "CDL (Code/Data Log) file for guided detection");
+var extractPlatformOpt = new Option<string?>(["--platform", "-p"], "Platform (auto-detected if not specified)");
+var extractConfidenceOpt = new Option<double>(["--confidence"], () => 0.55, "Minimum confidence threshold (0.0-1.0)");
+var extractFormatOpt = new Option<string>(["--format", "-f"], () => "png", "Image format: png, bmp");
+
+extractCommand.AddArgument(extractRomArg);
+extractCommand.AddOption(extractOutputOpt);
+extractCommand.AddOption(extractCdlOpt);
+extractCommand.AddOption(extractPlatformOpt);
+extractCommand.AddOption(extractConfidenceOpt);
+extractCommand.AddOption(extractFormatOpt);
+
+extractCommand.SetHandler((rom, outputDir, cdlFile, platform, confidence, imageFormat) =>
+{
+	try
+	{
+		AnsiConsole.MarkupLine("[bold magenta]🌺 Peony Asset Extractor[/]");
+		AnsiConsole.WriteLine();
+
+		// Load ROM
+		AnsiConsole.MarkupLine($"[grey]Loading ROM:[/] {Markup.Escape(rom.FullName)}");
+		var romData = RomLoader.Load(rom.FullName);
+		AnsiConsole.MarkupLine($"[grey]ROM size:[/] {romData.Length:n0} bytes (${romData.Length:x})");
+
+		// Resolve platform
+		platform ??= RomLoader.DetectPlatform(romData, rom.FullName);
+		var profile = platform != null ? PlatformResolver.Resolve(platform) : null;
+		profile ??= PlatformResolver.ResolveByExtension(Path.GetExtension(rom.FullName));
+
+		if (profile != null)
+		{
+			AnsiConsole.MarkupLine($"[grey]Platform:[/] {profile.DisplayName}");
+		}
+		else
+		{
+			AnsiConsole.MarkupLine("[yellow]⚠ Could not detect platform, using generic SNES extractor[/]");
+		}
+
+		// Load CDL data if provided
+		byte[]? cdlData = null;
+		if (cdlFile != null && cdlFile.Exists)
+		{
+			cdlData = File.ReadAllBytes(cdlFile.FullName);
+			var cdlLoader = new CdlLoader(cdlData);
+			var stats = cdlLoader.GetCoverageStats();
+			AnsiConsole.MarkupLine($"[grey]CDL loaded:[/] {cdlFile.Name} ({stats.CoveragePercent:f1}% coverage)");
+		}
+		else
+		{
+			AnsiConsole.MarkupLine("[grey]CDL:[/] none (heuristic-only mode)");
+		}
+
+		// Set up output directory
+		var outPath = outputDir?.FullName ?? Path.Combine(
+			Path.GetDirectoryName(rom.FullName)!,
+			"output", "assets");
+		Directory.CreateDirectory(outPath);
+		AnsiConsole.MarkupLine($"[grey]Output:[/] {Markup.Escape(outPath)}");
+		AnsiConsole.MarkupLine($"[grey]Confidence threshold:[/] {confidence:f2}");
+		AnsiConsole.WriteLine();
+
+		// Get graphics extractor
+		var gfxExtractor = profile?.GraphicsExtractor;
+		if (gfxExtractor == null)
+		{
+			// Fallback to SNES extractor
+			gfxExtractor = new Peony.Platform.SNES.SnesChrExtractor();
+		}
+
+		// Run extraction
+		var options = new GraphicsExtractionOptions
+		{
+			OutputDirectory = outPath,
+			ImageFormat = imageFormat,
+			CdlData = cdlData,
+			TilesPerRow = 16,
+			GenerateMetadata = true
+		};
+
+		AnsiConsole.Status()
+			.Spinner(Spinner.Known.Dots)
+			.Start("Scanning ROM for assets...", ctx =>
+			{
+				var result = gfxExtractor.ExtractAll(romData, options);
+
+				AnsiConsole.WriteLine();
+
+				// Summary table
+				var table = new Table();
+				table.AddColumn("Type");
+				table.AddColumn("Count");
+				table.AddColumn("Details");
+
+				table.AddRow("Tilesets", result.TileSets.Count.ToString(), $"{result.TotalTiles} tiles total");
+				table.AddRow("Palettes", result.Palettes.Count.ToString(), result.Palettes.Count > 0 ? $"{result.Palettes.Sum(p => p.Colors.Length)} colors total" : "-");
+				table.AddRow("Output files", result.OutputFiles.Count.ToString(), "-");
+
+				AnsiConsole.Write(table);
+				AnsiConsole.WriteLine();
+
+				// List tilesets
+				if (result.TileSets.Count > 0)
+				{
+					AnsiConsole.MarkupLine("[bold]Tilesets:[/]");
+					foreach (var ts in result.TileSets)
+					{
+						AnsiConsole.MarkupLine($"  [green]✓[/] {ts.Name} — ${ts.RomOffset:x6} ({ts.TileCount} tiles, {ts.BitDepth}bpp, {ts.SizeBytes} bytes)");
+					}
+					AnsiConsole.WriteLine();
+				}
+
+				// List palettes
+				if (result.Palettes.Count > 0)
+				{
+					AnsiConsole.MarkupLine("[bold]Palettes:[/]");
+					foreach (var pal in result.Palettes)
+					{
+						AnsiConsole.MarkupLine($"  [green]✓[/] {pal.Name} — ${pal.RomOffset:x6} ({pal.Colors.Length} colors)");
+					}
+					AnsiConsole.WriteLine();
+				}
+
+				// List output files
+				if (result.OutputFiles.Count > 0)
+				{
+					AnsiConsole.MarkupLine("[bold]Output files:[/]");
+					foreach (var file in result.OutputFiles)
+					{
+						var relPath = Path.GetRelativePath(outPath, file);
+						AnsiConsole.MarkupLine($"  [blue]📁[/] {Markup.Escape(relPath)}");
+					}
+					AnsiConsole.WriteLine();
+				}
+
+				AnsiConsole.MarkupLine($"[green]✓ Extraction complete — {result.TileSets.Count} tilesets, {result.Palettes.Count} palettes, {result.OutputFiles.Count} files[/]");
+			});
+	}
+	catch (Exception ex)
+	{
+		AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+		Environment.Exit(1);
+	}
+}, extractRomArg, extractOutputOpt, extractCdlOpt, extractPlatformOpt, extractConfidenceOpt, extractFormatOpt);
+
+rootCommand.AddCommand(extractCommand);
+
 // Version
 rootCommand.SetHandler(() =>
 {
@@ -1678,6 +1828,7 @@ rootCommand.SetHandler(() =>
 	AnsiConsole.MarkupLine("  • disasm  - Disassemble a ROM file");
 	AnsiConsole.MarkupLine("  • project - Generate a complete project folder or .peony archive");
 	AnsiConsole.MarkupLine("  • open    - Inspect or extract a .peony archive");
+	AnsiConsole.MarkupLine("  • extract - Extract all assets (CDL-guided + heuristic detection)");
 	AnsiConsole.MarkupLine("  • export  - Export symbols to various formats");
 	AnsiConsole.MarkupLine("  • verify  - Roundtrip verification");
 	AnsiConsole.MarkupLine("  • chr     - Extract tile graphics");

@@ -1,4 +1,4 @@
-# Asset Extraction Pipeline — Technical Plan
+﻿# Asset Extraction Pipeline — Technical Plan
 
 > Epic: [#168](https://github.com/TheAnsarya/peony/issues/168) — Intelligent Asset Extraction Pipeline
 
