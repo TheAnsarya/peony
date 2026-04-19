@@ -1,6 +1,9 @@
-namespace Peony.Core;
+﻿namespace Peony.Core;
 
 using System.Buffers.Binary;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats.Png;
 
 /// <summary>
 /// Interface for graphics extraction from ROMs
@@ -34,6 +37,9 @@ public record GraphicsExtractionOptions {
 
 	/// <summary>Custom palette (null = use grayscale)</summary>
 	public uint[]? Palette { get; init; }
+
+	/// <summary>CDL (Code/Data Log) data for guided extraction (null = heuristic only)</summary>
+	public byte[]? CdlData { get; init; }
 }
 
 /// <summary>
@@ -337,5 +343,64 @@ public static class TileGraphics {
 		palette ??= NesGrayscale;
 		var bmpData = ExportTilesToBmp(tileData.Pixels, tileData.TileCount, 16, palette);
 		File.WriteAllBytes(path, bmpData);
+	}
+
+	/// <summary>
+	/// Save ARGB image data to PNG file using ImageSharp
+	/// </summary>
+	public static byte[] SaveToPng(uint[] pixels, int width, int height) {
+		using var image = new Image<Rgba32>(width, height);
+
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				uint argb = pixels[y * width + x];
+				byte a = (byte)((argb >> 24) & 0xff);
+				byte r = (byte)((argb >> 16) & 0xff);
+				byte g = (byte)((argb >> 8) & 0xff);
+				byte b = (byte)(argb & 0xff);
+				image[x, y] = new Rgba32(r, g, b, a);
+			}
+		}
+
+		using var ms = new MemoryStream();
+		image.SaveAsPng(ms, new PngEncoder {
+			ColorType = PngColorType.RgbWithAlpha,
+			CompressionLevel = PngCompressionLevel.BestCompression
+		});
+		return ms.ToArray();
+	}
+
+	/// <summary>
+	/// Export indexed pixels as PNG with palette
+	/// </summary>
+	public static byte[] ExportTilesToPng(byte[] indexedPixels, int tileCount, int tilesPerRow, uint[] palette) {
+		var image = ArrangeTiles(indexedPixels, tileCount, tilesPerRow, palette);
+		int tileRows = (tileCount + tilesPerRow - 1) / tilesPerRow;
+		int width = tilesPerRow * 8;
+		int height = tileRows * 8;
+		return SaveToPng(image, width, height);
+	}
+
+	/// <summary>
+	/// Save CHR tile data to PNG file
+	/// </summary>
+	public static void SaveChrToPng(TileData tileData, string path, uint[]? palette = null, int tilesPerRow = 16) {
+		palette ??= NesGrayscale;
+		var pngData = ExportTilesToPng(tileData.Pixels, tileData.TileCount, tilesPerRow, palette);
+		File.WriteAllBytes(path, pngData);
+	}
+
+	/// <summary>
+	/// Save CHR tile data to image file (PNG or BMP based on extension)
+	/// </summary>
+	public static void SaveChrToImage(TileData tileData, string path, uint[]? palette = null, int tilesPerRow = 16) {
+		var ext = Path.GetExtension(path).ToLowerInvariant();
+		if (ext == ".bmp") {
+			palette ??= NesGrayscale;
+			var bmpData = ExportTilesToBmp(tileData.Pixels, tileData.TileCount, tilesPerRow, palette);
+			File.WriteAllBytes(path, bmpData);
+		} else {
+			SaveChrToPng(tileData, path, palette, tilesPerRow);
+		}
 	}
 }

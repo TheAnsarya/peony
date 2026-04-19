@@ -699,15 +699,19 @@ chrCommand.SetHandler((rom, output, offsetStr, sizeStr, bits, tilesPerRow, palet
 			_ => ParseCustomPalette(paletteStr) ?? TileGraphics.NesGrayscale
 		};
 
-		// Generate image
-		var bmpData = TileGraphics.ExportTilesToBmp(pixels, tileCount, tilesPerRow, palette);
-
-		// Write output
+		// Generate image — default to PNG, use BMP only if output path ends in .bmp
 		var outputPath = output?.FullName ?? Path.Combine(
 			rom.DirectoryName!,
-			Path.GetFileNameWithoutExtension(rom.Name) + "_chr.bmp");
+			Path.GetFileNameWithoutExtension(rom.Name) + "_chr.png");
 
-		File.WriteAllBytes(outputPath, bmpData);
+		var outputExt = Path.GetExtension(outputPath).ToLowerInvariant();
+		if (outputExt == ".bmp") {
+			var bmpData = TileGraphics.ExportTilesToBmp(pixels, tileCount, tilesPerRow, palette);
+			File.WriteAllBytes(outputPath, bmpData);
+		} else {
+			var pngData = TileGraphics.ExportTilesToPng(pixels, tileCount, tilesPerRow, palette);
+			File.WriteAllBytes(outputPath, pngData);
+		}
 
 		int imageWidth = tilesPerRow * 8;
 		int imageHeight = (tileCount + tilesPerRow - 1) / tilesPerRow * 8;

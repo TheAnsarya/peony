@@ -1,32 +1,114 @@
-namespace Peony.Platform.SNES;
+﻿namespace Peony.Platform.SNES;
 
 using Peony.Core;
 
 /// <summary>
-/// SNES graphics extractor supporting 2bpp, 4bpp, and 8bpp tile formats
+/// SNES graphics extractor supporting 2bpp, 4bpp, and 8bpp tile formats.
+/// Supports CDL-guided and heuristic-based automatic asset detection.
 /// </summary>
 public sealed class SnesChrExtractor : IGraphicsExtractor {
 	public string Platform => "SNES";
 
 	/// <summary>
-	/// Extract all graphics from a SNES ROM
+	/// Extract all graphics from a SNES ROM using CDL data and/or heuristic detection.
 	/// </summary>
 	public GraphicsExtractionResult ExtractAll(ReadOnlySpan<byte> rom, GraphicsExtractionOptions options) {
 		var tilesets = new List<TileSetInfo>();
 		var palettes = new List<PaletteInfo>();
 		var outputFiles = new List<string>();
 
-		// SNES ROMs typically have graphics scattered throughout
-		// We'll scan for common patterns and extract based on known offsets
+		var allRegions = new List<DetectedAssetRegion>();
 
-		// For a generic extractor, we scan the entire ROM for tile data
-		// Real usage would specify known offsets
+		// Phase 1: CDL-guided detection (highest confidence)
+		if (options.CdlData != null && options.CdlData.Length > 0) {
+			var cdlRegions = CdlAssetFinder.FindAllAssets(options.CdlData, rom);
+			allRegions.AddRange(cdlRegions);
+		}
+
+		// Phase 2: Heuristic scan for additional regions not found by CDL
+		var scanOptions = new AssetScanOptions {
+			MinConfidence = 0.55,
+			BitDepths = [4, 2, 8]
+		};
+
+		var heuristicTiles = AssetDetector.ScanForTiles(rom, scanOptions);
+		// Only add heuristic regions that don't overlap with CDL regions
+		foreach (var region in heuristicTiles) {
+			if (!OverlapsExisting(region, allRegions)) {
+				allRegions.AddRange([region]);
+			}
+		}
+
+		// Phase 3: Palette detection
+		var heuristicPalettes = AssetDetector.ScanForPalettes(rom, new AssetScanOptions { MinConfidence = 0.6 });
+		foreach (var palRegion in heuristicPalettes) {
+			if (!OverlapsExisting(palRegion, allRegions)) {
+				allRegions.Add(palRegion);
+			}
+		}
+
+		// Process detected regions
+		int tilesetIndex = 0;
+		int paletteIndex = 0;
+
+		foreach (var region in allRegions.OrderBy(r => r.RomOffset)) {
+			if (region.Type == AssetRegionType.Tiles && region.RomOffset + region.Size <= rom.Length) {
+				var data = rom.Slice(region.RomOffset, region.Size);
+				int bpp = region.BitDepth > 0 ? region.BitDepth : 4;
+				var tileData = ExtractTiles(rom.ToArray(), region.RomOffset, region.Size, bpp);
+
+				string name = $"tileset_{tilesetIndex:d3}_{region.RomOffset:x6}";
+				string? outputPath = null;
+
+				if (!string.IsNullOrEmpty(options.OutputDirectory)) {
+					Directory.CreateDirectory(options.OutputDirectory);
+					string ext = options.ImageFormat?.ToLowerInvariant() == "bmp" ? "bmp" : "png";
+					outputPath = Path.Combine(options.OutputDirectory, $"{name}.{ext}");
+
+					uint[] palette = options.Palette ?? GetGrayscalePalette(1 << bpp);
+					TileGraphics.SaveChrToImage(tileData, outputPath, palette);
+					outputFiles.Add(outputPath);
+				}
+
+				tilesets.Add(new TileSetInfo {
+					Name = name,
+					RomOffset = region.RomOffset,
+					SizeBytes = region.Size,
+					TileCount = tileData.TileCount,
+					BitDepth = bpp,
+					OutputPath = outputPath
+				});
+
+				tilesetIndex++;
+			} else if (region.Type == AssetRegionType.Palette && region.RomOffset + region.Size <= rom.Length) {
+				var colors = ExtractPalette(rom, region.RomOffset, region.Size / 2);
+
+				palettes.Add(new PaletteInfo {
+					Name = $"palette_{paletteIndex:d3}_{region.RomOffset:x6}",
+					RomOffset = region.RomOffset,
+					Colors = colors
+				});
+
+				paletteIndex++;
+			}
+		}
 
 		return new GraphicsExtractionResult {
 			TileSets = tilesets,
 			Palettes = palettes,
 			OutputFiles = outputFiles
 		};
+	}
+
+	private static bool OverlapsExisting(DetectedAssetRegion candidate, List<DetectedAssetRegion> existing) {
+		int candEnd = candidate.RomOffset + candidate.Size;
+		foreach (var region in existing) {
+			int regEnd = region.RomOffset + region.Size;
+			if (candidate.RomOffset < regEnd && candEnd > region.RomOffset) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/// <summary>
@@ -293,14 +375,15 @@ public sealed class SnesChrExtractor : IGraphicsExtractor {
 	/// <summary>
 	/// Save tile data with metadata
 	/// </summary>
-	public static void SaveWithMetadata(TileData tiles, string basePath, string name, int romOffset, uint[]? palette = null) {
+	public static void SaveWithMetadata(TileData tiles, string basePath, string name, int romOffset, uint[]? palette = null, string imageFormat = "png") {
 		var dir = Path.GetDirectoryName(basePath);
 		if (!string.IsNullOrEmpty(dir)) {
 			Directory.CreateDirectory(dir);
 		}
 
-		// Save image
-		SaveAsBmp(tiles, basePath + ".bmp", palette);
+		// Save image — default to PNG
+		var ext = imageFormat.ToLowerInvariant() == "bmp" ? ".bmp" : ".png";
+		TileGraphics.SaveChrToImage(tiles, basePath + ext, palette);
 
 		// Save metadata
 		var metadata = new {
@@ -311,7 +394,8 @@ public sealed class SnesChrExtractor : IGraphicsExtractor {
 			width = tiles.Width,
 			height = tiles.Height,
 			bytesPerTile = tiles.BitDepth switch { 2 => 16, 4 => 32, 8 => 64, _ => 0 },
-			format = tiles.BitDepth switch { 2 => "SNES 2bpp planar", 4 => "SNES 4bpp planar", 8 => "SNES 8bpp planar", _ => "unknown" }
+			format = tiles.BitDepth switch { 2 => "SNES 2bpp planar", 4 => "SNES 4bpp planar", 8 => "SNES 8bpp planar", _ => "unknown" },
+			imageFile = Path.GetFileName(basePath) + ext
 		};
 
 		var json = System.Text.Json.JsonSerializer.Serialize(metadata, new System.Text.Json.JsonSerializerOptions {
