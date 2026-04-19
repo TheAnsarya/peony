@@ -1,4 +1,4 @@
-namespace Peony.Tests;
+﻿namespace Peony.Tests;
 
 using Peony.Core;
 using Peony.Platform.SNES;
@@ -150,5 +150,46 @@ public class SnesAnalyzerTests {
 
 		var entries = analyzer.GetEntryPoints(rom);
 		Assert.Contains(0x8000u, entries);
+	}
+
+	[Fact]
+	public void GetDefaultLabels_IncludesHardwareLabels() {
+		var analyzer = new SnesAnalyzer();
+		var rom = new byte[0x8000];
+		rom[0x7fdc] = 0xff;
+		rom[0x7fdd] = 0xff;
+		rom[0x7fde] = 0x00;
+		rom[0x7fdf] = 0x00;
+		rom[0x7fd5] = 0x20;
+
+		analyzer.Analyze(rom);
+		var labels = analyzer.GetDefaultLabels(rom).ToDictionary(x => x.Address, x => x.Name);
+
+		Assert.Equal("NMITIMEN", labels[0x4200]);
+		Assert.Equal("INIDISP", labels[0x2100]);
+		Assert.Equal("DMAP0", labels[0x4300]);
+	}
+
+	[Fact]
+	public void GetDefaultLabels_IncludesHeaderAndVectorLabels() {
+		var analyzer = new SnesAnalyzer();
+		var rom = new byte[0x8000];
+		rom[0x7fdc] = 0xff;
+		rom[0x7fdd] = 0xff;
+		rom[0x7fde] = 0x00;
+		rom[0x7fdf] = 0x00;
+		rom[0x7fd5] = 0x20;
+
+		// Emulation RESET vector -> $8000
+		rom[0x7ffc] = 0x00;
+		rom[0x7ffd] = 0x80;
+
+		analyzer.Analyze(rom);
+		var labels = analyzer.GetDefaultLabels(rom).ToDictionary(x => x.Address, x => x.Name);
+
+		Assert.Equal("SNES_HDR_TITLE", labels[0xffc0]);
+		Assert.Equal("SNES_HDR_CHECKSUM", labels[0xffde]);
+		Assert.Equal("SNES_VEC_EMU_RESET_PTR", labels[0xfffc]);
+		Assert.Equal("RESET", labels[0x8000]);
 	}
 }

@@ -102,11 +102,13 @@ disasmCommand.SetHandler((context) =>
 
 		// Load symbols if provided
 		SymbolLoader? symbolLoader = null;
+		var hasHints = false;
 		if (symbols?.Exists == true)
 		{
 			symbolLoader = new SymbolLoader();
 			symbolLoader.Load(symbols.FullName);
 			AnsiConsole.MarkupLine($"[grey]Symbols:[/] {symbolLoader.Labels.Count} labels loaded");
+			hasHints = true;
 		}
 
 		// Load CDL if provided
@@ -117,6 +119,7 @@ disasmCommand.SetHandler((context) =>
 			var stats = symbolLoader.CdlData!.GetCoverageStats();
 			AnsiConsole.MarkupLine($"[grey]CDL:[/] {stats.CodeBytes:N0} code bytes, {stats.DataBytes:N0} data bytes ({stats.CoveragePercent:F1}% coverage)");
 			AnsiConsole.MarkupLine($"[grey]CDL Entry Points:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0} subroutines detected");
+			hasHints = true;
 		}
 
 		// Load DIZ if provided
@@ -125,6 +128,7 @@ disasmCommand.SetHandler((context) =>
 			symbolLoader ??= new SymbolLoader();
 			symbolLoader.LoadDiz(dizFile.FullName);
 			AnsiConsole.MarkupLine($"[grey]DIZ:[/] Loaded DiztinGUIsh project");
+			hasHints = true;
 		}
 
 		// Load Pansy if provided
@@ -142,6 +146,12 @@ disasmCommand.SetHandler((context) =>
 				AnsiConsole.MarkupLine($"[grey]Pansy Data:[/] {symbolLoader.PansyDataTypes.Count} data type entries");
 			if (symbolLoader.Bookmarks.Count > 0)
 				AnsiConsole.MarkupLine($"[grey]Pansy Bookmarks:[/] {symbolLoader.Bookmarks.Count}");
+			hasHints = true;
+		}
+
+		if (!hasHints)
+		{
+			AnsiConsole.MarkupLine("[grey]Hints:[/] none (disassembling from platform entry points only)");
 		}
 
 		AnsiConsole.WriteLine();
@@ -161,6 +171,8 @@ disasmCommand.SetHandler((context) =>
 
 		AnsiConsole.WriteLine();
 		AnsiConsole.MarkupLine($"[green]Disassembled {result.Blocks.Count} blocks[/]");
+		var coverage = CoverageAnalyzer.Analyze(result);
+		AnsiConsole.MarkupLine($"[grey]Coverage:[/] code {coverage.CodeBytes:N0}, data {coverage.DataBytes:N0}, unknown {coverage.UnknownBytes:N0} of {coverage.TotalBytes:N0} bytes");
 
 		if (allBanks)
 		{

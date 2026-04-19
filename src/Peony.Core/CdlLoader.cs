@@ -125,6 +125,59 @@ public sealed class CdlLoader {
 	public bool IsUnreached(int offset) => !_codeOffsets.Contains(offset) && !_dataOffsets.Contains(offset);
 
 	/// <summary>
+	/// Gets the raw CDL flags byte for a ROM offset.
+	/// </summary>
+	/// <param name="offset">The ROM file offset.</param>
+	/// <param name="flags">The raw flag byte when available.</param>
+	/// <returns>True when the offset is in range.</returns>
+	public bool TryGetFlags(int offset, out byte flags) {
+		flags = 0;
+		if (offset < 0) {
+			return false;
+		}
+
+		var headerSize = _format switch {
+			CdlFormat.Mesen => 4,
+			CdlFormat.MesenV2 => 9,
+			_ => 0,
+		};
+
+		var rawIndex = headerSize + offset;
+		if (rawIndex < headerSize || rawIndex >= _cdlData.Length) {
+			return false;
+		}
+
+		flags = _cdlData[rawIndex];
+		return true;
+	}
+
+	/// <summary>
+	/// Gets SNES 65816 M/X mode bits from CDL flags for a ROM offset.
+	/// </summary>
+	/// <param name="offset">The ROM file offset.</param>
+	/// <param name="accIs8">True when M flag is set (8-bit accumulator).</param>
+	/// <param name="idxIs8">True when X flag is set (8-bit index registers).</param>
+	/// <returns>True when a code byte at this offset has valid M/X mode information.</returns>
+	public bool TryGetSnesMxState(int offset, out bool accIs8, out bool idxIs8) {
+		accIs8 = true;
+		idxIs8 = true;
+
+		if (!TryGetFlags(offset, out var flags)) {
+			return false;
+		}
+
+		// M/X flags are meaningful only for executed code bytes.
+		if ((flags & MESEN_CODE) == 0) {
+			return false;
+		}
+
+		// SNES CDL extension bits: 0x10 = IndexMode8 (X), 0x20 = MemoryMode8 (M)
+		idxIs8 = (flags & 0x10) != 0;
+		accIs8 = (flags & 0x20) != 0;
+		return true;
+	}
+
+	/// <summary>
 	/// Gets coverage statistics.
 	/// </summary>
 	/// <returns>Tuple of (codeBytes, dataBytes, totalSize, coveragePercent).</returns>

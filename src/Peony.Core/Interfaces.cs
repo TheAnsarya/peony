@@ -15,6 +15,15 @@ bool IsControlFlow(DecodedInstruction instruction);
 
 /// <summary>Get possible target addresses for control flow instruction</summary>
 IEnumerable<uint> GetTargets(DecodedInstruction instruction, uint address);
+
+/// <summary>Update internal processor state after decoding an instruction (e.g., M/X flags for 65816 REP/SEP)</summary>
+void UpdateProcessorState(DecodedInstruction instruction) { }
+
+/// <summary>Get current processor state (M/X flags for 65816). Returns (accIs8=true, idxIs8=true) by default.</summary>
+(bool AccIs8, bool IdxIs8) GetProcessorState() => (true, true);
+
+/// <summary>Set processor state (M/X flags for 65816)</summary>
+void SetProcessorState(bool accIs8, bool idxIs8) { }
 }
 
 /// <summary>
@@ -47,6 +56,9 @@ MemoryRegion GetMemoryRegion(uint address);
 
 /// <summary>Get entry points (reset vectors, etc.) from ROM</summary>
 uint[] GetEntryPoints(ReadOnlySpan<byte> rom);
+
+/// <summary>Get platform default labels (hardware regs, vectors, header fields) from ROM</summary>
+IEnumerable<(uint Address, string Name)> GetDefaultLabels(ReadOnlySpan<byte> rom) => [];
 
 /// <summary>Convert CPU address to file offset (uses default/last bank)</summary>
 int AddressToOffset(uint address, int romLength);

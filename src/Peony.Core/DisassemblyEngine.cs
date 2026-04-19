@@ -21,6 +21,9 @@ public sealed class DisassemblyEngine {
 	private readonly Queue<(uint Address, int Bank)> _codeQueue = new();
 	private readonly HashSet<(int TargetBank, uint TargetAddress)> _bankCalls = [];
 
+	// M/X flag state at block entry points (for 65816 M/X tracking)
+	private readonly Dictionary<(uint Address, int Bank), (bool AccIs8, bool IdxIs8)> _entryMxState = [];
+
 	// Cross-reference tracking
 	private readonly Dictionary<uint, HashSet<CrossRef>> _crossRefs = [];
 
@@ -181,6 +184,12 @@ public sealed class DisassemblyEngine {
 		// Initialize bank blocks dictionary
 		for (int i = 0; i < _platformAnalyzer.BankCount; i++) {
 			result.BankBlocks[i] = [];
+		}
+
+		// Add deterministic platform labels (hardware regs, vectors, header fields)
+		// before queueing entry points so no-hints disassembly still has rich symbols.
+		foreach (var (address, name) in _platformAnalyzer.GetDefaultLabels(rom)) {
+			AddLabel(address, name);
 		}
 
 		// Determine which bank the entry points are in (usually last bank for NES)
@@ -517,6 +526,15 @@ public sealed class DisassemblyEngine {
 		var address = startAddress;
 		var maxInstructions = 10000;
 
+		// Restore M/X flag state at block entry
+		if (_entryMxState.TryGetValue((startAddress, bank), out var mx)) {
+			_cpuDecoder.SetProcessorState(mx.AccIs8, mx.IdxIs8);
+		} else if (TryGetSnesCdlMxState(startAddress, bank, rom.Length, out var cdlMx)) {
+			_cpuDecoder.SetProcessorState(cdlMx.AccIs8, cdlMx.IdxIs8);
+		} else {
+			_cpuDecoder.SetProcessorState(true, true);
+		}
+
 		while (maxInstructions-- > 0) {
 			if (_visited.ContainsKey((address, bank))) break;
 
@@ -534,13 +552,21 @@ public sealed class DisassemblyEngine {
 				break;
 			}
 
-			_visited[(address, bank)] = true;
+			// For SNES 65816, force decoder M/X to the authoritative per-byte CDL mode.
+			if (TryGetSnesCdlMxState(address, bank, rom.Length, out var perByteMx)) {
+				_cpuDecoder.SetProcessorState(perByteMx.AccIs8, perByteMx.IdxIs8);
+			}
 
 			var slice = rom[offset..];
 			if (slice.Length == 0) break;
 
 			var instruction = _cpuDecoder.Decode(slice, address);
 			if (instruction.Bytes.Length == 0) break;
+
+			_visited[(address, bank)] = true;
+
+			// Update M/X flags for 65816 decoder based on REP/SEP instructions
+			_cpuDecoder.UpdateProcessorState(instruction);
 
 // Check for BRK-based bank switch
 if (instruction.Mnemonic == "brk") {
@@ -619,6 +645,11 @@ if (_cpuDecoder.IsControlFlow(instruction)) {
 
 		if (!_visited.ContainsKey((target, targetBank))) {
 			_codeQueue.Enqueue((target, targetBank));
+			// Propagate M/X state to branch/call targets
+			if (!_entryMxState.ContainsKey((target, targetBank))) {
+				var state = _cpuDecoder.GetProcessorState();
+				_entryMxState[(target, targetBank)] = state;
+			}
 		}
 	}
 
@@ -672,6 +703,33 @@ return string.IsNullOrEmpty(instruction.Operand)
 private static bool IsUnconditionalBranch(DecodedInstruction instruction) {
 return instruction.Mnemonic is "jmp" or "rts" or "rti" or "brk";
 }
+
+	/// <summary>
+	/// Try to resolve SNES 65816 M/X flags from CDL for a CPU address/bank.
+	/// </summary>
+	private bool TryGetSnesCdlMxState(uint address, int bank, int romLength, out (bool AccIs8, bool IdxIs8) state) {
+		state = (true, true);
+
+		if (!_cpuDecoder.Architecture.Equals("65816", StringComparison.OrdinalIgnoreCase)) {
+			return false;
+		}
+
+		if (_symbolLoader?.CdlData is not { } cdl) {
+			return false;
+		}
+
+		var offset = _platformAnalyzer.AddressToOffset(address, romLength, bank);
+		if (offset < 0) {
+			return false;
+		}
+
+		if (!cdl.TryGetSnesMxState(offset, out var accIs8, out var idxIs8)) {
+			return false;
+		}
+
+		state = (accIs8, idxIs8);
+		return true;
+	}
 
 /// <summary>
 	/// Add a label if one doesn't exist.

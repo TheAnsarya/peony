@@ -136,7 +136,7 @@ public class PoppyFormatterTests {
 
 		Assert.Contains("; Disassembled by Peony", output);
 		Assert.Contains("; Platform: NES", output);
-		Assert.Contains(".system:NES", output);
+		Assert.Contains(".nes", output);
 	}
 
 	[Fact]

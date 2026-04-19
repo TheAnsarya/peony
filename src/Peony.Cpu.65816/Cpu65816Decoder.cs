@@ -1,4 +1,4 @@
-namespace Peony.Cpu;
+﻿namespace Peony.Cpu;
 
 using Peony.Core;
 
@@ -90,6 +90,26 @@ public sealed class Cpu65816Decoder : ICpuDecoder {
 			Mode65816.ImmediateX => IndexIs8Bit ? 2 : 3,
 			_ => baseBytes
 		};
+	}
+
+	public void UpdateProcessorState(DecodedInstruction instruction) {
+		if (instruction.Bytes.Length < 2) return;
+		var opcode = instruction.Bytes[0];
+		var operand = instruction.Bytes[1];
+		if (opcode == 0xc2) { // REP — clears bits (makes 16-bit)
+			if ((operand & 0x20) != 0) AccumulatorIs8Bit = false;
+			if ((operand & 0x10) != 0) IndexIs8Bit = false;
+		} else if (opcode == 0xe2) { // SEP — sets bits (makes 8-bit)
+			if ((operand & 0x20) != 0) AccumulatorIs8Bit = true;
+			if ((operand & 0x10) != 0) IndexIs8Bit = true;
+		}
+	}
+
+	public (bool AccIs8, bool IdxIs8) GetProcessorState() => (AccumulatorIs8Bit, IndexIs8Bit);
+
+	public void SetProcessorState(bool accIs8, bool idxIs8) {
+		AccumulatorIs8Bit = accIs8;
+		IndexIs8Bit = idxIs8;
 	}
 
 	public bool IsControlFlow(DecodedInstruction instruction) {

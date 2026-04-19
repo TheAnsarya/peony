@@ -217,6 +217,44 @@ public sealed class SnesAnalyzer : IPlatformAnalyzer {
 		return entries.Count > 0 ? [.. entries] : [0x8000];
 	}
 
+	public IEnumerable<(uint Address, string Name)> GetDefaultLabels(ReadOnlySpan<byte> rom) {
+		var labels = new Dictionary<uint, string>();
+
+		// Standard SNES hardware register labels.
+		foreach (var (address, name) in PpuRegisters) {
+			labels.TryAdd(address, name);
+		}
+		foreach (var (address, name) in ApuRegisters) {
+			labels.TryAdd(address, name);
+		}
+		foreach (var (address, name) in WramRegisters) {
+			labels.TryAdd(address, name);
+		}
+		foreach (var (address, name) in CpuRegisters) {
+			labels.TryAdd(address, name);
+		}
+
+		for (uint channel = 0; channel < 8; channel++) {
+			var baseAddr = 0x4300u + (channel << 4);
+			labels.TryAdd(baseAddr + 0x0, $"DMAP{channel}");
+			labels.TryAdd(baseAddr + 0x1, $"BBAD{channel}");
+			labels.TryAdd(baseAddr + 0x2, $"A1T{channel}L");
+			labels.TryAdd(baseAddr + 0x3, $"A1T{channel}H");
+			labels.TryAdd(baseAddr + 0x4, $"A1B{channel}");
+			labels.TryAdd(baseAddr + 0x5, $"DAS{channel}L");
+			labels.TryAdd(baseAddr + 0x6, $"DAS{channel}H");
+			labels.TryAdd(baseAddr + 0x7, $"DASB{channel}");
+			labels.TryAdd(baseAddr + 0x8, $"A2A{channel}L");
+			labels.TryAdd(baseAddr + 0x9, $"A2A{channel}H");
+			labels.TryAdd(baseAddr + 0xa, $"NTRL{channel}");
+		}
+
+		// Header field labels + vector pointer labels/targets.
+		AddHeaderAndVectorLabels(rom, labels);
+
+		return labels.Select(kvp => (kvp.Key, kvp.Value));
+	}
+
 	public bool IsInSwitchableRegion(uint address) {
 		// SNES doesn't have fixed/switchable regions like NES mappers
 		// Banks are directly addressed via the bank byte
@@ -347,6 +385,66 @@ public sealed class SnesAnalyzer : IPlatformAnalyzer {
 			0x06 => SnesMapMode.ExHiRom,
 			_ => SnesMapMode.LoRom
 		};
+	}
+
+	private void AddHeaderAndVectorLabels(ReadOnlySpan<byte> rom, Dictionary<uint, string> labels) {
+		var headerRelative = MapMode switch {
+			SnesMapMode.LoRom => 0x7fc0,
+			SnesMapMode.HiRom => 0xffc0,
+			SnesMapMode.ExLoRom => 0x407fc0,
+			SnesMapMode.ExHiRom => 0x40ffc0,
+			_ => 0x7fc0,
+		};
+
+		var headerFileOffset = RomDataOffset + headerRelative;
+		if (headerFileOffset < 0 || headerFileOffset + 0x40 > rom.Length) {
+			return;
+		}
+
+		void AddHeaderLabel(int relative, string name) {
+			var address = OffsetToAddress(headerFileOffset + relative);
+			if (address.HasValue) {
+				labels.TryAdd(address.Value, name);
+			}
+		}
+
+		AddHeaderLabel(0x00, "SNES_HDR_TITLE");
+		AddHeaderLabel(0x15, "SNES_HDR_MAP_MODE");
+		AddHeaderLabel(0x16, "SNES_HDR_CART_TYPE");
+		AddHeaderLabel(0x17, "SNES_HDR_ROM_SIZE");
+		AddHeaderLabel(0x18, "SNES_HDR_RAM_SIZE");
+		AddHeaderLabel(0x19, "SNES_HDR_REGION");
+		AddHeaderLabel(0x1a, "SNES_HDR_DEV_ID");
+		AddHeaderLabel(0x1b, "SNES_HDR_VERSION");
+		AddHeaderLabel(0x1c, "SNES_HDR_CHECKSUM_COMP");
+		AddHeaderLabel(0x1e, "SNES_HDR_CHECKSUM");
+
+		var vectorDefs = new (int Relative, string PtrName, string TargetName)[] {
+			(0x24, "SNES_VEC_NATIVE_COP_PTR", "SNES_VEC_NATIVE_COP"),
+			(0x26, "SNES_VEC_NATIVE_BRK_PTR", "SNES_VEC_NATIVE_BRK"),
+			(0x28, "SNES_VEC_NATIVE_ABORT_PTR", "SNES_VEC_NATIVE_ABORT"),
+			(0x2a, "SNES_VEC_NATIVE_NMI_PTR", "SNES_VEC_NATIVE_NMI"),
+			(0x2e, "SNES_VEC_NATIVE_IRQ_PTR", "SNES_VEC_NATIVE_IRQ"),
+			(0x34, "SNES_VEC_EMU_COP_PTR", "SNES_VEC_EMU_COP"),
+			(0x38, "SNES_VEC_EMU_ABORT_PTR", "SNES_VEC_EMU_ABORT"),
+			(0x3a, "SNES_VEC_EMU_NMI_PTR", "SNES_VEC_EMU_NMI"),
+			(0x3c, "SNES_VEC_EMU_RESET_PTR", "RESET"),
+			(0x3e, "SNES_VEC_EMU_IRQBRK_PTR", "SNES_VEC_EMU_IRQBRK"),
+		};
+
+		foreach (var (relative, ptrName, targetName) in vectorDefs) {
+			var ptrAddr = OffsetToAddress(headerFileOffset + relative);
+			if (ptrAddr.HasValue) {
+				labels.TryAdd(ptrAddr.Value, ptrName);
+			}
+
+			var lo = rom[headerFileOffset + relative];
+			var hi = rom[headerFileOffset + relative + 1];
+			var target = (uint)(lo | (hi << 8));
+			if (target >= 0x8000) {
+				labels.TryAdd(target, targetName);
+			}
+		}
 	}
 
 	// LoRom: 32KB banks, ROM at $8000-$FFFF

@@ -276,7 +276,7 @@ private static void FormatDataBlock(System.Text.StringBuilder sb, DisassembledBl
 }
 
 /// <summary>
-/// Check if an opcode is a relative branch instruction (8-bit or 16-bit offset).
+/// Check if an opcode uses PC-relative operands that should be preserved as raw bytes.
 /// </summary>
 private static bool IsBranchOpcode(byte opcode) => opcode switch {
 	0x10 => true, // bpl
@@ -285,10 +285,22 @@ private static bool IsBranchOpcode(byte opcode) => opcode switch {
 	0x70 => true, // bvs
 	0x80 => true, // bra
 	0x82 => true, // brl
+	0x62 => true, // per
 	0x90 => true, // bcc
 	0xb0 => true, // bcs
 	0xd0 => true, // bne
 	0xf0 => true, // beq
+	_ => false,
+};
+
+/// <summary>
+/// Opcodes with a signature byte where assembler encoding differences can cause
+/// byte drift. Emit as raw bytes to preserve exact ROM roundtrip.
+/// </summary>
+private static bool IsSignatureSensitiveOpcode(byte opcode) => opcode switch {
+	0x00 => true, // brk
+	0x02 => true, // cop
+	0x42 => true, // wdm
 	_ => false,
 };
 
@@ -349,6 +361,65 @@ private static string AddSizeSuffix(string formatted, byte[] bytes) {
 	return formatted;
 }
 
+/// <summary>
+/// Add .w suffix for absolute-mode instructions where the 16-bit operand fits
+/// in zero page (≤ $ff). This prevents the assembler from downgrading to
+/// zero-page addressing, which uses a different opcode.
+/// Also adds .l for 24-bit absolute-long instructions when the bank byte is $00,
+/// preventing long->absolute downgrades.
+/// </summary>
+private static string AddAddressModeSuffix(string formatted, byte[] bytes) {
+	// Only 3-byte (absolute) and 4-byte (absolute long) instructions can be downgraded.
+	if (bytes.Length is not 3 and not 4) return formatted;
+
+	var opcode = bytes[0];
+
+	// Skip branches (already emitted as .db)
+	if (IsBranchOpcode(opcode)) return formatted;
+
+	// Skip immediate-mode opcodes (handled by AddSizeSuffix)
+	if (_accImmediateOpcodes.Contains(opcode) || _idxImmediateOpcodes.Contains(opcode)) return formatted;
+
+	// Already has a size suffix — don't add another
+	if (formatted.Contains(".w ") || formatted.Contains(".b ") || formatted.Contains(".l ")) return formatted;
+
+	string? forcedSuffix = null;
+
+	if (bytes.Length == 3) {
+		// 16-bit absolute operand that fits in zero page: force absolute (.w)
+		var operand = bytes[1] | (bytes[2] << 8);
+		if (operand <= 0xff) {
+			forcedSuffix = ".w";
+		}
+	} else if (bytes.Length == 4) {
+		// 24-bit operand with bank byte $00 can collapse to absolute: force long (.l)
+		if (bytes[3] == 0x00) {
+			forcedSuffix = ".l";
+		}
+	}
+
+	if (forcedSuffix is null) return formatted;
+
+	// Add forced size suffix after mnemonic
+	var spaceIdx = formatted.IndexOf(' ');
+	if (spaceIdx > 0) {
+		return formatted[..spaceIdx] + forcedSuffix + formatted[spaceIdx..];
+	}
+
+	return formatted;
+}
+
+/// <summary>
+/// Strip bank prefix from 5-digit hex addresses in instruction text.
+/// E.g., $1803f → $803f. Keeps 6-digit addresses (AbsoluteLong like $018000) intact.
+/// </summary>
+private static string LocalizeAddresses(string content) {
+	return Regex.Replace(content, @"\$([0-9a-f]{5})(?![0-9a-f])", m => {
+		var fullAddr = Convert.ToUInt32(m.Groups[1].Value, 16);
+		return $"${fullAddr & 0xffff:x4}";
+	});
+}
+
 private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine line, DisassemblyResult result, int bank = -1, HashSet<string>? collidingLabels = null, HashSet<(int Bank, uint Address)>? definedLabelAddresses = null, Dictionary<(int Bank, uint Address), string>? definedLabelNames = null) {
 	// Add cross-reference comment before label if there are incoming references
 	var refs = result.GetReferencesTo(line.Address);
@@ -370,31 +441,56 @@ private static void FormatLine(System.Text.StringBuilder sb, DisassembledLine li
 		sb.AppendLine($"{QualifyLabel(line.Label, bank, collidingLabels)}:");
 	}
 
-	// Build the instruction line
+	// Build the instruction line with label substitution and size suffixes
 	var bytes = FormatBytesSpaced(line.Bytes);
+	var content = line.Content;
 
-	// Emit all instructions as raw .db bytes to guarantee byte-identical roundtrip
-	// The disassembled instruction is preserved in the comment for readability
-	{
-		var dbValues = string.Join(", ", line.Bytes.Select(b => $"${b:x2}"));
-		var rawInstruction = $"\t.db {dbValues}";
-		var padded = $"{rawInstruction,-26}";
-		var content = FormatWithLabels(line.Content, result, bank, collidingLabels, definedLabelAddresses, definedLabelNames);
-		var rawComment = $"; {line.Address:x4}: {bytes,-12} {content}";
-
-		// Include TODO prefix for todo comments, or inline comment (single-line only)
+	// Emit branch and signature-sensitive instructions as raw .db bytes.
+	// This preserves exact bytes when assembler mnemonic encoding can vary.
+	if (line.Bytes.Length >= 1 && (IsBranchOpcode(line.Bytes[0]) || IsSignatureSensitiveOpcode(line.Bytes[0]))) {
+		content = $".db {FormatBytesComma(line.Bytes)}";
+		var formatted2 = $"\t{content}";
+		var padded2 = $"{formatted2,-30}";
+		var comment2 = $"; {line.Address:x4}: {bytes}";
 		if (!string.IsNullOrEmpty(line.Comment) && !line.Comment.Contains('\n') &&
-			result.TypedComments.TryGetValue(line.Address, out var todoComment) &&
-			todoComment.Type == Pansy.Core.CommentType.Todo) {
-			rawComment += $" ; TODO: {line.Comment}";
+			result.TypedComments.TryGetValue(line.Address, out var brComment) &&
+			brComment.Type == Pansy.Core.CommentType.Todo) {
+			comment2 += $" ; TODO: {line.Comment}";
 		} else if (!string.IsNullOrEmpty(line.Comment) && !line.Comment.Contains('\n') &&
-			(!result.TypedComments.TryGetValue(line.Address, out var tc) || tc.Type != Pansy.Core.CommentType.Block)) {
-			rawComment += $" ; {line.Comment}";
+			(!result.TypedComments.TryGetValue(line.Address, out var brTc) || brTc.Type != Pansy.Core.CommentType.Block)) {
+			comment2 += $" ; {line.Comment}";
 		}
-
-		sb.AppendLine($"{padded}{rawComment}");
+		sb.AppendLine($"{padded2}{comment2}");
 		return;
 	}
+
+	// Keep explicit banked addresses intact in multi-bank output.
+	// Stripping 5-digit values can zero out long operand bank bytes at assemble time.
+
+	content = FormatWithLabels(content, result, bank, collidingLabels, definedLabelAddresses, definedLabelNames);
+
+	// Add .b/.w size suffix for M/X-affected immediate instructions (65816)
+	content = AddSizeSuffix(content, line.Bytes);
+
+	// Add .w suffix for absolute-mode instructions where the operand fits in zero page,
+	// preventing the assembler from downgrading to zero-page addressing (different opcode).
+	content = AddAddressModeSuffix(content, line.Bytes);
+
+	var formatted = $"\t{content}";
+	var padded = $"{formatted,-30}";
+	var comment = $"; {line.Address:x4}: {bytes}";
+
+	// Include TODO prefix for todo comments, or inline comment (single-line only)
+	if (!string.IsNullOrEmpty(line.Comment) && !line.Comment.Contains('\n') &&
+		result.TypedComments.TryGetValue(line.Address, out var todoComment) &&
+		todoComment.Type == Pansy.Core.CommentType.Todo) {
+		comment += $" ; TODO: {line.Comment}";
+	} else if (!string.IsNullOrEmpty(line.Comment) && !line.Comment.Contains('\n') &&
+		(!result.TypedComments.TryGetValue(line.Address, out var tc) || tc.Type != Pansy.Core.CommentType.Block)) {
+		comment += $" ; {line.Comment}";
+	}
+
+	sb.AppendLine($"{padded}{comment}");
 }
 
 /// <summary>
@@ -437,6 +533,10 @@ private static string FormatWithLabels(string instruction, DisassemblyResult res
 			if (kvp.Key.Bank != bank) continue;
 			var address = kvp.Key.Address;
 			var label = kvp.Value;
+
+			// Keep explicit 24-bit operands as numeric constants in multi-bank mode.
+			// Replacing with local labels can drop/alter bank bytes at assemble time.
+			if (address > 0xffff) continue;
 
 			// Skip immediate mode for small values (< 0x100) - keep as constants
 			if (address < 0x100 && instruction.Contains($"#${address:x2}", StringComparison.OrdinalIgnoreCase))
