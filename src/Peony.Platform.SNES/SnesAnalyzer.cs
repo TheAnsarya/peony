@@ -271,6 +271,11 @@ public sealed class SnesAnalyzer : IPlatformAnalyzer {
 		if (target > 0xffff) {
 			return (int)(target >> 16);
 		}
+		// For 16-bit addresses in LoROM range ($8000-$ffff), this is bank 0
+		// since OffsetToAddress for bank 0 returns (0 << 16) | addr = addr
+		if (target >= 0x8000) {
+			return 0;
+		}
 		return currentBank;
 	}
 
@@ -285,8 +290,11 @@ public sealed class SnesAnalyzer : IPlatformAnalyzer {
 		var addrBank = (int)((address >> 16) & 0xff);
 		var offset = (int)(address & 0xffff);
 
-		// Use address bank if specified, otherwise use parameter
-		if (addrBank > 0) bank = addrBank;
+		// Use address bank if the address is 24-bit (has bank byte embedded),
+		// otherwise fall back to the bank parameter.
+		// Note: bank 0 IS valid for SNES (reset vector lives there),
+		// so we check address magnitude, not bank value.
+		if (address > 0xffff) bank = addrBank;
 
 		return MapMode switch {
 			SnesMapMode.LoRom => LoRomAddressToOffset(bank, offset, adjustedLength) + headerOffset,

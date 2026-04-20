@@ -221,10 +221,11 @@ public sealed class DisassemblyEngine {
 			foreach (var offset in _symbolLoader.PansyJumpTargets) {
 				var address = RomOffsetToAddress((uint)offset, fixedBank);
 				if (address.HasValue && IsValidAddress(address.Value)) {
-					if (!_visited.ContainsKey((address.Value, fixedBank))) {
-						_codeQueue.Enqueue((address.Value, fixedBank));
-						if (GetLabel(address.Value, fixedBank) is null) {
-							AddLabel(address.Value, $"jmp_{offset:x4}", fixedBank);
+					var bank = _platformAnalyzer.GetTargetBank(address.Value, fixedBank);
+					if (!_visited.ContainsKey((address.Value, bank))) {
+						_codeQueue.Enqueue((address.Value, bank));
+						if (GetLabel(address.Value, bank) is null) {
+							AddLabel(address.Value, $"jmp_{offset:x4}", bank);
 						}
 					}
 				}
@@ -236,10 +237,25 @@ public sealed class DisassemblyEngine {
 			foreach (var offset in _symbolLoader.CdlData.SubEntryPoints) {
 				var address = RomOffsetToAddress((uint)offset, fixedBank);
 				if (address.HasValue && IsValidAddress(address.Value)) {
-					if (!_visited.ContainsKey((address.Value, fixedBank))) {
-						_codeQueue.Enqueue((address.Value, fixedBank));
-						if (GetLabel(address.Value, fixedBank) is null) {
-							AddLabel(address.Value, $"sub_{offset:x4}", fixedBank);
+					var bank = _platformAnalyzer.GetTargetBank(address.Value, fixedBank);
+					if (!_visited.ContainsKey((address.Value, bank))) {
+						_codeQueue.Enqueue((address.Value, bank));
+						if (GetLabel(address.Value, bank) is null) {
+							AddLabel(address.Value, $"sub_{offset:x4}", bank);
+						}
+					}
+				}
+			}
+
+			// Add CDL jump targets (branch destinations) as entry points
+			foreach (var offset in _symbolLoader.CdlData.JumpTargets) {
+				var address = RomOffsetToAddress((uint)offset, fixedBank);
+				if (address.HasValue && IsValidAddress(address.Value)) {
+					var bank = _platformAnalyzer.GetTargetBank(address.Value, fixedBank);
+					if (!_visited.ContainsKey((address.Value, bank))) {
+						_codeQueue.Enqueue((address.Value, bank));
+						if (GetLabel(address.Value, bank) is null) {
+							AddLabel(address.Value, $"jmp_{offset:x4}", bank);
 						}
 					}
 				}
@@ -251,10 +267,11 @@ public sealed class DisassemblyEngine {
 			foreach (var offset in _symbolLoader.PansySubEntryPoints) {
 				var address = RomOffsetToAddress((uint)offset, fixedBank);
 				if (address.HasValue && IsValidAddress(address.Value)) {
-					if (!_visited.ContainsKey((address.Value, fixedBank))) {
-						_codeQueue.Enqueue((address.Value, fixedBank));
-						if (GetLabel(address.Value, fixedBank) is null) {
-							AddLabel(address.Value, $"sub_{offset:x4}", fixedBank);
+					var bank = _platformAnalyzer.GetTargetBank(address.Value, fixedBank);
+					if (!_visited.ContainsKey((address.Value, bank))) {
+						_codeQueue.Enqueue((address.Value, bank));
+						if (GetLabel(address.Value, bank) is null) {
+							AddLabel(address.Value, $"sub_{offset:x4}", bank);
 						}
 					}
 				}
@@ -701,8 +718,9 @@ return string.IsNullOrEmpty(instruction.Operand)
 }
 
 private static bool IsUnconditionalBranch(DecodedInstruction instruction) {
-return instruction.Mnemonic is "jmp" or "rts" or "rti" or "brk";
-}
+		return instruction.Mnemonic is "jmp" or "jml" or "rts" or "rtl"
+			or "rti" or "brk" or "bra" or "brl";
+	}
 
 	/// <summary>
 	/// Try to resolve SNES 65816 M/X flags from CDL for a CPU address/bank.

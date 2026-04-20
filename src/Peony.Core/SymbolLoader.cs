@@ -134,12 +134,14 @@ public sealed class SymbolLoader {
 	/// Load CDL data from a pre-constructed CdlLoader instance.
 	/// </summary>
 	/// <param name="cdlLoader">The CDL loader with parsed data.</param>
-	public void LoadCdlData(CdlLoader cdlLoader) {
+	/// <param name="platformAnalyzer">Optional platform analyzer for ROM offset → CPU address translation.</param>
+	public void LoadCdlData(CdlLoader cdlLoader, IPlatformAnalyzer? platformAnalyzer = null) {
 		_cdlLoader = cdlLoader;
 
 		// Generate labels for subroutine entry points
 		foreach (var offset in _cdlLoader.SubEntryPoints) {
-			var address = (uint)offset;  // May need address translation
+			// Convert ROM offset to CPU address if platform analyzer is available
+			var address = platformAnalyzer?.OffsetToAddress(offset) ?? (uint)offset;
 			_labels.TryAdd(address, $"sub_{offset:x4}");
 		}
 	}
