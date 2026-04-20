@@ -18,6 +18,7 @@ public sealed class SymbolLoader {
 	private readonly List<Bookmark> _bookmarks = [];
 	private readonly List<DataTypeEntry> _pansyDataTypes = [];
 	private readonly List<CrossReference> _pansyCrossRefs = [];
+	private readonly List<MultiTargetCrossReference> _pansyMultiTargetCrossRefs = [];
 	private readonly List<CpuStateEntry> _pansyCpuStates = [];
 	private CdlLoader? _cdlLoader;
 	private DizLoader? _dizLoader;
@@ -62,6 +63,11 @@ public sealed class SymbolLoader {
 	/// Gets cross-references imported from Pansy.
 	/// </summary>
 	public IReadOnlyList<CrossReference> PansyCrossRefs => _pansyCrossRefs;
+
+	/// <summary>
+	/// Gets grouped one-source-many-target cross-references imported from Pansy.
+	/// </summary>
+	public IReadOnlyList<MultiTargetCrossReference> PansyMultiTargetCrossRefs => _pansyMultiTargetCrossRefs;
 
 	/// <summary>
 	/// Gets CPU state entries imported from Pansy (per-address M/X flags, data bank, direct page, CPU mode).
@@ -243,6 +249,11 @@ public sealed class SymbolLoader {
 		// Import cross-references (confirmed code flow relationships)
 		foreach (var xref in _pansyLoader.CrossReferences) {
 			_pansyCrossRefs.Add(xref);
+		}
+
+		// Import grouped one-source-many-target references.
+		foreach (var xref in _pansyLoader.MultiTargetCrossReferences) {
+			_pansyMultiTargetCrossRefs.Add(xref);
 		}
 
 		// Import CPU state entries (per-address processor mode/flags)

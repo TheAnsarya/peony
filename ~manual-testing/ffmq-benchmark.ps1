@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 	FFMQ disassembly regression benchmark.
 	Verifies that Peony produces expected metrics when disassembling

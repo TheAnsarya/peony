@@ -1,4 +1,5 @@
 ﻿using Peony.Core;
+using Pansy.Core;
 using Xunit;
 
 namespace Peony.Core.Tests;
@@ -137,6 +138,26 @@ public class DisassemblyPipelineTests {
 		// Primary entry (lowest sorted) should be first
 		Assert.Equal(0x8000u, entries[0]);
 		Assert.Equal(3, entries.Length);
+	}
+
+	[Fact]
+	public void BuildEntryPoints_UsesGroupedPansyMultiTargetReferences() {
+		var analyzer = new MockPlatformAnalyzer { EntryPoints = [0x8000] };
+		var romData = new byte[0x8000];
+
+		var writer = new PansyWriter {
+			Platform = PansyLoader.PLATFORM_SNES,
+			RomSize = 0x8000
+		};
+		writer.AddMultiTargetCrossReference(new MultiTargetCrossReference(0x0010, Pansy.Core.CrossRefType.Branch, [0x0100, 0x0200]));
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(writer.Generate());
+
+		var entries = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, loader);
+
+		Assert.Contains(0x8100u, entries);
+		Assert.Contains(0x8200u, entries);
 	}
 
 	// =========================================================================

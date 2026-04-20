@@ -98,6 +98,21 @@ public static class DisassemblyPipeline {
 			}
 		}
 
+		// 4b. Explicit grouped one-source-many-target references (if present)
+		if (symbolLoader?.PansyData is { } grouped && grouped.MultiTargetCrossReferences.Count > 0) {
+			var groupedTargets = grouped.MultiTargetCrossReferences
+				.Where(x => x.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch)
+				.SelectMany(x => x.Targets)
+				.Distinct()
+				.OrderBy(x => x);
+
+			foreach (var target in groupedTargets) {
+				var addr = analyzer.OffsetToAddress((int)target);
+				if (addr.HasValue)
+					Add(addr.Value);
+			}
+		}
+
 		// 5. CDL sub-entry points
 		if (symbolLoader?.CdlData is { } cdl && cdl.SubEntryPoints.Count > 0) {
 			foreach (var offset in cdl.SubEntryPoints.OrderBy(x => x)) {

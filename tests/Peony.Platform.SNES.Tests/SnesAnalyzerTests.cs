@@ -1,4 +1,4 @@
-namespace Peony.Platform.SNES.Tests;
+﻿namespace Peony.Platform.SNES.Tests;
 
 using Xunit;
 

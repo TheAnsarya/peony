@@ -250,6 +250,27 @@ public class SymbolLoaderTests {
 		Assert.Null(loader.IsData(0));
 	}
 
+	[Fact]
+	public void LoadPansyData_ImportsGroupedMultiTargetCrossRefs() {
+		var writer = new PansyWriter {
+			Platform = PansyLoader.PLATFORM_SNES,
+			RomSize = 0x80000
+		};
+
+		writer.AddMultiTargetCrossReference(new MultiTargetCrossReference(
+			From: 0x1000,
+			Type: Pansy.Core.CrossRefType.Branch,
+			Targets: [0x1010, 0x1020]));
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(writer.Generate());
+
+		Assert.Single(loader.PansyMultiTargetCrossRefs);
+		Assert.Equal(2, loader.PansyMultiTargetCrossRefs[0].Targets.Count);
+		Assert.Contains(loader.PansyCrossRefs, x => x.From == 0x1000 && x.To == 0x1010 && x.Type == Pansy.Core.CrossRefType.Branch);
+		Assert.Contains(loader.PansyCrossRefs, x => x.From == 0x1000 && x.To == 0x1020 && x.Type == Pansy.Core.CrossRefType.Branch);
+	}
+
 	#endregion
 
 	#region General SymbolLoader Tests

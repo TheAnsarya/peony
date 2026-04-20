@@ -1,4 +1,4 @@
-# SNES CDL/Pansy Integration Fixes - Technical Plan
+﻿# SNES CDL/Pansy Integration Fixes - Technical Plan
 
 > Epic: #179 | Created: 2026-04-20
 
