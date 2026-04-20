@@ -42,11 +42,46 @@ public static class DisassemblyPipeline {
 	}
 
 	/// <summary>
+	/// Maximum number of targets consumed from a single multi-target cross-reference
+	/// (indirect jump) source during entry-point expansion.
+	///
+	/// <para>
+	/// Policy rationale: A single indirect jump (e.g. a jump table) may legitimately
+	/// resolve to thousands of targets. To keep seeding deterministic and bounded, we
+	/// cap the number of targets accepted per source group. Any legitimate sub-entries
+	/// beyond this limit will still be discovered at runtime via recursive descent once
+	/// the surrounding code is disassembled.
+	/// </para>
+	///
+	/// <para>
+	/// Performance: at 10,000 targets per source and typical SNES/NES game complexity,
+	/// this cap is effectively never hit in practice. Its purpose is to guard against
+	/// pathological or malformed Pansy files generating unbounded queue growth
+	/// (O(N) entries, O(N) labels) before disassembly begins.
+	/// </para>
+	/// </summary>
+	public const int MaxIndirectJumpTargetsPerSource = 10_000;
+
+	/// <summary>
 	/// Builds a comprehensive, deterministically-ordered entry point list by
 	/// merging platform reset vectors with hints from Pansy and CDL data.
-	/// Order: platform primary → Pansy sub-entries → Pansy jump targets →
-	/// Pansy cross-refs → CDL sub-entries → CDL jump targets →
-	/// remaining platform entries → fallback.
+	///
+	/// <para>
+	/// Expansion policy (in priority order):
+	/// <list type="number">
+	///   <item>Platform primary reset vector (deterministic start)</item>
+	///   <item>Pansy sub-entry points (CODE/DATA map SUB_ENTRY flag)</item>
+	///   <item>Pansy jump targets (CODE/DATA map JUMP_TARGET flag)</item>
+	///   <item>Pansy cross-reference targets (JSR, JMP, Branch edges)</item>
+	///   <item>Pansy multi-target indirect jump targets (fan-out capped at <see cref="MaxIndirectJumpTargetsPerSource"/> per source)</item>
+	///   <item>CDL sub-entry points</item>
+	///   <item>CDL jump targets</item>
+	///   <item>Remaining platform entry vectors</item>
+	///   <item>Fallback to 0x8000 if empty</item>
+	/// </list>
+	/// All hint-derived addresses are sorted ascending before insertion to ensure
+	/// deterministic output regardless of Pansy file serialization order.
+	/// </para>
 	/// </summary>
 	public static uint[] BuildEntryPoints(
 		IPlatformAnalyzer analyzer,
@@ -85,33 +120,51 @@ public static class DisassemblyPipeline {
 			}
 		}
 
-		// 4. Pansy cross-reference targets (JSR, JMP, Branch)
+		// 4. Pansy cross-reference targets (JSR, JMP, Branch).
+		// Grouped by source so that any single from-address can contribute at most
+		// MaxIndirectJumpTargetsPerSource targets — this caps the legacy edge
+		// representation of indirect/multi-target jumps that also writes individual
+		// CrossReference edges via PansyWriter.AddMultiTargetCrossReference.
+		// Targets within each source group are sorted ascending before the cap is
+		// applied so the lowest addresses are always preferred, ensuring determinism
+		// regardless of serialisation order in the Pansy file.
 		if (symbolLoader?.PansyData is { } pd && pd.CrossReferences.Count > 0) {
-			var targets = pd.CrossReferences
+			var bySource = pd.CrossReferences
 				.Where(x => x.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch)
-				.Select(x => x.To)
-				.Distinct()
-				.OrderBy(x => x);
+				.GroupBy(x => x.From);
 
-			foreach (var target in targets) {
-				var addr = analyzer.OffsetToAddress((int)target);
-				if (addr.HasValue)
-					Add(addr.Value);
+			foreach (var group in bySource) {
+				var cappedTargets = group
+					.Select(x => x.To)
+					.Distinct()
+					.OrderBy(x => x)
+					.Take(MaxIndirectJumpTargetsPerSource);
+
+				foreach (var target in cappedTargets) {
+					var addr = analyzer.OffsetToAddress((int)target);
+					if (addr.HasValue)
+						Add(addr.Value);
+				}
 			}
 		}
 
-		// 4b. Explicit grouped one-source-many-target references (if present)
+		// 4b. Explicit grouped one-source-many-target references (indirect jumps).
+		// Each source group is capped at MaxIndirectJumpTargetsPerSource to bound
+		// queue growth from pathological or high-fan-out jump tables.
+		// Targets within each group are sorted ascending for deterministic ordering.
 		if (symbolLoader?.PansyData is { } grouped && grouped.MultiTargetCrossReferences.Count > 0) {
-			var groupedTargets = grouped.MultiTargetCrossReferences
-				.Where(x => x.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch)
-				.SelectMany(x => x.Targets)
-				.Distinct()
-				.OrderBy(x => x);
+			foreach (var group in grouped.MultiTargetCrossReferences
+				.Where(x => x.Type is Pansy.Core.CrossRefType.Jsr or Pansy.Core.CrossRefType.Jmp or Pansy.Core.CrossRefType.Branch)) {
+				var cappedTargets = group.Targets
+					.Distinct()
+					.OrderBy(x => x)
+					.Take(MaxIndirectJumpTargetsPerSource);
 
-			foreach (var target in groupedTargets) {
-				var addr = analyzer.OffsetToAddress((int)target);
-				if (addr.HasValue)
-					Add(addr.Value);
+				foreach (var target in cappedTargets) {
+					var addr = analyzer.OffsetToAddress((int)target);
+					if (addr.HasValue)
+						Add(addr.Value);
+				}
 			}
 		}
 

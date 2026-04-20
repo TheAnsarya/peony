@@ -259,4 +259,110 @@ public class DisassemblyPipelineTests {
 
 		Assert.NotNull(result);
 	}
+
+	// =========================================================================
+	// Fan-out cap tests — multi-target cross-reference expansion policy (#192)
+	// =========================================================================
+
+	[Fact]
+	public void BuildEntryPoints_MultiTargetXref_CapIsAppliedPerSource() {
+		// Generate MaxIndirectJumpTargetsPerSource+1 targets for a single indirect jump.
+		// Only the first MaxIndirectJumpTargetsPerSource (sorted ascending) should appear.
+		var analyzer = new MockPlatformAnalyzer { EntryPoints = [0x8000] };
+		var romData = new byte[0x10000];
+
+		int overCap = DisassemblyPipeline.MaxIndirectJumpTargetsPerSource + 1;
+		// Targets are offsets 0..overCap-1; OffsetToAddress adds 0x8000
+		var targets = Enumerable.Range(1, overCap).Select(i => (uint)i).ToArray();
+
+		var writer = new PansyWriter { Platform = PansyLoader.PLATFORM_SNES, RomSize = 0x10000 };
+		writer.AddMultiTargetCrossReference(new MultiTargetCrossReference(
+			0x0000,
+			Pansy.Core.CrossRefType.Jmp,
+			targets));
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(writer.Generate());
+
+		var entries = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, loader);
+
+		// Should contain MaxIndirectJumpTargetsPerSource targets from this group
+		// plus the primary entry 0x8000
+		var groupEntries = entries.Where(e => e != 0x8000).ToArray();
+		Assert.Equal(DisassemblyPipeline.MaxIndirectJumpTargetsPerSource, groupEntries.Length);
+	}
+
+	[Fact]
+	public void BuildEntryPoints_MultiTargetXref_CapIsPerSource_MultipleGroupsEachGetFullCap() {
+		// Two sources, each with MaxIndirectJumpTargetsPerSource+1 targets.
+		// Both groups should each contribute MaxIndirectJumpTargetsPerSource entries.
+		var analyzer = new MockPlatformAnalyzer { EntryPoints = [0x8000] };
+		var romData = new byte[0x10000];
+
+		int overCap = DisassemblyPipeline.MaxIndirectJumpTargetsPerSource + 1;
+		var targets1 = Enumerable.Range(1, overCap).Select(i => (uint)i).ToArray();
+		// Targets2 overlaps with targets1 entirely, so after deduplication each group still caps independently
+		var targets2 = Enumerable.Range(1, overCap).Select(i => (uint)(i + overCap)).ToArray();
+
+		var writer = new PansyWriter { Platform = PansyLoader.PLATFORM_SNES, RomSize = 0x10000 };
+		writer.AddMultiTargetCrossReference(new MultiTargetCrossReference(0x0001, Pansy.Core.CrossRefType.Jmp, targets1));
+		writer.AddMultiTargetCrossReference(new MultiTargetCrossReference(0x0002, Pansy.Core.CrossRefType.Jmp, targets2));
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(writer.Generate());
+
+		var entries = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, loader);
+
+		// All unique targets from both capped groups should be present
+		var groupEntries = entries.Where(e => e != 0x8000).ToArray();
+		Assert.Equal(DisassemblyPipeline.MaxIndirectJumpTargetsPerSource * 2, groupEntries.Length);
+	}
+
+	[Fact]
+	public void BuildEntryPoints_MultiTargetXref_WithinCap_AllTargetsIncluded() {
+		// A group with fewer targets than the cap should include all of them.
+		var analyzer = new MockPlatformAnalyzer { EntryPoints = [0x8000] };
+		var romData = new byte[0x8000];
+
+		var targets = new uint[] { 0x0010, 0x0020, 0x0030 };
+
+		var writer = new PansyWriter { Platform = PansyLoader.PLATFORM_SNES, RomSize = 0x8000 };
+		writer.AddMultiTargetCrossReference(new MultiTargetCrossReference(0x0000, Pansy.Core.CrossRefType.Jmp, targets));
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(writer.Generate());
+
+		var entries = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, loader);
+
+		Assert.Contains(0x8010u, entries);
+		Assert.Contains(0x8020u, entries);
+		Assert.Contains(0x8030u, entries);
+	}
+
+	[Fact]
+	public void BuildEntryPoints_MultiTargetXref_TargetsSortedAscendingBeforeCap() {
+		// Targets in reverse order should still be sorted ascending before cap is applied,
+		// ensuring the lowest addresses (not the highest) are preserved when capped.
+		var analyzer = new MockPlatformAnalyzer { EntryPoints = [0x8000] };
+		var romData = new byte[0x10000];
+
+		int overCap = DisassemblyPipeline.MaxIndirectJumpTargetsPerSource + 1;
+		// Reverse order: highest first, so without sorting the cap would drop the lowest
+		var targets = Enumerable.Range(1, overCap).Select(i => (uint)(overCap - i + 1)).ToArray();
+
+		var writer = new PansyWriter { Platform = PansyLoader.PLATFORM_SNES, RomSize = 0x10000 };
+		writer.AddMultiTargetCrossReference(new MultiTargetCrossReference(0x0000, Pansy.Core.CrossRefType.Jmp, targets));
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(writer.Generate());
+
+		var entries = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, loader);
+
+		// After sort+cap, the lowest MaxIndirectJumpTargetsPerSource addresses should be present
+		// The highest address (offset=overCap, addr=0x8000+overCap) should NOT be present
+		var groupEntries = entries.Where(e => e != 0x8000).ToArray();
+		Assert.Equal(DisassemblyPipeline.MaxIndirectJumpTargetsPerSource, groupEntries.Length);
+		// The highest address (offset = overCap = MaxIndirectJumpTargetsPerSource+1) should be dropped
+		Assert.DoesNotContain((uint)(0x8000 + overCap), groupEntries);
+	}
 }
