@@ -192,6 +192,7 @@ dotnet pack
 - [Disassembly Workflow](docs/DISASSEMBLY-WORKFLOW.md) — Step-by-step guide to disassembling ROMs
 - [Peony Project Format](docs/PEONY-PROJECT-FORMAT.md) — `.peony` archive/folder specification
 - [CDL & Pansy Integration](docs/CDL-PANSY-INTEGRATION.md) — How CDL/Pansy metadata improves disassembly
+- [Pansy Jump Metadata Contract](docs/PANSY-JUMP-METADATA.md) — Cross-reference seeding policy, types, producer guide, troubleshooting
 - [Nexen Game Pack Workflow](docs/NEXEN-PACK-WORKFLOW.md) — Disassemble from `.nexen-pack.zip` files
 - [Improving Disassembly](docs/IMPROVING-DISASSEMBLY.md) — Guide to correcting and enhancing output
 
