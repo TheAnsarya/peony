@@ -160,6 +160,22 @@ public class DisassemblyPipelineTests {
 		Assert.Contains(0x8200u, entries);
 	}
 
+	[Fact]
+	public void BuildEntryPoints_UsesCdlJumpTargets() {
+		var analyzer = new MockPlatformAnalyzer { EntryPoints = [0x8000] };
+		var romData = new byte[0x8000];
+
+		var cdlData = new byte[0x200];
+		cdlData[0x40] = 0x04; // Mesen jump-target flag
+
+		var loader = new SymbolLoader();
+		loader.LoadCdlData(new CdlLoader(cdlData));
+
+		var entries = DisassemblyPipeline.BuildEntryPoints(analyzer, romData, loader);
+
+		Assert.Contains(0x8040u, entries);
+	}
+
 	// =========================================================================
 	// CreateEngine tests
 	// =========================================================================

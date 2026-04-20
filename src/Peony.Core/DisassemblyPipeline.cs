@@ -44,7 +44,8 @@ public static class DisassemblyPipeline {
 	/// Builds a comprehensive, deterministically-ordered entry point list by
 	/// merging platform reset vectors with hints from Pansy and CDL data.
 	/// Order: platform primary → Pansy sub-entries → Pansy jump targets →
-	/// Pansy cross-refs → CDL sub-entries → remaining platform entries → fallback.
+	/// Pansy cross-refs → CDL sub-entries → CDL jump targets →
+	/// remaining platform entries → fallback.
 	/// </summary>
 	public static uint[] BuildEntryPoints(
 		IPlatformAnalyzer analyzer,
@@ -122,11 +123,20 @@ public static class DisassemblyPipeline {
 			}
 		}
 
-		// 6. Remaining platform entry points
+		// 6. CDL jump targets
+		if (symbolLoader?.CdlData is { } cdlJump && cdlJump.JumpTargets.Count > 0) {
+			foreach (var offset in cdlJump.JumpTargets.OrderBy(x => x)) {
+				var addr = analyzer.OffsetToAddress(offset);
+				if (addr.HasValue)
+					Add(addr.Value);
+			}
+		}
+
+		// 7. Remaining platform entry points
 		for (int i = 1; i < ordered.Length; i++)
 			Add(ordered[i]);
 
-		// 7. Fallback if nothing found
+		// 8. Fallback if nothing found
 		if (entryPoints.Count == 0)
 			Add(0x8000);
 
