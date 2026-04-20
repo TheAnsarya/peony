@@ -38,6 +38,8 @@ public sealed class CdlLoader {
 		FCEUX,
 		/// <summary>Mesen CDL format ("CDL\x01" header + bytes)</summary>
 		Mesen,
+		/// <summary>Raw Mesen CDL format (no header, Mesen flag encoding)</summary>
+		MesenRaw,
 		/// <summary>Mesen2 CDL format ("CDLv2" header + CRC32 + bytes)</summary>
 		MesenV2,
 		/// <summary>bsnes CDL format</summary>
@@ -208,8 +210,15 @@ public sealed class CdlLoader {
 				return CdlFormat.MesenV2;
 		}
 
-		// bsnes uses different flags, detect by checking common patterns
-		// For now, default to FCEUX if no header
+		// Heuristic: detect raw Mesen CDL (no header) vs FCEUX.
+		// Mesen uses bits 0x04 (JumpTarget) and 0x08 (SubEntryPoint) which FCEUX never sets.
+		// FCEUX only uses: 0x01 (Code), 0x02 (Data), 0x10 (IndirectCode), 0x20 (IndirectData), 0x40 (PCMAudio).
+		// If any byte has 0x04 or 0x08 set, this is raw Mesen format.
+		for (int i = 0; i < Math.Min(data.Length, 65536); i++) {
+			if ((data[i] & 0x0c) != 0) // 0x04 | 0x08 = JumpTarget | SubEntryPoint
+				return CdlFormat.MesenRaw; // Raw Mesen format (no header)
+		}
+
 		return CdlFormat.FCEUX;
 	}
 
@@ -227,6 +236,7 @@ public sealed class CdlLoader {
 			// Skip "CDLv2" header (5 bytes) + CRC32 (4 bytes) = 9 bytes
 			startOffset = 9;
 		}
+		// MesenRaw has no header, startOffset stays 0
 
 		cdl = _cdlData.AsSpan(startOffset);
 
@@ -234,7 +244,7 @@ public sealed class CdlLoader {
 			var flags = cdl[i];
 			if (flags == 0) continue;  // Unreached
 
-			if (_format == CdlFormat.Mesen || _format == CdlFormat.MesenV2) {
+			if (_format == CdlFormat.Mesen || _format == CdlFormat.MesenV2 || _format == CdlFormat.MesenRaw) {
 				if ((flags & MESEN_CODE) != 0)
 					_codeOffsets.Add(i);
 
