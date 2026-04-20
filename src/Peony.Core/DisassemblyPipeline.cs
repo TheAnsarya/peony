@@ -14,7 +14,8 @@ public static class DisassemblyPipeline {
 		string? symbolsPath = null,
 		string? cdlPath = null,
 		string? dizPath = null,
-		string? pansyPath = null) {
+		string? pansyPath = null,
+		IPlatformAnalyzer? analyzer = null) {
 		SymbolLoader? loader = null;
 
 		if (symbolsPath != null && File.Exists(symbolsPath)) {
@@ -24,7 +25,7 @@ public static class DisassemblyPipeline {
 
 		if (cdlPath != null && File.Exists(cdlPath)) {
 			loader ??= new SymbolLoader();
-			loader.LoadCdl(cdlPath);
+			loader.LoadCdl(cdlPath, analyzer);
 		}
 
 		if (dizPath != null && File.Exists(dizPath)) {

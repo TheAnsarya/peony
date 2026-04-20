@@ -115,7 +115,7 @@ disasmCommand.SetHandler((context) =>
 		if (cdlFile?.Exists == true)
 		{
 			symbolLoader ??= new SymbolLoader();
-			symbolLoader.LoadCdl(cdlFile.FullName);
+			symbolLoader.LoadCdl(cdlFile.FullName, analyzer);
 			var stats = symbolLoader.CdlData!.GetCoverageStats();
 			AnsiConsole.MarkupLine($"[grey]CDL:[/] {stats.CodeBytes:N0} code bytes, {stats.DataBytes:N0} data bytes ({stats.CoveragePercent:F1}% coverage)");
 			AnsiConsole.MarkupLine($"[grey]CDL Entry Points:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0} subroutines detected");
@@ -398,7 +398,8 @@ exportCommand.SetHandler((context) =>
 			symbolsPath: symbols?.Exists == true ? symbols.FullName : null,
 			cdlPath: cdlFile?.Exists == true ? cdlFile.FullName : null,
 			dizPath: dizFile?.Exists == true ? dizFile.FullName : null,
-			pansyPath: pansyFile?.Exists == true ? pansyFile.FullName : null);
+			pansyPath: pansyFile?.Exists == true ? pansyFile.FullName : null,
+			analyzer: analyzer);
 
 		if (symbolLoader != null)
 			AnsiConsole.MarkupLine($"[grey]Loaded hints:[/] {symbolLoader.Labels.Count} labels, {symbolLoader.TypedSymbols.Count} typed symbols");
@@ -1319,7 +1320,7 @@ importCommand.SetHandler((packFile, projectDir, allBanks, format, noScaffold, fo
 		if (pack.CdlPath != null && File.Exists(pack.CdlPath))
 		{
 			symbolLoader ??= new SymbolLoader();
-			symbolLoader.LoadCdl(pack.CdlPath);
+			symbolLoader.LoadCdl(pack.CdlPath, analyzer);
 			var stats = symbolLoader.CdlData!.GetCoverageStats();
 			AnsiConsole.MarkupLine($"[grey]CDL:[/] {stats.CodeBytes:N0} code, {stats.DataBytes:N0} data ({stats.CoveragePercent:F1}% coverage)");
 			AnsiConsole.MarkupLine($"[grey]CDL Subroutines:[/] {symbolLoader.CdlData.SubEntryPoints.Count:N0}");
@@ -1478,7 +1479,7 @@ projectCommand.SetHandler((context) =>
 		if (cdlFile?.Exists == true)
 		{
 			symbolLoader ??= new SymbolLoader();
-			symbolLoader.LoadCdl(cdlFile.FullName);
+			symbolLoader.LoadCdl(cdlFile.FullName, analyzer);
 			AnsiConsole.MarkupLine($"[grey]CDL:[/] loaded");
 		}
 		if (pansyFile?.Exists == true)

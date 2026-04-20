@@ -132,8 +132,9 @@ public sealed class SymbolLoader {
 	/// Load a CDL (Code/Data Log) file from emulators like FCEUX/Mesen.
 	/// </summary>
 	/// <param name="path">Path to the CDL file.</param>
-	public void LoadCdl(string path) {
-		LoadCdlData(CdlLoader.Load(path));
+	/// <param name="platformAnalyzer">Optional platform analyzer for platform-aware CDL format detection.</param>
+	public void LoadCdl(string path, IPlatformAnalyzer? platformAnalyzer = null) {
+		LoadCdlData(CdlLoader.Load(path, platformAnalyzer?.Platform), platformAnalyzer);
 	}
 
 	/// <summary>

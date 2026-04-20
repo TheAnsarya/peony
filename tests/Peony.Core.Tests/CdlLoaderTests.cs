@@ -104,4 +104,16 @@ public class CdlLoaderTests {
 		Assert.Contains(5, loader.SubEntryPoints);
 		Assert.DoesNotContain(10, loader.SubEntryPoints);
 	}
+
+	[Fact]
+	public void SnesHint_TreatsUpperNibbleAsMesenState_NotFceuxIndirectCode() {
+		var cdlData = new byte[16];
+		cdlData[2] = 0x11; // code + SNES index-mode bit
+
+		var loader = new CdlLoader(cdlData, "SNES");
+
+		Assert.Equal(CdlLoader.CdlFormat.MesenRaw, loader.Format);
+		Assert.True(loader.IsCode(2));
+		Assert.False(loader.IsSubEntryPoint(2));
+	}
 }

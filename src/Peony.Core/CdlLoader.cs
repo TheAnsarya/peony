@@ -75,9 +75,10 @@ public sealed class CdlLoader {
 	/// Creates a CDL loader from raw data.
 	/// </summary>
 	/// <param name="cdlData">The raw CDL file bytes.</param>
-	public CdlLoader(byte[] cdlData) {
+	/// <param name="platformHint">Optional platform hint (for example, "SNES") for format detection.</param>
+	public CdlLoader(byte[] cdlData, string? platformHint = null) {
 		_cdlData = cdlData;
-		_format = DetectFormat(cdlData);
+		_format = DetectFormat(cdlData, platformHint);
 		Parse();
 	}
 
@@ -85,10 +86,11 @@ public sealed class CdlLoader {
 	/// Loads a CDL file from disk.
 	/// </summary>
 	/// <param name="path">Path to the CDL file.</param>
+	/// <param name="platformHint">Optional platform hint (for example, "SNES") for format detection.</param>
 	/// <returns>A new CdlLoader instance.</returns>
-	public static CdlLoader Load(string path) {
+	public static CdlLoader Load(string path, string? platformHint = null) {
 		var data = File.ReadAllBytes(path);
-		return new CdlLoader(data);
+		return new CdlLoader(data, platformHint);
 	}
 
 	/// <summary>
@@ -198,7 +200,7 @@ public sealed class CdlLoader {
 	/// <summary>
 	/// Detects the CDL file format.
 	/// </summary>
-	private static CdlFormat DetectFormat(byte[] data) {
+	private static CdlFormat DetectFormat(byte[] data, string? platformHint) {
 		if (data.Length < 4)
 			return CdlFormat.FCEUX;  // Too small for header
 
@@ -217,6 +219,13 @@ public sealed class CdlLoader {
 		for (int i = 0; i < Math.Min(data.Length, 65536); i++) {
 			if ((data[i] & 0x0c) != 0) // 0x04 | 0x08 = JumpTarget | SubEntryPoint
 				return CdlFormat.MesenRaw; // Raw Mesen format (no header)
+		}
+
+		// SNES raw CDL can use upper-nibble CPU-state flags (M/X/GSU/CX4).
+		// Those overlap FCEUX meanings, so prefer MesenRaw when platform is SNES.
+		if (!string.IsNullOrWhiteSpace(platformHint) &&
+			platformHint.Contains("snes", StringComparison.OrdinalIgnoreCase)) {
+			return CdlFormat.MesenRaw;
 		}
 
 		return CdlFormat.FCEUX;
