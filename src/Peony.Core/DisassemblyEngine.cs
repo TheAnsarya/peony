@@ -546,8 +546,8 @@ public sealed class DisassemblyEngine {
 		// Restore M/X flag state at block entry
 		if (_entryMxState.TryGetValue((startAddress, bank), out var mx)) {
 			_cpuDecoder.SetProcessorState(mx.AccIs8, mx.IdxIs8);
-		} else if (TryGetSnesCdlMxState(startAddress, bank, rom.Length, out var cdlMx)) {
-			_cpuDecoder.SetProcessorState(cdlMx.AccIs8, cdlMx.IdxIs8);
+		} else if (TryGetSnesMxState(startAddress, bank, rom.Length, out var hintMx)) {
+			_cpuDecoder.SetProcessorState(hintMx.AccIs8, hintMx.IdxIs8);
 		} else {
 			_cpuDecoder.SetProcessorState(true, true);
 		}
@@ -569,8 +569,8 @@ public sealed class DisassemblyEngine {
 				break;
 			}
 
-			// For SNES 65816, force decoder M/X to the authoritative per-byte CDL mode.
-			if (TryGetSnesCdlMxState(address, bank, rom.Length, out var perByteMx)) {
+			// For SNES 65816, force decoder M/X to the authoritative per-byte hint state.
+			if (TryGetSnesMxState(address, bank, rom.Length, out var perByteMx)) {
 				_cpuDecoder.SetProcessorState(perByteMx.AccIs8, perByteMx.IdxIs8);
 			}
 
@@ -723,16 +723,17 @@ private static bool IsUnconditionalBranch(DecodedInstruction instruction) {
 	}
 
 	/// <summary>
-	/// Try to resolve SNES 65816 M/X flags from CDL for a CPU address/bank.
+	/// Try to resolve SNES 65816 M/X flags for a CPU address/bank.
+	/// Prefers canonical Pansy CPU-state metadata and falls back to CDL.
 	/// </summary>
-	private bool TryGetSnesCdlMxState(uint address, int bank, int romLength, out (bool AccIs8, bool IdxIs8) state) {
+	private bool TryGetSnesMxState(uint address, int bank, int romLength, out (bool AccIs8, bool IdxIs8) state) {
 		state = (true, true);
 
 		if (!_cpuDecoder.Architecture.Equals("65816", StringComparison.OrdinalIgnoreCase)) {
 			return false;
 		}
 
-		if (_symbolLoader?.CdlData is not { } cdl) {
+		if (_symbolLoader is null) {
 			return false;
 		}
 
@@ -741,7 +742,7 @@ private static bool IsUnconditionalBranch(DecodedInstruction instruction) {
 			return false;
 		}
 
-		if (!cdl.TryGetSnesMxState(offset, out var accIs8, out var idxIs8)) {
+		if (!_symbolLoader.TryGetSnesMxState(offset, out var accIs8, out var idxIs8)) {
 			return false;
 		}
 

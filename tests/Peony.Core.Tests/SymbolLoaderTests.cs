@@ -251,6 +251,23 @@ public class SymbolLoaderTests {
 	}
 
 	[Fact]
+	public void TryGetSnesMxState_PrefersPansyCpuStateOverCdl() {
+		var writer = new PansyWriter {
+			Platform = PansyLoader.PLATFORM_SNES,
+			RomSize = 0x8000
+		};
+		writer.AddCpuState(new CpuStateEntry(0, 0x02, 0x00, 0x0000, CpuMode.Native65816));
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(writer.Generate());
+		loader.LoadCdlData(new CdlLoader([0x01], "SNES"));
+
+		Assert.True(loader.TryGetSnesMxState(0, out var accIs8, out var idxIs8));
+		Assert.True(accIs8);
+		Assert.False(idxIs8);
+	}
+
+	[Fact]
 	public void LoadPansyData_ImportsGroupedMultiTargetCrossRefs() {
 		var writer = new PansyWriter {
 			Platform = PansyLoader.PLATFORM_SNES,

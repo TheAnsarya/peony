@@ -20,6 +20,7 @@ public sealed class SymbolLoader {
 	private readonly List<CrossReference> _pansyCrossRefs = [];
 	private readonly List<MultiTargetCrossReference> _pansyMultiTargetCrossRefs = [];
 	private readonly List<CpuStateEntry> _pansyCpuStates = [];
+	private readonly Dictionary<int, CpuStateEntry> _pansyCpuStateByOffset = [];
 	private CdlLoader? _cdlLoader;
 	private DizLoader? _dizLoader;
 	private PansyLoader? _pansyLoader;
@@ -260,7 +261,28 @@ public sealed class SymbolLoader {
 		// Import CPU state entries (per-address processor mode/flags)
 		foreach (var cpuState in _pansyLoader.CpuStateEntries) {
 			_pansyCpuStates.Add(cpuState);
+			if (cpuState.Address <= int.MaxValue) {
+				_pansyCpuStateByOffset[(int)cpuState.Address] = cpuState;
+			}
 		}
+	}
+
+	/// <summary>
+	/// Resolves SNES 65816 M/X width state for a ROM offset.
+	/// Prefers canonical Pansy CPU-state records and falls back to CDL when needed.
+	/// </summary>
+	public bool TryGetSnesMxState(int offset, out bool accIs8, out bool idxIs8) {
+		accIs8 = true;
+		idxIs8 = true;
+
+		if (_pansyCpuStateByOffset.TryGetValue(offset, out var cpuState) &&
+			cpuState.Mode is CpuMode.Native65816 or CpuMode.Emulation6502) {
+			idxIs8 = (cpuState.Flags & 0x01) != 0;
+			accIs8 = (cpuState.Flags & 0x02) != 0;
+			return true;
+		}
+
+		return _cdlLoader is not null && _cdlLoader.TryGetSnesMxState(offset, out accIs8, out idxIs8);
 	}
 
 	/// <summary>

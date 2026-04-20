@@ -1,4 +1,6 @@
-﻿using Peony.Core;
+﻿using Pansy.Core;
+using Peony.Core;
+using Peony.Cpu;
 using Xunit;
 
 namespace Peony.Core.Tests;
@@ -48,6 +50,56 @@ public class DisassemblyEngineTests {
 		public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) => null;
 		public MemoryRegion GetMemoryRegion(uint address) => MemoryRegion.Code;
 		public uint[] GetEntryPoints(ReadOnlySpan<byte> rom) => [0x8000];
+	}
+
+	private sealed class Snes65816PlatformAnalyzer : IPlatformAnalyzer {
+		private readonly Cpu65816Decoder _decoder = new();
+
+		public string Platform => "SNES";
+		public int BankCount => 1;
+		public int RomDataOffset => 0;
+		public ICpuDecoder CpuDecoder => _decoder;
+
+		public RomInfo Analyze(ReadOnlySpan<byte> rom) => new(
+			Platform: "SNES",
+			Size: rom.Length,
+			Mapper: "LoROM",
+			Metadata: []
+		);
+
+		public int AddressToOffset(uint address, int romLength) => (int)(address - 0x8000);
+		public int AddressToOffset(uint address, int romLength, int bank) => (int)(address - 0x8000);
+		public uint? OffsetToAddress(int offset) => (uint)(0x8000 + offset);
+		public string? GetRegisterLabel(uint address) => null;
+		public bool IsInSwitchableRegion(uint address) => false;
+		public bool IsValidAddress(uint address) => address >= 0x8000 && address < 0x10000;
+		public int GetTargetBank(uint target, int currentBank) => currentBank;
+		public BankSwitchInfo? DetectBankSwitch(ReadOnlySpan<byte> rom, uint address, int currentBank) => null;
+		public MemoryRegion GetMemoryRegion(uint address) => MemoryRegion.Code;
+		public uint[] GetEntryPoints(ReadOnlySpan<byte> rom) => [0x8000];
+	}
+
+	[Fact]
+	public void Disassemble_UsesPansyCpuStateForSnesImmediateWidth() {
+		var analyzer = new Snes65816PlatformAnalyzer();
+		var engine = new DisassemblyEngine(analyzer.CpuDecoder, analyzer);
+		var rom = new byte[] { 0xa9, 0x34, 0x12, 0x6b };
+
+		var writer = new PansyWriter {
+			Platform = PansyLoader.PLATFORM_SNES,
+			RomSize = (uint)rom.Length
+		};
+		writer.AddCpuState(new CpuStateEntry(0, 0x00, 0x00, 0x0000, CpuMode.Native65816));
+
+		var loader = new SymbolLoader();
+		loader.LoadPansyData(writer.Generate());
+		loader.LoadCdlData(new CdlLoader([0x21, 0x00, 0x00, 0x00], "SNES"), analyzer);
+		engine.SetSymbolLoader(loader);
+
+		var result = engine.Disassemble(rom, [0x8000]);
+
+		Assert.NotEmpty(result.Blocks);
+		Assert.Equal("lda #$1234", result.Blocks[0].Lines[0].Content);
 	}
 
 	[Fact]
