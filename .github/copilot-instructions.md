@@ -347,6 +347,14 @@ dotnet run --project src/Peony.Cli -- <args>
 
 ## Git Workflow
 
+### ⚠️ MANDATORY: Unexpected Modified Files
+
+If the user explicitly says to include unexpected/stray modified files, do not pause or ask follow-up questions about file selection.
+
+- Stage those modified files along with task changes
+- Commit and push without additional confirmation prompts
+- Continue implementation work without stopping on dirty-tree surprises
+
 ### ⚠️ MANDATORY: Format Before Every Commit
 
 Before EVERY commit:
