@@ -1,6 +1,7 @@
 ﻿namespace Peony.Platform.Genesis;
 
 using System.Collections.Frozen;
+using System.Text;
 
 using Peony.Core;
 using Peony.Cpu;
@@ -150,7 +151,46 @@ public sealed class GenesisAnalyzer : IPlatformAnalyzer {
 		BankCount = Math.Max(1, rom.Length / 0x80000); // 512KB banks
 		metadata["Banks"] = BankCount.ToString();
 
+		var entryPoints = GetEntryPoints(rom).OrderBy(x => x).ToArray();
+		metadata["PipelineScaffoldPhase"] = "genesis-phase1";
+		metadata["PipelineEntryPointCount"] = entryPoints.Length.ToString();
+		metadata["PipelineEntryPointDigest"] = BuildEntryPointDigest(entryPoints);
+
 		return new RomInfo(Platform, rom.Length, mapper, metadata);
+	}
+
+	public string BuildDisassemblyScaffold(ReadOnlySpan<byte> rom) {
+		var entryPoints = GetEntryPoints(rom)
+			.Distinct()
+			.OrderBy(x => x)
+			.ToArray();
+
+		var scaffold = new StringBuilder();
+		scaffold.AppendLine("; Genesis/Mega Drive Disassembly Scaffold (Phase 1)");
+		scaffold.AppendLine(".genesis");
+		scaffold.AppendLine("; deterministic entry-routing baseline");
+		scaffold.AppendLine($"; entry-point-count={entryPoints.Length}");
+		scaffold.AppendLine($"; entry-point-digest={BuildEntryPointDigest(entryPoints)}");
+
+		foreach (var entry in entryPoints) {
+			scaffold.AppendLine($"; entry=${entry:x6}");
+		}
+
+		scaffold.AppendLine();
+		scaffold.AppendLine("; stage-1 placeholders");
+		scaffold.AppendLine("; - vector seeding complete");
+		scaffold.AppendLine("; - loader route validated");
+		scaffold.AppendLine("; - decoder integration pending");
+		return scaffold.ToString();
+	}
+
+	private static string BuildEntryPointDigest(IEnumerable<uint> entryPoints) {
+		ulong hash = 1469598103934665603;
+		foreach (var entry in entryPoints) {
+			hash ^= entry;
+			hash *= 1099511628211;
+		}
+		return $"{hash:x16}";
 	}
 
 	public string? GetRegisterLabel(uint address) {

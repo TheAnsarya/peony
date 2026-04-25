@@ -18,6 +18,9 @@ public class RomLoaderTests {
 	[InlineData("game.gb", "gb")]
 	[InlineData("game.gbc", "gb")]
 	[InlineData("game.gba", "gba")]
+	[InlineData("game.md", "genesis")]
+	[InlineData("game.gen", "genesis")]
+	[InlineData("game.smd", "genesis")]
 	public void DetectPlatform_ByExtension_ReturnsCorrectPlatform(string path, string expected) {
 		var rom = new byte[1024]; // Minimal data
 
@@ -98,6 +101,19 @@ public class RomLoaderTests {
 		var result = RomLoader.DetectPlatform(rom, "unknown.bin");
 
 		Assert.Equal("atari2600", result);
+	}
+
+	[Fact]
+	public void DetectPlatform_GenesisHeader_ReturnsGenesis() {
+		var rom = new byte[0x400];
+		rom[0x100] = (byte)'S';
+		rom[0x101] = (byte)'E';
+		rom[0x102] = (byte)'G';
+		rom[0x103] = (byte)'A';
+
+		var result = RomLoader.DetectPlatform(rom, "unknown.bin");
+
+		Assert.Equal("genesis", result);
 	}
 
 	[Fact]

@@ -269,6 +269,36 @@ public class GenesisAnalyzerTests {
 		Assert.Equal(-1, _analyzer.AddressToOffset(0xe00000, 512 * 1024));
 	}
 
+	// --- Pipeline scaffold (phase 1) ---
+
+	[Fact]
+	public void Analyze_IncludesPipelineScaffoldMetadata() {
+		var rom = CreateValidRom(512 * 1024);
+		rom[4] = 0x00; rom[5] = 0x00; rom[6] = 0x02; rom[7] = 0x00;
+
+		var info = _analyzer.Analyze(rom);
+
+		Assert.Equal("genesis-phase1", info.Metadata["PipelineScaffoldPhase"]);
+		Assert.True(int.Parse(info.Metadata["PipelineEntryPointCount"]) >= 1);
+		Assert.False(string.IsNullOrWhiteSpace(info.Metadata["PipelineEntryPointDigest"]));
+	}
+
+	[Fact]
+	public void BuildDisassemblyScaffold_IsDeterministicAcrossRuns() {
+		var rom = CreateValidRom(512 * 1024);
+		rom[4] = 0x00; rom[5] = 0x00; rom[6] = 0x02; rom[7] = 0x00;
+		rom[0x78] = 0x00; rom[0x79] = 0x00; rom[0x7a] = 0x04; rom[0x7b] = 0x00;
+
+		var scaffoldA = _analyzer.BuildDisassemblyScaffold(rom);
+		var scaffoldB = _analyzer.BuildDisassemblyScaffold(rom);
+
+		Assert.Equal(scaffoldA, scaffoldB);
+		Assert.Contains(".genesis", scaffoldA);
+		Assert.Contains("entry-point-digest=", scaffoldA);
+		Assert.Contains("entry=$000200", scaffoldA);
+		Assert.Contains("entry=$000400", scaffoldA);
+	}
+
 	// --- Helpers ---
 
 	private static byte[] CreateValidRom(int size) {

@@ -82,3 +82,15 @@ Emulation is a much larger job — these go to long-term roadmap only.
 1. Document Atari 2600 emulation feasibility
 2. Document Genesis emulation feasibility
 3. Create roadmap issues
+
+## Update 2026-04-25 (Genesis Pipeline Phase 1)
+
+Implemented first deterministic Genesis/Mega Drive disassembly pipeline scaffold slice:
+
+- Added analyzer-side scaffold metadata and deterministic entry-point digest fields.
+- Added analyzer API to emit a deterministic scaffold text block for bootstrap routing verification.
+- Added test coverage for:
+	- Genesis ROM loader routing by extension and header detection.
+	- Scaffold determinism and entry-point ordering stability.
+
+Phase-1 status: ROM loader + entry routing + output scaffold baseline complete.
