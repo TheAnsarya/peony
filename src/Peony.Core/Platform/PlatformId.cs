@@ -15,4 +15,5 @@ public enum PlatformId {
 	PCE,
 	WonderSwan,
 	ChannelF,
+	M68000,
 }
