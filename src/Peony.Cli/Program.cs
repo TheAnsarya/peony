@@ -12,6 +12,7 @@ using Peony.Platform.SMS;
 using Peony.Platform.PCE;
 using Peony.Platform.WonderSwan;
 using Peony.Platform.Genesis;
+using Peony.Platform.M68000;
 using Peony.Platform.ChannelF;
 using Spectre.Console;
 
@@ -27,6 +28,7 @@ Peony.Platform.Lynx.Registration.RegisterAll();
 Peony.Platform.SMS.Registration.RegisterAll();
 Peony.Platform.PCE.Registration.RegisterAll();
 Peony.Platform.Genesis.Registration.RegisterAll();
+Peony.Platform.M68000.Registration.RegisterAll();
 Peony.Platform.WonderSwan.Registration.RegisterAll();
 Peony.Platform.ChannelF.Registration.RegisterAll();
 
